@@ -1,0 +1,15 @@
+{
+  "name": "lautputra",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Situs promosi dan pemesanan Wisata Umbul Waru (lautputra.com)",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0",
+    "html-minifier-terser": "^7.2.0",
+    "sharp": "^0.34.0"
+  }
+}
