@@ -6,7 +6,7 @@
 <title>Umbul Waru, Air Terjun ke Samudra Hindia | Canyoneering Blitar</title>
 <meta name="description" content="Air terjun yang jatuh langsung ke pantai Samudra Hindia di Desa Sidomulyo, Bakung, Blitar. Info waktu kunjungan, rute, paket canyoneering mulai Rp300.000, dan pemesanan via WhatsApp.">
 <link rel="canonical" href="https://lautputra.com/">
-<meta name="theme-color" content="#137A86">
+<meta name="theme-color" content="#0a1a24">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="id_ID">
 <meta property="og:site_name" content="Wisata Umbul Waru">
@@ -16,9 +16,11 @@
 <meta property="og:image" content="https://lautputra.com/assets/img/og-image.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<link rel="preload" href="assets/fonts/bricolage-grotesque-latin-1.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/instrument-serif-latin-3.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/img/hero-canyoneering.jpg" as="image" fetchpriority="high">
+<link rel="stylesheet" href="assets/css/fonts.css">
+<link rel="stylesheet" href="assets/css/tokens.css">
 <link rel="stylesheet" href="assets/css/style.css">
 <script type="application/ld+json">
 {
@@ -44,444 +46,470 @@
 }
 </script>
 <script>document.documentElement.classList.add("js")</script>
+<script src="assets/vendor/gsap.min.js" defer></script>
+<script src="assets/vendor/ScrollTrigger.min.js" defer></script>
+<script src="assets/vendor/lenis.min.js" defer></script>
 <script src="assets/js/main.js" defer></script>
 </head>
 <body>
-<a class="skip" href="#daya-tarik">Langsung ke isi</a>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <!-- Ikon Solar (Iconify, lisensi CC BY 4.0, 480 Design) -->
+  <symbol id="i-warn" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"><path d="M5.31 10.76C8.23 5.59 9.69 3 12 3s3.77 2.59 6.69 7.76l.36.65c2.43 4.3 3.64 6.45 2.54 8.02C20.5 21 17.79 21 12.36 21h-.72c-5.43 0-8.14 0-9.23-1.57-1.1-1.57.12-3.72 2.54-8.02z"/><path d="M12 8v5"/><path stroke-linejoin="round" d="M12 16h0"/></g></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"><path d="M4 10.14C4 5.65 7.58 2 12 2s8 3.65 8 8.14c0 4.46-2.55 9.67-6.54 11.53a3.43 3.43 0 0 1-2.92 0C6.55 19.81 4 14.6 4 10.14z"/><circle cx="12" cy="10" r="3"/></g></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"><path d="M6 11c0-2.83 0-4.24.88-5.12C7.76 5 9.17 5 12 5h3c2.83 0 4.24 0 5.12.88C21 6.76 21 8.17 21 11v5c0 2.83 0 4.24-.88 5.12C19.24 22 17.83 22 15 22h-3c-2.83 0-4.24 0-5.12-.88C6 20.24 6 18.83 6 16z"/><path d="M6 19a3 3 0 0 1-3-3v-6c0-3.77 0-5.66 1.17-6.83S7.23 2 11 2h4a3 3 0 0 1 3 3"/></g></symbol>
+  <symbol id="i-out" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18L18 6m0 9V6H9"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 12h16m-6-6l6 6-6 6"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v16m-6-6l6 6 6-6"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"><path d="M20 7H4"/><path d="M20 12H4"/><path d="M20 17H4"/></g></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M14.5 9.5l-5 5m0-5l5 5"/></g></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M15 12h-6m3-3v6"/></g></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M15 12H9"/></g></symbol>
+  <symbol id="i-wave" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"><path d="M2 12c2-2 4-2 6 0s4 2 6 0 4-2 6 0 3 1 2 0"/><path d="M2 17c2-2 4-2 6 0s4 2 6 0 4-2 6 0 3 1 2 0"/><path d="M2 7c2-2 4-2 6 0s4 2 6 0 4-2 6 0 3 1 2 0"/></g></symbol>
+</svg>
 
-<header class="nav">
-  <div class="wrap">
-    <a class="brand" href="#top" aria-label="Umbul Waru, kembali ke atas">
-      <svg viewBox="0 0 40 40" fill="none" aria-hidden="true"><rect width="40" height="40" rx="12" fill="#137A86"></rect><path d="M15 6v14c0 5 3 8 8 8" stroke="#fff" stroke-width="3" stroke-linecap="round"></path><path d="M6 30c3-2 5-2 8 0s5 2 8 0 5-2 8 0 4 2 6 0" stroke="#fff" stroke-width="2.5" stroke-linecap="round" fill="none"></path></svg>
-      Umbul Waru
-    </a>
-    <ul class="menu">
-      <li><a href="#daya-tarik">Daya tarik</a></li>
+<a class="skip" href="#turun">Langsung ke isi</a>
+
+<!-- N5 Floating pill: ikut warna babak (laut / pantai), bersembunyi saat gulir turun -->
+<header class="pill" id="pill">
+  <a class="wordmark" href="#top" aria-label="Umbul Waru, kembali ke atas">
+    <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M15 6v14c0 5 3 8 8 8" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M6 31c3-2 5-2 8 0s5 2 8 0 5-2 8 0 4 2 6 0" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+    Umbul Waru
+  </a>
+  <nav aria-label="Utama">
+    <ul class="pill__links">
+      <li><a href="#turun">Turun</a></li>
       <li><a href="#kondisi">Kapan datang</a></li>
       <li><a href="#rute">Rute</a></li>
       <li><a href="#paket">Paket</a></li>
       <li><a href="#galeri">Galeri</a></li>
-      <li><a href="#faq">FAQ</a></li>
     </ul>
-    <a class="btn primary sm cta" href="#booking">Pesan canyoneering</a>
-    <button class="burger" id="burger" aria-label="Buka menu" aria-expanded="false"><span></span></button>
-  </div>
+  </nav>
+  <a class="btn btn--sand btn--sm pill__cta" href="#booking">Pesan</a>
+  <button class="pill__menu" type="button" id="menuOpen" aria-controls="sheet" aria-expanded="false"><svg aria-hidden="true"><use href="#i-menu"/></svg><span>Menu</span></button>
 </header>
-<nav class="drawer" id="drawer" aria-label="Menu seluler">
-  <button class="close" id="drawerClose" aria-label="Tutup menu">✕</button>
-  <a href="#daya-tarik">Daya tarik</a>
-  <a href="#kondisi">Kapan datang</a>
-  <a href="#rute">Rute</a>
-  <a href="#paket">Paket</a>
-  <a href="#galeri">Galeri</a>
-  <a href="#booking">Pesan canyoneering</a>
-</nav>
 
-<main>
-<section class="hero" id="top">
-  <canvas id="sea" aria-hidden="true"></canvas>
-  <div class="wrap">
-    <div class="hero-copy">
-      <span class="eyebrow">Desa Sidomulyo, Bakung, Kabupaten Blitar</span>
-      <h1>
-        <span class="word"><span>Air terjun</span></span>
-        <span class="word"><span>yang jatuh</span></span><br>
-        <span class="word"><span class="accent">ke Samudra</span></span>
-        <span class="word"><span class="accent">Hindia.</span></span>
-      </h1>
-      <p class="lead">Sungai dari perbukitan kapur Blitar Selatan berakhir di tepi tebing, lalu jatuh langsung ke pantai berpasir putih. Warga menyebutnya wisata "Gancet": air terjun dan pantai yang berdampingan di satu tempat.</p>
-      <div class="hero-actions">
-        <a class="btn sand" href="#booking">Pesan canyoneering</a>
-        <a class="btn ghost" href="#kondisi">Cek kapan bisa dikunjungi</a>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Menu" hidden>
+  <button class="sheet__close" type="button" id="menuClose"><svg aria-hidden="true"><use href="#i-close"/></svg><span>Tutup</span></button>
+  <nav aria-label="Menu seluler">
+    <a href="#turun"><small>01</small>Turun</a>
+    <a href="#kondisi"><small>02</small>Kapan datang</a>
+    <a href="#rute"><small>03</small>Rute</a>
+    <a href="#paket"><small>04</small>Paket</a>
+    <a href="#galeri"><small>05</small>Galeri</a>
+    <a href="#faq"><small>06</small>Tanya jawab</a>
+  </nav>
+  <a class="btn btn--sand" href="#booking">Pesan canyoneering</a>
+</div>
+
+<!-- Rel samping: penanda bagian + kemajuan turun (desktop) -->
+<aside class="rail" aria-hidden="true">
+  <span class="rail__label" id="railLabel">Umbul Waru</span>
+  <i class="rail__line"><b id="railDot"></b></i>
+  <span class="rail__end">laut</span>
+</aside>
+
+<main id="top">
+
+<!-- Hero: foto berdarah penuh, judul condensed menumpuk di atas foto -->
+<section class="hero" aria-labelledby="hero-title">
+  <figure class="hero__media" id="heroPhoto">
+    <img src="assets/img/hero-canyoneering.jpg" alt="Peserta canyoneering menuruni tebing Umbul Waru dengan tali, ombak Samudra Hindia di bawahnya" width="1012" height="1800" fetchpriority="high">
+  </figure>
+  <div class="hero__grad" aria-hidden="true"></div>
+  <div class="hero__top">
+    <p class="hero__place">Desa Sidomulyo, Bakung, Kabupaten Blitar</p>
+    <p class="hero__coord">8°18′55″S&nbsp;&nbsp;112°05′03″E</p>
+  </div>
+  <div class="hero__body">
+    <h1 class="hero__title" id="hero-title"><span class="ln"><span>Air terjun</span></span> <span class="ln"><span>yang jatuh ke</span></span> <span class="ln"><span><em>Samudra Hindia.</em></span></span></h1>
+    <div class="hero__foot">
+      <p class="hero__lead">Sungai dari perbukitan kapur Blitar Selatan berakhir di tepi tebing, lalu jatuh langsung ke pantai berpasir putih. Warga menyebutnya wisata “Gancet”: air terjun dan pantai yang berdampingan di satu tempat.</p>
+      <div class="hero__acts">
+        <a class="btn btn--sand btn--lg magnet" href="#booking">Pesan canyoneering <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+        <a class="link link--light" href="#kondisi">Cek kapan bisa datang</a>
       </div>
-      <div class="facts">
-        <span class="fact"><b>±1,5 jam</b> dari Kota Blitar</span>
-        <span class="fact"><b>Rp0</b> tiket masuk (Okt 2026)</span>
-        <span class="fact"><b>Roda dua</b> sampai parkiran</span>
-        <span class="fact"><b>Surut</b> waktu terbaik</span>
-      </div>
-      <div class="proof"><b>Diliput</b><span>Kompas TV</span><span>JawaPos</span><span>Jatim TIMES</span><span>IDN Times</span></div>
-    </div>
-    <div class="hero-visual reveal">
-      <img src="assets/img/hero-canyoneering.jpg" alt="Peserta canyoneering menuruni tebing Umbul Waru dengan tali, pantai dan Samudra Hindia di bawahnya" width="1012" height="1800" fetchpriority="high">
-      <div class="tag"><div>Canyoneering<b>Tebing Umbul Waru</b></div><div>Foto: operator</div></div>
     </div>
   </div>
-  <div class="scroll-hint" aria-hidden="true"><i></i>gulir</div>
-</section>
-
-<section id="daya-tarik">
-  <div class="wrap">
-    <div class="sec-head reveal">
-      <span class="eyebrow">Daya tarik</span>
-      <h2>Satu lokasi, empat alasan datang.</h2>
-      <p class="lead">Pantainya sempit dan ombak selatannya besar. Yang membuat orang rela menempuh jalan makadam adalah apa yang ada di atas dan di samping pantai itu.</p>
-    </div>
-    <div class="grid c4">
-      <article class="card reveal tilt">
-        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M8 3v8c0 4 3 7 8 7"></path><path d="M3 20c2-1.5 4-1.5 6 0s4 1.5 6 0 4-1.5 6 0"></path></svg></div>
-        <h3>Air terjun ke laut</h3>
-        <p>Air sungai jatuh tepat ke batuan karang di bibir pantai. Debitnya disebut tidak kering saat kemarau, dan paling deras di musim hujan.</p>
-      </article>
-      <article class="card reveal d1 tilt">
-        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><ellipse cx="12" cy="9" rx="8" ry="3"></ellipse><path d="M4 9v6c0 1.7 3.6 3 8 3s8-1.3 8-3V9"></path></svg></div>
-        <h3>Kolam alami di atas tebing</h3>
-        <p>Cekungan sungai sebelum terjun menampung air jernih. Berendam di sini terasa seperti kolam tanpa tepi dengan latar laut lepas.</p>
-      </article>
-      <article class="card reveal d2 tilt">
-        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 20l6-12 4 7 3-4 5 9z"></path></svg></div>
-        <h3>Tebing kapur dan pasir putih</h3>
-        <p>Bukit kapur dengan relief hasil gerusan laut mengapit pantai kecil berpasir putih, ditumbuhi pandan pantai dan dikelilingi hutan jati.</p>
-      </article>
-      <article class="card reveal d3 tilt">
-        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18M5 8l7-5 7 5M7 21h10"></path></svg></div>
-        <h3>Canyoneering ke samudra</h3>
-        <p>Menuruni tebing air terjun dengan tali, lalu menyusuri sungai yang bermuara ke Samudra Hindia. Dipandu operator lokal Desa Sidomulyo.</p>
-      </article>
-    </div>
+  <a class="hero__cue" href="#turun" aria-label="Gulir ke bawah"><span>Turun</span><i></i></a>
+  <!-- Ticker fakta menempel di dasar layar pertama; satu baris berjalan, dihentikan saat disentuh kursor -->
+  <div class="ticker" aria-label="Fakta singkat">
+    <ul class="ticker__track" id="tickerTrack">
+      <li>±1,5 jam dari Kota Blitar</li>
+      <li>Tiket masuk Rp0</li>
+      <li>Hanya roda dua sampai parkiran ladang</li>
+      <li>Datang saat surut, biasanya pagi</li>
+      <li>Pernah diliput Kompas TV, JawaPos, Jatim TIMES, IDN Times</li>
+      <li>Air terjun, kolam alami, pantai pasir putih</li>
+    </ul>
   </div>
 </section>
 
-<section class="tagline band" aria-label="Tagline">
-  <div class="wrap">
-    <p id="tagline"><span class="w">Pulang</span> <span class="w">dengan</span> <span class="w">foto</span> <span class="w">yang</span> <span class="w">tidak</span> <span class="w">bisa</span> <span class="w">diambil</span> <span class="w">di</span> <span class="w">pantai</span> <span class="w">lain.</span><br><span class="w">Air</span> <span class="w">terjun</span> <span class="w">di</span> <span class="w">belakang,</span> <span class="w">Samudra</span> <span class="w">Hindia</span> <span class="w">di</span> <span class="w">depan,</span> <span class="w">dan</span> <span class="w">pemandu</span> <span class="w">desa</span> <span class="w">yang</span> <span class="w">tahu</span> <span class="w">kapan</span> <span class="w">laut</span> <span class="w">memberi</span> <span class="w">jalan.</span></p>
+<!-- Turun: urutan foto yang berganti mengikuti gulir; di desktop dipin, di ponsel ditumpuk -->
+<section class="turun" id="turun" aria-labelledby="turun-title">
+  <div class="turun__intro">
+    <p class="eyebrow">Satu lokasi, satu perjalanan turun</p>
+    <h2 class="split" id="turun-title">Dari kolam di atas tebing sampai pasir di kaki air terjun.</h2>
+    <p class="lede">Pantainya sempit dan ombak selatannya besar. Yang membuat orang rela menempuh jalan makadam adalah apa yang ada di atas dan di samping pantai itu.</p>
+  </div>
+  <div class="turun__pin" id="turunPin">
+    <div class="turun__num" aria-hidden="true"><span id="turunNum">01</span><small>/ 04</small></div>
+    <ol class="turun__steps" id="turunSteps">
+      <li class="turun__step is-active">
+        <figure class="turun__media"><img src="assets/img/galeri-puncak-tebing.jpg" alt="Peserta merentangkan tangan di puncak tebing menghadap Samudra Hindia" width="1012" height="1800" loading="lazy" decoding="async"></figure>
+        <div class="turun__text">
+          <span class="turun__tag">Atas tebing</span>
+          <h3>Kolam alami tanpa tepi</h3>
+          <p>Cekungan sungai sebelum terjun menampung air jernih. Berendam di sini terasa seperti kolam tanpa tepi dengan latar laut lepas.</p>
+        </div>
+      </li>
+      <li class="turun__step">
+        <figure class="turun__media"><img src="assets/img/galeri-siap-turun.jpg" alt="Peserta memegang tali rappelling, ombak putih di belakangnya" width="1012" height="1800" loading="lazy" decoding="async"></figure>
+        <div class="turun__text">
+          <span class="turun__tag">Bibir air terjun</span>
+          <h3>Helm, harness, cek simpul</h3>
+          <p>Pemandu lokal Desa Sidomulyo memasang alat dan mengecek tali. Di depan hanya ada Samudra Hindia.</p>
+        </div>
+      </li>
+      <li class="turun__step">
+        <figure class="turun__media"><img src="assets/img/galeri-turun-tebing.jpg" alt="Peserta rappelling di tebing dengan garis pantai dan laut di latar belakang" width="1012" height="1800" loading="lazy" decoding="async"></figure>
+        <div class="turun__text">
+          <span class="turun__tag">Di tali</span>
+          <h3>Menuruni dinding kapur</h3>
+          <p>Rappelling di samping air terjun, menyusuri relief tebing hasil gerusan laut. Percikan ombak terasa sebelum kaki menyentuh pasir.</p>
+        </div>
+      </li>
+      <li class="turun__step">
+        <figure class="turun__media"><img src="assets/img/galeri-bawah-air-terjun.jpg" alt="Peserta canyoneering bergelantungan di tebing tepat di samping air terjun, ombak laut di bawahnya" width="1350" height="1800" loading="lazy" decoding="async"></figure>
+        <div class="turun__text">
+          <span class="turun__tag">Pantai</span>
+          <h3>Pasir putih di kaki air terjun</h3>
+          <p>Air sungai jatuh tepat ke batuan karang di bibir pantai. Debitnya disebut tidak kering saat kemarau, dan paling deras di musim hujan.</p>
+        </div>
+      </li>
+    </ol>
+    <div class="turun__bar" aria-hidden="true"><i id="turunBar"></i></div>
   </div>
 </section>
 
-<section class="band" id="kondisi">
-  <div class="wrap">
-    <div class="sec-head reveal">
-      <span class="eyebrow">Kapan datang</span>
-      <h2>Pantai ini punya jam buka yang ditentukan laut.</h2>
-      <p class="lead">Saat air pasang, pantai yang sempit itu tertutup ombak dan air terjun hanya bisa dilihat dari atas tebing. Pilih kondisi hari kunjungan Anda untuk melihat apa yang bisa dilakukan.</p>
-    </div>
-    <div class="kondisi">
-      <div class="toggle-group reveal">
-        <label>Kondisi laut</label>
-        <div class="seg" role="group" aria-label="Kondisi laut">
+<section class="kondisi" id="kondisi" aria-labelledby="kondisi-title">
+  <div class="kondisi__head">
+    <p class="eyebrow">Kapan datang</p>
+    <h2 class="split" id="kondisi-title">Laut yang menentukan jam bukanya.</h2>
+    <p class="lede">Saat air pasang, pantai yang sempit itu tertutup ombak dan air terjun hanya bisa dilihat dari atas tebing. Pilih kondisi hari kunjungan Anda.</p>
+  </div>
+  <div class="kondisi__tool">
+    <div class="kondisi__controls">
+      <div class="ctl">
+        <span class="ctl__label" id="lbl-laut">Kondisi laut</span>
+        <div class="seg" role="group" aria-labelledby="lbl-laut">
           <button type="button" data-k="laut" data-v="surut" aria-pressed="true">Surut</button>
           <button type="button" data-k="laut" data-v="pasang" aria-pressed="false">Pasang</button>
         </div>
-        <label>Cuaca</label>
-        <div class="seg" role="group" aria-label="Cuaca">
+      </div>
+      <div class="ctl">
+        <span class="ctl__label" id="lbl-cuaca">Cuaca</span>
+        <div class="seg" role="group" aria-labelledby="lbl-cuaca">
           <button type="button" data-k="cuaca" data-v="cerah" aria-pressed="true">Cerah</button>
           <button type="button" data-k="cuaca" data-v="hujan" aria-pressed="false">Hujan</button>
         </div>
-        <label>Waktu</label>
-        <div class="seg" role="group" aria-label="Waktu kunjungan">
+      </div>
+      <div class="ctl">
+        <span class="ctl__label" id="lbl-waktu">Waktu</span>
+        <div class="seg" role="group" aria-labelledby="lbl-waktu">
           <button type="button" data-k="waktu" data-v="pagi" aria-pressed="true">Pagi</button>
           <button type="button" data-k="waktu" data-v="siang" aria-pressed="false">Siang</button>
           <button type="button" data-k="waktu" data-v="sore" aria-pressed="false">Sore</button>
         </div>
-        <div class="sea" id="seaViz" aria-hidden="true"><div class="cliff"></div><div class="stream"></div><div class="beach"></div><div class="water"></div></div>
-        <p class="fine">Ilustrasi tinggi air, bukan data pasang surut. Cek prakiraan pasang surut BMKG untuk tanggal kunjungan.</p>
       </div>
-      <div class="verdict reveal d1" id="verdict">
-        <div class="swap" id="vBody">
-        <span class="status"><i></i><span id="vStatus">Waktu terbaik</span></span>
-        <h3 id="vTitle" style="margin-top: .6rem">Turun ke pantai, nikmati air terjun dari bawah.</h3>
-        <ul id="vList" style="margin-top: .8rem">
+    </div>
+    <div class="gauge" id="seaViz" aria-hidden="true">
+      <span class="gauge__cliff"><i></i></span>
+      <span class="gauge__fall"></span>
+      <span class="gauge__beach">pantai</span>
+      <span class="gauge__water"><b></b></span>
+      <span class="gauge__level" id="gaugeLevel">surut</span>
+    </div>
+    <p class="fine kondisi__fine">Ilustrasi tinggi air, bukan data pasang surut. Cek prakiraan pasang surut BMKG untuk tanggal kunjungan.</p>
+    <div class="verdict" id="verdict" aria-live="polite">
+      <div class="verdict__body" id="vBody">
+        <p class="verdict__status"><i aria-hidden="true"></i><span id="vStatus">Waktu terbaik</span></p>
+        <p class="verdict__title" id="vTitle">Turun ke pantai, nikmati air terjun dari bawah.</p>
+        <ul id="vList">
           <li>Pasir putih dan kaki air terjun terbuka saat surut.</li>
           <li>Pagi: cahaya lembut dan udara belum panas, paling nyaman untuk trekking.</li>
           <li>Tetap pantau ombak; surut bisa berbalik dalam beberapa jam.</li>
         </ul>
-        </div>
       </div>
     </div>
   </div>
 </section>
 
-<section id="rute">
-  <div class="wrap">
-    <div class="sec-head reveal">
-      <span class="eyebrow">Rute dan akses</span>
-      <h2>Aspal berakhir di Sidomulyo. Setelah itu, makadam.</h2>
-      <p class="lead">Jarak dari Kota Blitar sekitar 1,5 jam dengan motor. Ada dua cara masuk. Keduanya berakhir dengan jalan kaki menuruni tebing ke pantai.</p>
-    </div>
-    <div class="route">
-      <div class="reveal">
-        <div class="tabs" role="tablist">
-          <button type="button" role="tab" aria-selected="true" data-tab="klasik">Jalur klasik via Trisula</button>
-          <button type="button" role="tab" aria-selected="false" data-tab="jls">Jalur Lintas Selatan (JLS)</button>
-          <button type="button" role="tab" aria-selected="false" data-tab="jemput">Dijemput operator</button>
-        </div>
-        <ol class="steps" id="tab-klasik">
-          <li><span class="dot">1</span><div><b>Kota Blitar ke Kademangan</b><span>Ikuti arah Pantai Tambakrejo.</span></div></li>
-          <li><span class="dot">2</span><div><b>Perempatan Gawang, belok kanan</b><span>Ikuti petunjuk ke Monumen Trisula, lalu arah Air Terjun Tirto Galuh.</span></div></li>
-          <li><span class="dot">3</span><div><b>Pertigaan Pantai Pasur, belok kiri</b><span>Ikuti arah Pantai Pangi sampai masuk Desa Sidomulyo.</span></div></li>
-          <li><span class="dot">4</span><div><b>Kantor Desa Sidomulyo, ambil selatan</b><span>Jalan cor, lalu tanah dan makadam melewati kebun tebu. Hanya motor.</span></div></li>
-          <li><span class="dot">5</span><div><b>Parkir di tepi ladang, jalan kaki</b><span>Turun tebing menuju pantai. Pakai sandal gunung atau sepatu trekking.</span></div></li>
-        </ol>
-        <ol class="steps" id="tab-jls" hidden>
-          <li><span class="dot">1</span><div><b>Masuk JLS Blitar Selatan</b><span>Bisa dari arah Pantai Pangi (barat) maupun Pantai Pasur (timur).</span></div></li>
-          <li><span class="dot">2</span><div><b>Keluar ke Desa Sidomulyo</b><span>Jalur ini disebut lebih mudah dibanding jalur klasik lewat Trisula.</span></div></li>
-          <li><span class="dot">3</span><div><b>Lanjut ke selatan kantor desa</b><span>Bagian akhir tetap jalan tanah dan makadam, hanya untuk motor.</span></div></li>
-          <li><span class="dot">4</span><div><b>Jalan kaki menuruni tebing</b><span>Parkir di ladang, lanjut berjalan ke bibir pantai.</span></div></li>
-        </ol>
-        <ol class="steps" id="tab-jemput" hidden>
-          <li><span class="dot">1</span><div><b>Titik kumpul Stasiun Blitar atau basecamp</b><span>Operator menyediakan layanan ojek dan jemput lokasi.</span></div></li>
-          <li><span class="dot">2</span><div><b>Diantar sampai titik parkir</b><span>Cocok untuk yang datang naik kereta atau tidak membawa motor yang siap medan makadam.</span></div></li>
-          <li><span class="dot">3</span><div><b>Trekking bersama pemandu</b><span>Pemandu lokal membawa ke kolam alami, air terjun, dan pantai sesuai kondisi laut.</span></div></li>
-        </ol>
-        <div class="note bad" style="margin-top: 1rem">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 9v4m0 4h.01M10.3 3.9L2.5 17.6A2 2 0 004.2 20.6h15.6a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"></path></svg>
-          <div><b>Mobil tidak disarankan.</b> Jalur truk tebu di barat kantor desa bisa dilewati 4WD, tetapi sempit, berlumpur saat hujan, dan mengganggu aktivitas warga. Matic standar juga berat di tanjakan makadam.</div>
-        </div>
+<section class="fold" aria-label="Foto: percikan ombak">
+  <div class="fold__media"><img class="fold__img" src="assets/img/galeri-percikan-ombak.jpg" alt="Peserta menarik tali saat turun tebing, percikan ombak di bawah" width="1012" height="1800" loading="lazy" decoding="async"></div>
+  <div class="fold__text">
+    <p class="fold__line split">Pulang dengan foto yang tidak bisa diambil di pantai lain.</p>
+    <p class="fold__cap">Air terjun di belakang, Samudra Hindia di depan, dan pemandu desa yang tahu kapan laut memberi jalan.</p>
+  </div>
+</section>
+
+<!-- Babak pantai: warna berganti ke pasir untuk rute, paket, dan pemesanan -->
+<div class="act act--pantai" id="pantai">
+
+<section class="rute" id="rute" aria-labelledby="rute-title">
+  <!-- Ornamen: peta kontur, gambar generatif (gpt-image-1 via 9Router), dipakai sebagai mask berwarna tinta -->
+  <div class="rute__topo" aria-hidden="true"></div>
+  <div class="rute__head">
+    <p class="eyebrow">Rute</p>
+    <h2 class="split" id="rute-title">Aspal berakhir di Sidomulyo. Setelah itu, makadam.</h2>
+    <p class="lede">Sekitar 1,5 jam dari Kota Blitar dengan motor. Ada dua cara masuk; keduanya berakhir dengan jalan kaki menuruni tebing ke pantai.</p>
+  </div>
+  <div class="rute__body">
+    <div class="rute__steps">
+      <div class="tabs" role="tablist" aria-label="Pilihan rute">
+        <button type="button" role="tab" id="t-klasik" aria-controls="tab-klasik" aria-selected="true" data-tab="klasik">Via Trisula</button>
+        <button type="button" role="tab" id="t-jls" aria-controls="tab-jls" aria-selected="false" tabindex="-1" data-tab="jls">Lewat JLS</button>
+        <button type="button" role="tab" id="t-jemput" aria-controls="tab-jemput" aria-selected="false" tabindex="-1" data-tab="jemput">Dijemput</button>
       </div>
-      <aside class="mapcard reveal d1">
-        <div class="art"><div class="grid-lines"></div><div class="pin"></div></div>
-        <div class="body">
-          <h3>Titik lokasi</h3>
-          <div class="coord"><span id="coordText">-8.3152875, 112.0841462</span><button class="copy" type="button" id="copyCoord">salin</button></div>
-          <p class="fine">Koordinat dari SIDITA Disbudpar Jawa Timur. Jalur terakhir tidak selalu terbaca navigasi; tanyakan warga atau petani di sekitar ladang.</p>
-          <a class="btn primary sm" href="https://www.google.com/maps?q=-8.3152875,112.0841462" target="_blank" rel="noopener">Buka di Google Maps</a>
+      <ol class="steps" id="tab-klasik" role="tabpanel" aria-labelledby="t-klasik">
+        <li><b>Kota Blitar ke Kademangan</b><span>Ikuti arah Pantai Tambakrejo.</span></li>
+        <li><b>Perempatan Gawang, belok kanan</b><span>Ikuti petunjuk ke Monumen Trisula, lalu arah Air Terjun Tirto Galuh.</span></li>
+        <li><b>Pertigaan Pantai Pasur, belok kiri</b><span>Ikuti arah Pantai Pangi sampai masuk Desa Sidomulyo.</span></li>
+        <li><b>Kantor Desa Sidomulyo, ambil selatan</b><span>Jalan cor, lalu tanah dan makadam melewati kebun tebu. Hanya motor.</span></li>
+        <li><b>Parkir di tepi ladang, jalan kaki</b><span>Turun tebing menuju pantai. Pakai sandal gunung atau sepatu trekking.</span></li>
+      </ol>
+      <ol class="steps" id="tab-jls" role="tabpanel" aria-labelledby="t-jls" hidden>
+        <li><b>Masuk JLS Blitar Selatan</b><span>Bisa dari arah Pantai Pangi (barat) maupun Pantai Pasur (timur).</span></li>
+        <li><b>Keluar ke Desa Sidomulyo</b><span>Jalur ini disebut lebih mudah dibanding jalur klasik lewat Trisula.</span></li>
+        <li><b>Lanjut ke selatan kantor desa</b><span>Bagian akhir tetap jalan tanah dan makadam, hanya untuk motor.</span></li>
+        <li><b>Jalan kaki menuruni tebing</b><span>Parkir di ladang, lanjut berjalan ke bibir pantai.</span></li>
+      </ol>
+      <ol class="steps" id="tab-jemput" role="tabpanel" aria-labelledby="t-jemput" hidden>
+        <li><b>Titik kumpul Stasiun Blitar atau basecamp</b><span>Operator menyediakan layanan ojek dan jemput lokasi.</span></li>
+        <li><b>Diantar sampai titik parkir</b><span>Cocok untuk yang datang naik kereta atau tidak membawa motor yang siap medan makadam.</span></li>
+        <li><b>Trekking bersama pemandu</b><span>Pemandu lokal membawa ke kolam alami, air terjun, dan pantai sesuai kondisi laut.</span></li>
+      </ol>
+    </div>
+    <aside class="lokasi" aria-label="Titik lokasi">
+      <svg class="lokasi__icon" aria-hidden="true"><use href="#i-pin"/></svg>
+      <p class="lokasi__coord" id="coordText">-8.3152875, 112.0841462</p>
+      <p class="fine">Koordinat dari SIDITA Disbudpar Jawa Timur. Jalur terakhir tidak selalu terbaca navigasi; tanyakan warga atau petani di sekitar ladang.</p>
+      <div class="lokasi__acts">
+        <a class="btn btn--ghost btn--sm" href="https://www.google.com/maps?q=-8.3152875,112.0841462" target="_blank" rel="noopener">Buka Google Maps <svg aria-hidden="true"><use href="#i-out"/></svg></a>
+        <button class="btn btn--quiet btn--sm" type="button" id="copyCoord"><svg aria-hidden="true"><use href="#i-copy"/></svg> Salin</button>
+      </div>
+      <div class="warn">
+        <svg aria-hidden="true"><use href="#i-warn"/></svg>
+        <p><b>Mobil tidak disarankan.</b> Jalur truk tebu di barat kantor desa bisa dilewati 4WD, tetapi sempit, berlumpur saat hujan, dan mengganggu aktivitas warga. Matic standar juga berat di tanjakan makadam.</p>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<section class="paket" id="paket" aria-labelledby="paket-title">
+  <div class="paket__head">
+    <p class="eyebrow">Paket</p>
+    <h2 class="split" id="paket-title">Datang sendiri gratis. Dengan pemandu, lebih jauh.</h2>
+    <p class="lede">Per Oktober 2026 tidak ada tiket masuk ke pantai di Kabupaten Blitar; biaya parkir menyesuaikan pengelola. Paket di bawah dikelola operator lokal Desa Sidomulyo, harga final dikonfirmasi saat pemesanan.</p>
+  </div>
+  <article class="utama">
+    <figure class="utama__photo">
+      <img src="assets/img/galeri-perlengkapan.jpg" alt="Peserta memakai helm dan harness di tepi tebing, laut lepas di belakang" width="1012" height="1800" loading="lazy" decoding="async">
+      <!-- Ornamen: emblem cukil kayu, gambar generatif (gpt-image-1 via 9Router) -->
+      <span class="utama__emblem" aria-hidden="true"></span>
+    </figure>
+    <div class="utama__body">
+      <p class="utama__kicker">Paket utama</p>
+      <h3>Canyoneering Umbul Waru</h3>
+      <p class="utama__price"><span class="utama__from">mulai</span> <span class="utama__amt" id="priceAmt" data-count="300000">Rp300.000</span> <span class="utama__per">per orang</span></p>
+      <ul class="inc">
+        <li>Helm, harness, dan tali</li>
+        <li>Pemandu lokal</li>
+        <li>Dokumentasi foto dan video</li>
+        <li>Satu kali makan, kopi dan teh</li>
+      </ul>
+      <button class="btn btn--sand btn--lg magnet" type="button" data-pick="canyoneering">Pilih paket ini <svg aria-hidden="true"><use href="#i-arrow"/></svg></button>
+      <p class="fine">Harga dari publikasi operator (Sept 2025). Titik kumpul basecamp Sidomulyo atau Stasiun Blitar.</p>
+    </div>
+  </article>
+  <ul class="lain" aria-label="Layanan lain">
+    <li>
+      <span class="lain__no">02</span>
+      <div class="lain__t"><h3>Basecamp dan homestay</h3><p>Menginap di rumah warga Sidomulyo, dekat titik start trekking. Cocok untuk mengejar surut pagi.</p></div>
+      <span class="lain__price">Tanya harga</span>
+      <button class="btn btn--ghost btn--sm" type="button" data-pick="homestay">Pilih</button>
+    </li>
+    <li>
+      <span class="lain__no">03</span>
+      <div class="lain__t"><h3>Sewa tenda camping</h3><p>Tenda disiapkan operator, lokasi menyesuaikan kondisi laut. Bawa bekal; belum ada warung di pantai.</p></div>
+      <span class="lain__price">Tanya harga</span>
+      <button class="btn btn--ghost btn--sm" type="button" data-pick="tenda">Pilih</button>
+    </li>
+    <li>
+      <span class="lain__no">04</span>
+      <div class="lain__t"><h3>Ojek dan jemput lokasi</h3><p>Jemput dari Stasiun Blitar atau titik lain dengan motor yang siap medan makadam. Bisa digabung dengan paket lain.</p></div>
+      <span class="lain__price">Tanya harga</span>
+      <button class="btn btn--ghost btn--sm" type="button" data-pick="ojek">Pilih</button>
+    </li>
+  </ul>
+  <p class="fine paket__fine">Tarif homestay, tenda, dan ojek belum dipublikasikan operator.</p>
+</section>
+
+<section class="booking" id="booking" aria-labelledby="booking-title">
+  <div class="booking__head">
+    <p class="eyebrow">Pemesanan</p>
+    <h2 class="split" id="booking-title">Susun pesanan, kirim lewat WhatsApp.</h2>
+    <ol class="alur">
+      <li><p><b>Pilih paket, tanggal, dan jumlah peserta.</b> Estimasi biaya dihitung otomatis untuk paket yang sudah punya tarif.</p></li>
+      <li><p><b>Kirim pesan yang sudah tersusun.</b> Tidak ada pembayaran di situs ini; harga dan jadwal disepakati langsung dengan operator.</p></li>
+      <li><p><b>Operator mengecek jadwal dan laut.</b> Anda menerima harga final, titik kumpul, dan jam datang yang mengikuti pasang surut.</p></li>
+    </ol>
+  </div>
+  <div class="booking__body">
+    <form class="form" id="bookForm" novalidate>
+      <div class="stepper" aria-hidden="true"><div class="done"><i></i></div><div><i></i></div><div><i></i></div></div>
+
+      <fieldset class="pane" data-pane="1">
+        <legend>1 / 3 · Pilih layanan</legend>
+        <div class="opt" id="pkgOptions">
+          <label><input type="radio" name="pkg" value="canyoneering" checked><span class="t"><b>Canyoneering Umbul Waru</b><small>Alat, pemandu, dokumentasi, 1x makan</small></span><span class="p">mulai Rp300.000</span></label>
+          <label><input type="radio" name="pkg" value="homestay"><span class="t"><b>Basecamp / homestay</b><small>Menginap di Sidomulyo</small></span><span class="p">tanya harga</span></label>
+          <label><input type="radio" name="pkg" value="tenda"><span class="t"><b>Sewa tenda camping</b><small>Tenda disiapkan operator</small></span><span class="p">tanya harga</span></label>
+          <label><input type="radio" name="pkg" value="ojek"><span class="t"><b>Ojek / jemput lokasi</b><small>Dari Stasiun Blitar atau titik lain</small></span><span class="p">tanya harga</span></label>
+          <label><input type="radio" name="pkg" value="kunjungan"><span class="t"><b>Kunjungan dengan pemandu</b><small>Trekking ke kolam, air terjun, pantai</small></span><span class="p">tanya harga</span></label>
         </div>
-      </aside>
-    </div>
-  </div>
-</section>
+        <div class="actions"><span></span><button class="btn btn--sand" type="button" data-next>Lanjut <svg aria-hidden="true"><use href="#i-arrow"/></svg></button></div>
+      </fieldset>
 
-<section class="band" id="paket">
-  <div class="wrap">
-    <div class="sec-head reveal">
-      <span class="eyebrow">Paket dan harga</span>
-      <h2>Datang sendiri gratis. Datang dengan pemandu, lebih jauh yang bisa dijelajahi.</h2>
-      <p class="lead">Per Oktober 2026 tidak ada tiket masuk ke pantai di Kabupaten Blitar; biaya parkir menyesuaikan pengelola. Paket di bawah dikelola operator lokal Desa Sidomulyo. Harga final dikonfirmasi saat pemesanan.</p>
-    </div>
-    <div class="grid c4">
-      <article class="card pkg feature reveal">
-        <span class="badge">Paling dicari</span>
-        <h3>Canyoneering Umbul Waru</h3>
-        <div class="price"><span class="from">mulai</span><span class="amt">Rp300.000</span><span class="per">/ orang</span></div>
-        <ul class="inc">
-          <li>Peralatan keselamatan: helm, harness, tali</li>
-          <li>Pemandu lokal berpengalaman</li>
-          <li>Dokumentasi foto dan video</li>
-          <li>Satu kali makan, kopi dan teh</li>
-        </ul>
-        <p class="fine">Harga dari publikasi operator (Sept 2025). Titik kumpul basecamp Sidomulyo atau Stasiun Blitar.</p>
-        <button class="btn primary sm" type="button" data-pick="canyoneering">Pilih paket ini</button>
-      </article>
-      <article class="card pkg reveal d1">
-        <h3>Basecamp dan homestay</h3>
-        <div class="price"><span class="amt" style="font-size: 1.3rem">Tanya harga</span></div>
-        <ul class="inc">
-          <li>Menginap di rumah warga Sidomulyo</li>
-          <li>Cocok untuk mengejar surut pagi</li>
-          <li>Dekat titik start trekking</li>
-        </ul>
-        <p class="fine">Tarif belum dipublikasikan operator.</p>
-        <button class="btn ghost sm" type="button" data-pick="homestay">Pilih paket ini</button>
-      </article>
-      <article class="card pkg reveal d2">
-        <h3>Sewa tenda camping</h3>
-        <div class="price"><span class="amt" style="font-size: 1.3rem">Tanya harga</span></div>
-        <ul class="inc">
-          <li>Tenda disiapkan operator</li>
-          <li>Lokasi camp menyesuaikan kondisi laut</li>
-          <li>Bawa bekal sendiri, belum ada warung di pantai</li>
-        </ul>
-        <p class="fine">Tarif belum dipublikasikan operator.</p>
-        <button class="btn ghost sm" type="button" data-pick="tenda">Pilih paket ini</button>
-      </article>
-      <article class="card pkg reveal d3">
-        <h3>Ojek dan jemput lokasi</h3>
-        <div class="price"><span class="amt" style="font-size: 1.3rem">Tanya harga</span></div>
-        <ul class="inc">
-          <li>Jemput dari Stasiun Blitar atau titik lain</li>
-          <li>Motor yang siap medan makadam</li>
-          <li>Bisa digabung dengan paket lain</li>
-        </ul>
-        <p class="fine">Tarif belum dipublikasikan operator.</p>
-        <button class="btn ghost sm" type="button" data-pick="ojek">Pilih paket ini</button>
-      </article>
-    </div>
-  </div>
-</section>
-
-<section id="booking">
-  <div class="wrap">
-    <div class="sec-head reveal">
-      <span class="eyebrow">Pemesanan</span>
-      <h2>Susun pesanan, kirim lewat WhatsApp.</h2>
-      <p class="lead">Operator menerima pemesanan lewat WhatsApp. Formulir ini menyusun pesan yang rapi agar operator bisa langsung mengecek jadwal dan kondisi lapangan.</p>
-    </div>
-    <div class="howto reveal">
-      <div><span class="n">Langkah 1</span><b>Pilih paket, tanggal, dan jumlah peserta</b><p>Isi formulir di bawah. Estimasi biaya dihitung otomatis untuk paket yang sudah punya tarif.</p></div>
-      <div><span class="n">Langkah 2</span><b>Kirim pesan ke WhatsApp operator</b><p>Pesan sudah tersusun rapi. Tidak ada pembayaran di situs ini; semua kesepakatan harga dan jadwal langsung dengan operator.</p></div>
-      <div><span class="n">Langkah 3</span><b>Operator mengecek jadwal dan kondisi laut</b><p>Anda mendapat konfirmasi harga final, titik kumpul, dan saran jam datang yang mengikuti pasang surut.</p></div>
-    </div>
-    <div class="booking">
-      <form class="form reveal" id="bookForm" novalidate>
-        <div class="stepper" aria-hidden="true"><div class="done"><i></i></div><div><i></i></div><div><i></i></div></div>
-
-        <div class="pane" data-pane="1">
-          <h3>1. Pilih layanan</h3>
-          <div class="opt" id="pkgOptions">
-            <label><input type="radio" name="pkg" value="canyoneering" checked><span class="t"><b>Canyoneering Umbul Waru</b><small>Alat, pemandu, dokumentasi, 1x makan</small></span><span class="p">mulai Rp300.000</span></label>
-            <label><input type="radio" name="pkg" value="homestay"><span class="t"><b>Basecamp / homestay</b><small>Menginap di Sidomulyo</small></span><span class="p">tanya harga</span></label>
-            <label><input type="radio" name="pkg" value="tenda"><span class="t"><b>Sewa tenda camping</b><small>Tenda disiapkan operator</small></span><span class="p">tanya harga</span></label>
-            <label><input type="radio" name="pkg" value="ojek"><span class="t"><b>Ojek / jemput lokasi</b><small>Dari Stasiun Blitar atau titik lain</small></span><span class="p">tanya harga</span></label>
-            <label><input type="radio" name="pkg" value="kunjungan"><span class="t"><b>Kunjungan biasa dengan pemandu</b><small>Trekking ke kolam, air terjun, pantai</small></span><span class="p">tanya harga</span></label>
+      <fieldset class="pane" data-pane="2" hidden>
+        <legend>2 / 3 · Jadwal dan peserta</legend>
+        <div class="row2">
+          <div class="field"><label for="tgl">Tanggal kunjungan</label><input type="date" id="tgl" required><span class="err">Pilih tanggal yang akan datang.</span></div>
+          <div class="field"><label for="pax">Jumlah peserta</label>
+            <div class="pax"><button type="button" id="paxMinus" aria-label="Kurangi peserta"><svg aria-hidden="true"><use href="#i-minus"/></svg></button><input type="number" id="pax" min="1" max="30" value="4" inputmode="numeric"><button type="button" id="paxPlus" aria-label="Tambah peserta"><svg aria-hidden="true"><use href="#i-plus"/></svg></button></div>
+            <span class="err">Minimal 1 peserta.</span>
           </div>
-          <div class="actions"><span></span><button class="btn primary" type="button" data-next>Lanjut</button></div>
         </div>
+        <div class="field"><label for="jemput">Titik kumpul</label>
+          <select id="jemput">
+            <option value="Basecamp Desa Sidomulyo">Basecamp Desa Sidomulyo (datang sendiri)</option>
+            <option value="Stasiun Blitar">Stasiun Blitar (dijemput)</option>
+            <option value="Lainnya">Lainnya, tulis di catatan</option>
+          </select>
+        </div>
+        <div class="actions"><button class="btn btn--ghost" type="button" data-prev>Kembali</button><button class="btn btn--sand" type="button" data-next>Lanjut <svg aria-hidden="true"><use href="#i-arrow"/></svg></button></div>
+      </fieldset>
 
-        <div class="pane" data-pane="2" hidden>
-          <h3>2. Jadwal dan peserta</h3>
-          <div class="row2">
-            <div class="field"><label for="tgl">Tanggal kunjungan</label><input type="date" id="tgl" required><span class="err">Pilih tanggal yang akan datang.</span></div>
-            <div class="field"><label for="pax">Jumlah peserta</label>
-              <div class="pax"><button type="button" id="paxMinus" aria-label="Kurangi">−</button><input type="number" id="pax" min="1" max="30" value="4"><button type="button" id="paxPlus" aria-label="Tambah">+</button></div>
-              <span class="err">Minimal 1 peserta.</span>
-            </div>
-          </div>
-          <div class="field"><label for="jemput">Titik kumpul</label>
-            <select id="jemput">
-              <option value="Basecamp Desa Sidomulyo">Basecamp Desa Sidomulyo (datang sendiri)</option>
-              <option value="Stasiun Blitar">Stasiun Blitar (dijemput)</option>
-              <option value="Lainnya">Lainnya, tulis di catatan</option>
-            </select>
-          </div>
-          <div class="actions"><button class="btn ghost" type="button" data-prev>Kembali</button><button class="btn primary" type="button" data-next>Lanjut</button></div>
+      <fieldset class="pane" data-pane="3" hidden>
+        <legend>3 / 3 · Data pemesan</legend>
+        <div class="row2">
+          <div class="field"><label for="nama">Nama</label><input type="text" id="nama" placeholder="Nama lengkap" autocomplete="name" required><span class="err">Nama wajib diisi.</span></div>
+          <div class="field"><label for="wa">Nomor WhatsApp</label><input type="tel" id="wa" placeholder="08xxxxxxxxxx" autocomplete="tel" required><span class="err">Masukkan nomor yang valid, misalnya 0812xxxxxxx.</span></div>
         </div>
+        <div class="field"><label for="asal">Asal kota</label><input type="text" id="asal" placeholder="Misal: Malang"></div>
+        <div class="field"><label for="catatan">Catatan</label><textarea id="catatan" rows="3" placeholder="Ada anak-anak? Belum bisa berenang? Perlu jemputan dari lokasi lain?"></textarea></div>
+        <div class="actions"><button class="btn btn--ghost" type="button" data-prev>Kembali</button><button class="btn btn--sand" type="submit">Kirim via WhatsApp <svg aria-hidden="true"><use href="#i-arrow"/></svg></button></div>
+        <p class="fine">Tombol membuka WhatsApp dengan pesan yang sudah terisi. Tidak ada data yang disimpan di situs ini.</p>
+      </fieldset>
+    </form>
 
-        <div class="pane" data-pane="3" hidden>
-          <h3>3. Data pemesan</h3>
-          <div class="row2">
-            <div class="field"><label for="nama">Nama</label><input type="text" id="nama" placeholder="Nama lengkap" autocomplete="name" required><span class="err">Nama wajib diisi.</span></div>
-            <div class="field"><label for="wa">Nomor WhatsApp</label><input type="tel" id="wa" placeholder="08xxxxxxxxxx" autocomplete="tel" required><span class="err">Masukkan nomor yang valid.</span></div>
-          </div>
-          <div class="field"><label for="asal">Asal kota</label><input type="text" id="asal" placeholder="Misal: Malang"></div>
-          <div class="field"><label for="catatan">Catatan</label><textarea id="catatan" rows="3" placeholder="Ada anak-anak? Belum bisa berenang? Perlu jemputan dari lokasi lain?"></textarea></div>
-          <div class="actions"><button class="btn ghost" type="button" data-prev>Kembali</button><button class="btn sand" type="submit">Kirim via WhatsApp</button></div>
-          <p class="fine">Tombol membuka WhatsApp dengan pesan yang sudah terisi. Tidak ada data yang disimpan di situs ini. Jika WhatsApp tidak terbuka, salin pesan dari ringkasan di samping.</p>
-        </div>
-      </form>
-
-      <aside class="summary reveal d1">
-        <span class="eyebrow">Ringkasan</span>
-        <dl>
-          <dt>Layanan</dt><dd id="sPkg">Canyoneering Umbul Waru</dd>
-          <dt>Tanggal</dt><dd id="sTgl">Belum dipilih</dd>
-          <dt>Peserta</dt><dd id="sPax">4 orang</dd>
-          <dt>Titik kumpul</dt><dd id="sJemput">Basecamp Desa Sidomulyo</dd>
-          <dt>Pemesan</dt><dd id="sNama">Belum diisi</dd>
-        </dl>
-        <div class="total"><span id="totalLabel">Estimasi mulai dari</span><span class="amt" id="sTotal">Rp1.200.000</span></div>
-        <p class="fine" id="totalNote">Perhitungan: Rp300.000 × 4 peserta. Harga final dikonfirmasi operator; biaya transport dan parkir belum termasuk.</p>
-        <div class="msgbox" id="msgPreview">Halo Wisata Umbul Waru, saya ingin memesan: Canyoneering Umbul Waru, 4 orang, titik kumpul Basecamp Desa Sidomulyo.</div>
-        <div class="actions">
-          <button class="btn ghost sm" type="button" id="copyMsg">Salin pesan</button>
-          <span class="fine" style="align-self: center">WA operator: <b id="waText">0856-5564-7066</b></span>
-        </div>
-      </aside>
-    </div>
+    <aside class="summary" aria-label="Ringkasan pesanan">
+      <p class="summary__kicker">Ringkasan</p>
+      <dl>
+        <dt>Layanan</dt><dd id="sPkg">Canyoneering Umbul Waru</dd>
+        <dt>Tanggal</dt><dd id="sTgl">Belum dipilih</dd>
+        <dt>Peserta</dt><dd id="sPax">4 orang</dd>
+        <dt>Titik kumpul</dt><dd id="sJemput">Basecamp Desa Sidomulyo</dd>
+        <dt>Pemesan</dt><dd id="sNama">Belum diisi</dd>
+      </dl>
+      <div class="total"><span id="totalLabel">Estimasi mulai dari</span><span class="total__amt" id="sTotal">Rp1.200.000</span></div>
+      <p class="fine" id="totalNote">Perhitungan: Rp300.000 × 4 peserta. Harga final dikonfirmasi operator; biaya transport dan parkir belum termasuk.</p>
+      <details class="msg">
+        <summary>Lihat isi pesan</summary>
+        <div class="msg__box" id="msgPreview">Halo Wisata Umbul Waru, saya ingin memesan: Canyoneering Umbul Waru, 4 orang, titik kumpul Basecamp Desa Sidomulyo.</div>
+        <button class="btn btn--quiet btn--sm" type="button" id="copyMsg"><svg aria-hidden="true"><use href="#i-copy"/></svg> Salin pesan</button>
+      </details>
+      <p class="fine">WA operator: <b>0856-5564-7066</b></p>
+    </aside>
   </div>
 </section>
 
-<section class="band" id="galeri">
-  <div class="wrap">
-    <div class="sec-head reveal">
-      <span class="eyebrow">Galeri</span>
-      <h2>Dari tebing Umbul Waru.</h2>
-      <p class="lead">Foto sesi canyoneering bersama operator lokal. Semua diambil di tebing dan air terjun Umbul Waru, Desa Sidomulyo.</p>
-    </div>
-    <div class="gallery reveal">
-      <figure class="g a"><img src="assets/img/galeri-bawah-air-terjun.jpg" loading="lazy" decoding="async" alt="Peserta canyoneering bergelantungan di tebing tepat di samping air terjun, ombak laut di bawahnya"><figcaption>Di bawah air terjun</figcaption></figure>
-      <figure class="g"><img src="assets/img/galeri-turun-tebing.jpg" loading="lazy" decoding="async" alt="Peserta rappelling di tebing dengan garis pantai dan laut di latar belakang"><figcaption>Turun tebing, pantai di bawah</figcaption></figure>
-      <figure class="g"><img src="assets/img/galeri-batu-karang.jpg" loading="lazy" decoding="async" alt="Peserta berdiri di batu karang memegang tali, pandan pantai dan laut di belakang"><figcaption>Batu karang dan pandan pantai</figcaption></figure>
-      <figure class="g"><img src="assets/img/galeri-puncak-tebing.jpg" loading="lazy" decoding="async" alt="Peserta merentangkan tangan di puncak tebing menghadap Samudra Hindia"><figcaption>Puncak tebing, Samudra Hindia</figcaption></figure>
-      <figure class="g"><img src="assets/img/galeri-siap-turun.jpg" loading="lazy" decoding="async" alt="Peserta memegang tali rappelling, ombak putih di belakangnya"><figcaption>Siap turun</figcaption></figure>
-      <figure class="g"><img src="assets/img/galeri-perlengkapan.jpg" loading="lazy" decoding="async" alt="Peserta memakai helm dan harness di tepi tebing, laut lepas di belakang"><figcaption>Perlengkapan lengkap</figcaption></figure>
-      <figure class="g"><img src="assets/img/galeri-percikan-ombak.jpg" loading="lazy" decoding="async" alt="Peserta menarik tali saat turun tebing, percikan ombak di bawah"><figcaption>Percikan ombak</figcaption></figure>
-    </div>
+</div><!-- /act pantai -->
+
+<section class="galeri" id="galeri" aria-labelledby="galeri-title">
+  <div class="galeri__head">
+    <p class="eyebrow">Galeri</p>
+    <h2 class="split" id="galeri-title">Dari tebing Umbul Waru.</h2>
+    <p class="lede">Foto sesi canyoneering bersama operator lokal, semuanya diambil di tebing dan air terjun Umbul Waru.</p>
+    <p class="galeri__hint" aria-hidden="true"><svg><use href="#i-arrow"/></svg> Gulir untuk menggeser</p>
+  </div>
+  <div class="galeri__viewport" tabindex="0" aria-label="Galeri foto, geser ke samping">
+    <ul class="galeri__track">
+      <li class="g g--wide"><figure><img src="assets/img/galeri-bawah-air-terjun.jpg" alt="Peserta canyoneering bergelantungan di tebing tepat di samping air terjun, ombak laut di bawahnya" width="1350" height="1800" loading="lazy" decoding="async"></figure><span><b>01</b> Di bawah air terjun</span></li>
+      <li class="g"><figure><img src="assets/img/galeri-turun-tebing.jpg" alt="Peserta rappelling di tebing dengan garis pantai dan laut di latar belakang" width="1012" height="1800" loading="lazy" decoding="async"></figure><span><b>02</b> Turun tebing, pantai di bawah</span></li>
+      <li class="g g--low"><figure><img src="assets/img/galeri-batu-karang.jpg" alt="Peserta berdiri di batu karang memegang tali, pandan pantai dan laut di belakang" width="1012" height="1800" loading="lazy" decoding="async"></figure><span><b>03</b> Batu karang dan pandan pantai</span></li>
+      <li class="g"><figure><img src="assets/img/galeri-puncak-tebing.jpg" alt="Peserta merentangkan tangan di puncak tebing menghadap Samudra Hindia" width="1012" height="1800" loading="lazy" decoding="async"></figure><span><b>04</b> Puncak tebing</span></li>
+      <li class="g g--low"><figure><img src="assets/img/galeri-siap-turun.jpg" alt="Peserta memegang tali rappelling, ombak putih di belakangnya" width="1012" height="1800" loading="lazy" decoding="async"></figure><span><b>05</b> Siap turun</span></li>
+      <li class="g"><figure><img src="assets/img/galeri-perlengkapan.jpg" alt="Peserta memakai helm dan harness di tepi tebing, laut lepas di belakang" width="1012" height="1800" loading="lazy" decoding="async"></figure><span><b>06</b> Perlengkapan lengkap</span></li>
+      <li class="g g--low"><figure><img src="assets/img/galeri-percikan-ombak.jpg" alt="Peserta menarik tali saat turun tebing, percikan ombak di bawah" width="1012" height="1800" loading="lazy" decoding="async"></figure><span><b>07</b> Percikan ombak</span></li>
+    </ul>
   </div>
 </section>
 
-<section id="sekitar">
-  <div class="wrap">
-    <div class="sec-head reveal">
-      <span class="eyebrow">Wisata sekitar</span>
-      <h2>Satu rute, banyak pemberhentian.</h2>
-      <p class="lead">Sepanjang jalur dari Kademangan ke Sidomulyo ada beberapa tempat yang bisa disinggahi dalam hari yang sama.</p>
-    </div>
-    <div class="strip reveal">
-      <article class="card"><small>Bakung</small><h3>Gua Umbultuk</h3><p>Gua basah dengan sungai bawah tanah. Susur gua 3 sampai 4 jam bersama pemandu lokal, paket caving mulai Rp225.000 per orang.</p></article>
-      <article class="card"><small>Sidomulyo</small><h3>Air Terjun Tirto Galuh</h3><p>Air terjun lebar dan tidak terlalu tinggi, satu desa dengan Umbul Waru dan menjadi penanda rute klasik.</p></article>
-      <article class="card"><small>Bakung</small><h3>Jurug Gua Luweng</h3><p>Air terjun dan gua di sepanjang rute Trisula. Jalan kaki sekitar 400 meter dari parkiran.</p></article>
-      <article class="card"><small>Tumpakkepuh</small><h3>Pantai Pangi</h3><p>Pantai pasir putih yang lebih luas dengan penginapan sederhana dan area camping. Pintu masuk JLS sisi barat.</p></article>
-      <article class="card"><small>Bululawang</small><h3>Pantai Pasur</h3><p>Pantai pasir hitam dengan bentang sekitar 1 km, muara sungai, dan cemara udang. Pintu masuk JLS sisi timur.</p></article>
-      <article class="card"><small>Bakung</small><h3>Monumen Trisula</h3><p>Monumen sejarah operasi Trisula 1968 yang menjadi patokan belokan pada rute klasik.</p></article>
-    </div>
+<section class="sekitar" id="sekitar" aria-labelledby="sekitar-title">
+  <div class="sekitar__head">
+    <p class="eyebrow">Sekitar</p>
+    <h2 class="split" id="sekitar-title">Satu rute, banyak pemberhentian.</h2>
+    <p class="lede">Sepanjang jalur dari Kademangan ke Sidomulyo ada beberapa tempat yang bisa disinggahi dalam hari yang sama.</p>
   </div>
+  <ul class="index">
+    <li><h3>Gua Umbultuk</h3><span class="index__loc">Bakung</span><p>Gua basah dengan sungai bawah tanah. Susur gua 3 sampai 4 jam bersama pemandu lokal, paket caving mulai Rp225.000 per orang.</p></li>
+    <li><h3>Air Terjun Tirto Galuh</h3><span class="index__loc">Sidomulyo</span><p>Air terjun lebar dan tidak terlalu tinggi, satu desa dengan Umbul Waru dan menjadi penanda rute klasik.</p></li>
+    <li><h3>Jurug Gua Luweng</h3><span class="index__loc">Bakung</span><p>Air terjun dan gua di sepanjang rute Trisula. Jalan kaki sekitar 400 meter dari parkiran.</p></li>
+    <li><h3>Pantai Pangi</h3><span class="index__loc">Tumpakkepuh</span><p>Pantai pasir putih yang lebih luas dengan penginapan sederhana dan area camping. Pintu masuk JLS sisi barat.</p></li>
+    <li><h3>Pantai Pasur</h3><span class="index__loc">Bululawang</span><p>Pantai pasir hitam sekitar 1 km dengan muara sungai dan cemara udang. Pintu masuk JLS sisi timur.</p></li>
+    <li><h3>Monumen Trisula</h3><span class="index__loc">Bakung</span><p>Monumen sejarah operasi Trisula 1968 yang menjadi patokan belokan pada rute klasik.</p></li>
+  </ul>
 </section>
 
-<section class="band" id="faq">
-  <div class="wrap">
-    <div class="sec-head reveal">
-      <span class="eyebrow">Pertanyaan umum</span>
-      <h2>Sebelum berangkat</h2>
-    </div>
-    <div class="faq reveal">
-      <details open><summary>Apakah bisa dikunjungi saat air pasang?</summary><p>Pantainya tertutup ombak dan air terjun hanya aman dilihat dari atas tebing. Jangan memaksakan turun saat pasang. Datang saat surut, biasanya pagi sampai siang, dan cek prakiraan pasang surut BMKG untuk tanggal Anda.</p></details>
-      <details><summary>Apakah ada tiket masuk?</summary><p>Per Oktober 2026 tidak ada tiket masuk ke pantai di Kabupaten Blitar. Biaya parkir menyesuaikan pengelola setempat. Paket pemandu, canyoneering, dan jemputan berbayar sesuai kesepakatan dengan operator.</p></details>
-      <details><summary>Bisa bawa mobil?</summary><p>Tidak disarankan. Bagian akhir jalur berupa tanah dan makadam selebar satu kendaraan, melewati ladang tebu warga. Motor dengan kondisi prima, bukan matic standar, adalah pilihan paling aman. Alternatifnya, gunakan layanan jemput operator.</p></details>
-      <details><summary>Ada warung, toilet, atau musala?</summary><p>Di pantai belum ada. Fasilitas warung kopi dan tempat istirahat mulai dirintis pemuda desa di sekitar basecamp. Bawa bekal makanan dan air minum sendiri, dan bawa kembali sampah Anda.</p></details>
-      <details><summary>Harus bisa berenang untuk canyoneering?</summary><p>Tanyakan langsung ke operator saat memesan; operator menyediakan alat keselamatan dan pemandu. Sampaikan jika ada peserta anak-anak atau yang belum bisa berenang agar rute disesuaikan.</p></details>
-      <details><summary>Apa yang perlu dibawa?</summary><p>Sandal gunung atau sepatu trekking, pakaian ganti, jas hujan, tabir surya, bekal, dan baterai ponsel yang penuh. Berangkat pagi dan sebaiknya tidak sendirian.</p></details>
-    </div>
+<section class="faq" id="faq" aria-labelledby="faq-title">
+  <div class="faq__head">
+    <p class="eyebrow">Tanya jawab</p>
+    <h2 class="split faq__title" id="faq-title">Sebelum berangkat.</h2>
   </div>
-</section>
-
-<section class="closing" id="ajak">
-  <img class="bgimg" src="assets/img/penutup-latar.jpg" loading="lazy" decoding="async" alt="" aria-hidden="true">
-  <div class="wrap">
-    <div class="reveal">
-      <span class="eyebrow" style="color: #fff">Siap berangkat</span>
-      <h2 style="margin-top: .8rem">Pilih tanggal surut, biar pemandu yang mengatur sisanya.</h2>
-      <p style="margin-top: 1rem">Canyoneering mulai Rp300.000 per orang, sudah termasuk alat keselamatan, pemandu, dokumentasi, dan satu kali makan. Bertanya lewat WhatsApp tidak dikenai biaya.</p>
-    </div>
-    <div class="acts reveal d1">
-      <a class="btn sand" href="#booking">Pesan canyoneering</a>
-      <a class="btn ghost" href="#kondisi" style="border-color: rgba(255,255,255,.5); color: #fff">Cek kapan bisa dikunjungi</a>
-      <span class="fine">Harga final dikonfirmasi operator sebelum Anda membayar apa pun.</span>
-    </div>
+  <div class="faq__list">
+    <details open><summary>Apakah bisa dikunjungi saat air pasang?</summary><p>Pantainya tertutup ombak dan air terjun hanya aman dilihat dari atas tebing. Jangan memaksakan turun saat pasang. Datang saat surut, biasanya pagi sampai siang, dan cek prakiraan pasang surut BMKG untuk tanggal Anda.</p></details>
+    <details><summary>Apakah ada tiket masuk?</summary><p>Per Oktober 2026 tidak ada tiket masuk ke pantai di Kabupaten Blitar. Biaya parkir menyesuaikan pengelola setempat. Paket pemandu, canyoneering, dan jemputan berbayar sesuai kesepakatan dengan operator.</p></details>
+    <details><summary>Bisa bawa mobil?</summary><p>Tidak disarankan. Bagian akhir jalur berupa tanah dan makadam selebar satu kendaraan, melewati ladang tebu warga. Motor dengan kondisi prima, bukan matic standar, adalah pilihan paling aman. Alternatifnya, gunakan layanan jemput operator.</p></details>
+    <details><summary>Ada warung, toilet, atau musala?</summary><p>Di pantai belum ada. Warung kopi dan tempat istirahat mulai dirintis pemuda desa di sekitar basecamp. Bawa bekal makanan dan air minum sendiri, dan bawa kembali sampah Anda.</p></details>
+    <details><summary>Harus bisa berenang untuk canyoneering?</summary><p>Tanyakan langsung ke operator saat memesan; operator menyediakan alat keselamatan dan pemandu. Sampaikan jika ada peserta anak-anak atau yang belum bisa berenang agar rute disesuaikan.</p></details>
+    <details><summary>Apa yang perlu dibawa?</summary><p>Sandal gunung atau sepatu trekking, pakaian ganti, jas hujan, tabir surya, bekal, dan baterai ponsel yang penuh. Berangkat pagi dan sebaiknya tidak sendirian.</p></details>
   </div>
 </section>
 
 </main>
 
-<footer>
-  <div class="wrap">
-    <div>
-      <h3>Umbul Waru</h3>
-      <p style="opacity: .8; max-width: 38ch">Wisata pantai dan air terjun Desa Sidomulyo, Kecamatan Bakung, Kabupaten Blitar, Jawa Timur.</p>
+<!-- Ft5 Statement: halaman ditutup dengan satu kalimat di atas foto -->
+<footer class="akhir" id="akhir">
+  <div class="akhir__media"><img class="akhir__bg" src="assets/img/penutup-latar.jpg" alt="" width="1012" height="1800" loading="lazy" decoding="async"></div>
+  <div class="akhir__inner">
+    <p class="akhir__line split">Pilih tanggal surut. Sisanya biar pemandu desa yang atur.</p>
+    <div class="akhir__acts">
+      <a class="btn btn--sand btn--lg magnet" href="#booking">Pesan canyoneering <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+      <a class="link link--light" href="https://wa.me/6285655647066" target="_blank" rel="noopener">Tanya lewat WhatsApp</a>
     </div>
-    <div>
-      <h3>Kontak operator</h3>
+    <p class="akhir__note">Canyoneering mulai Rp300.000 per orang, termasuk alat keselamatan, pemandu, dokumentasi, dan satu kali makan. Bertanya tidak dikenai biaya.</p>
+    <div class="akhir__meta">
+      <span class="wordmark wordmark--plain">Umbul Waru</span>
       <ul>
         <li>WhatsApp 0856-5564-7066</li>
-        <li><a href="https://www.instagram.com/wisataumbulwaru_official/" target="_blank" rel="noopener">Instagram @wisataumbulwaru_official</a></li>
-        <li><a href="https://www.tiktok.com/@wisataumbulwaru" target="_blank" rel="noopener">TikTok @wisataumbulwaru</a></li>
+        <li><a href="https://www.instagram.com/wisataumbulwaru_official/" target="_blank" rel="noopener">Instagram</a></li>
+        <li><a href="https://www.tiktok.com/@wisataumbulwaru" target="_blank" rel="noopener">TikTok</a></li>
       </ul>
+      <span>© <span id="year">2026</span> Wisata Umbul Waru, Desa Sidomulyo, Bakung, Blitar. Dibangun oleh CV Lumbung Inovasi Digital.</span>
     </div>
-    <div>
-      <h3>Jelajahi</h3>
-      <ul>
-        <li><a href="#daya-tarik">Daya tarik</a></li>
-        <li><a href="#kondisi">Kapan datang</a></li>
-        <li><a href="#rute">Rute dan akses</a></li>
-        <li><a href="#paket">Paket dan harga</a></li>
-        <li><a href="#booking">Pemesanan</a></li>
-      </ul>
-    </div>
-    <div class="mini"><span>&copy; <span id="year">2026</span> Wisata Umbul Waru. Data dari media dan publikasi operator per Oktober 2026.</span><span>Dibangun oleh CV Lumbung Inovasi Digital</span></div>
   </div>
 </footer>
 
-<a class="btn sand fab" href="#booking" id="fab" hidden>Pesan</a>
 <div class="toast" id="toast" role="status"></div>
-
 </body>
 </html>

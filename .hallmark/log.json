@@ -1,0 +1,24 @@
+[
+  {
+    "date": "2026-10-22",
+    "macrostructure": "Photographic",
+    "theme": "custom",
+    "theme_axes": "dark / display-heavy / warm",
+    "vibe": "laut dalam saat senja, pasir basah, tebing kapur",
+    "enrichment": "E-shader riak air pada foto hero (WebGL)",
+    "nav": "N5",
+    "footer": "Ft5",
+    "brief": "Umbul Waru · wisata air terjun ke laut, presentasi klien/dinas"
+  },
+  {
+    "date": "2026-10-22",
+    "macrostructure": "Photographic (perjalanan turun: hero penuh, urutan foto dipin, dua babak warna)",
+    "theme": "custom dua babak: laut (gelap) dan pantai (pasir terang)",
+    "theme_axes": "dark / display-heavy / warm",
+    "vibe": "turun dari bayang tebing ke pasir terang, lalu senja di laut",
+    "enrichment": "ornamen generatif sebagai mask (peta kontur, emblem cukil); efek WebGL hero dihapus (berat)",
+    "nav": "N5 (ikut babak warna, sembunyi saat gulir turun)",
+    "footer": "Ft5",
+    "brief": "Rombak kedua: hero foto penuh dengan judul condensed + serif italic, bagian Turun dipin, galeri horizontal, rel samping, tombol magnet, ticker"
+  }
+]

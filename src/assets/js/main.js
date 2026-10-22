@@ -1,162 +1,456 @@
-// Interaksi halaman Umbul Waru: menu, animasi, kondisi laut, rute, dan formulir pemesanan WhatsApp.
-document.addEventListener('DOMContentLoaded', function(){
+// Interaksi halaman Umbul Waru: Lenis + GSAP (intro hero, urutan "Turun", galeri, parallax, tombol magnet),
+// babak warna, menu, kondisi laut, rute, dan pemesanan WhatsApp. Reduced-motion: semua gerak dilewati.
+document.addEventListener('DOMContentLoaded', function () {
   var doc = document;
-  doc.documentElement.classList.add('js');
+  var root = doc.documentElement;
+  var $ = function (s, c) { return (c || doc).querySelector(s); };
+  var $$ = function (s, c) { return Array.prototype.slice.call((c || doc).querySelectorAll(s)); };
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  var gsap = window.gsap, ST = window.ScrollTrigger;
+  var motion = !!(gsap && ST) && !reduce;
   var WA = '6285655647066';
   var PRICES = { canyoneering: 300000 };
-  var LABELS = { canyoneering:'Canyoneering Umbul Waru', homestay:'Basecamp / homestay', tenda:'Sewa tenda camping', ojek:'Ojek / jemput lokasi', kunjungan:'Kunjungan biasa dengan pemandu' };
-  var $ = function(s,c){ return (c||doc).querySelector(s); };
-  var $$ = function(s,c){ return Array.prototype.slice.call((c||doc).querySelectorAll(s)); };
-  var rupiah = function(n){ return 'Rp' + n.toLocaleString('id-ID'); };
-  if(!$('#bookForm')) return;
-  
-  var burger=$('#burger'), drawer=$('#drawer');
-  function setDrawer(o){ drawer.classList.toggle('open',o); burger.setAttribute('aria-expanded',o?'true':'false'); doc.body.style.overflow=o?'hidden':''; }
-  burger.addEventListener('click',function(){ setDrawer(!drawer.classList.contains('open')); });
-  $('#drawerClose').addEventListener('click',function(){ setDrawer(false); });
-  $$('#drawer a').forEach(function(a){ a.addEventListener('click',function(){ setDrawer(false); }); });
-  
-  var revs=$$('.reveal');
-  if('IntersectionObserver' in window && !reduce){
-    var io=new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} }); },{rootMargin:'0px 0px -8% 0px',threshold:.08});
-    revs.forEach(function(el){ io.observe(el); });
-    setTimeout(function(){ revs.forEach(function(el){ el.classList.add('in'); }); },2500);
-  } else { revs.forEach(function(el){ el.classList.add('in'); }); }
-  
-  var words=$$('#tagline .w');
-  function lightWords(){ words.forEach(function(w,i){ setTimeout(function(){ w.classList.add('on'); }, reduce?0:i*60); }); }
-  if('IntersectionObserver' in window && !reduce){
-    var tio=new IntersectionObserver(function(es){ if(es.some(function(e){ return e.isIntersecting; })){ lightWords(); tio.disconnect(); } },{threshold:.35});
-    var tl=$('#tagline'); if(tl) tio.observe(tl);
-    setTimeout(lightWords,4000);
-  } else lightWords();
-  
-  var secs=$$('section[id]'), links=$$('.menu a'), fab=$('#fab');
-  function onScroll(){
-    var y=window.scrollY+140, cur='';
-    secs.forEach(function(s){ if(s.offsetTop<=y) cur=s.id; });
-    links.forEach(function(a){ a.classList.toggle('active', a.getAttribute('href')==='#'+cur); });
-    fab.hidden = !(window.scrollY>500 && cur!=='booking' && window.innerWidth<820);
+  var LABELS = { canyoneering: 'Canyoneering Umbul Waru', homestay: 'Basecamp / homestay', tenda: 'Sewa tenda camping', ojek: 'Ojek / jemput lokasi', kunjungan: 'Kunjungan dengan pemandu' };
+  var rupiah = function (n) { return 'Rp' + n.toLocaleString('id-ID'); };
+  var cleanups = [];
+
+  if (!motion) root.classList.add('no-motion');
+  if (gsap && ST) gsap.registerPlugin(ST);
+
+  // ---------- Smooth scroll: Lenis sebagai satu-satunya mesin, disambungkan ke ScrollTrigger ----------
+  var lenis = null;
+  if (motion && window.Lenis) {
+    lenis = new window.Lenis({ lerp: 0.09, smoothWheel: true });
+    lenis.on('scroll', ST.update);
+    gsap.ticker.add(function (t) { lenis.raf(t * 1000); });
+    gsap.ticker.lagSmoothing(0);
   }
-  window.addEventListener('scroll',onScroll,{passive:true}); onScroll();
-  
-  if(!reduce && window.matchMedia('(hover:hover) and (pointer:fine)').matches){
-    $$('.tilt').forEach(function(c){
-      c.addEventListener('mousemove',function(e){ var r=c.getBoundingClientRect(); var x=(e.clientX-r.left)/r.width-.5, y=(e.clientY-r.top)/r.height-.5; c.style.transform='perspective(800px) rotateX('+(-y*7)+'deg) rotateY('+(x*7)+'deg) translateY(-4px)'; });
-      c.addEventListener('mouseleave',function(){ c.style.transform=''; });
+  function scrollToEl(el, offset) {
+    if (lenis) lenis.scrollTo(el, { offset: offset || 0, duration: 1.4 });
+    else { el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' }); }
+  }
+
+  // ---------- Pill: sembunyi saat gulir turun, muncul saat gulir naik ----------
+  var pill = $('#pill'), lastY = window.scrollY, pillTick = false;
+  function onScrollPill() {
+    var y = window.scrollY;
+    if (y > 160 && y > lastY + 4) pill.classList.add('is-hidden');
+    else if (y < lastY - 4 || y <= 160) pill.classList.remove('is-hidden');
+    lastY = y; pillTick = false;
+  }
+  window.addEventListener('scroll', function () { if (!pillTick) { pillTick = true; requestAnimationFrame(onScrollPill); } }, { passive: true });
+
+  // ---------- Babak warna: nav dan rel ikut pasir saat bagian pantai memenuhi layar ----------
+  var act = $('#pantai');
+  if (ST) {
+    ST.create({ trigger: act, start: 'top 4.5rem', end: 'bottom 4.5rem', onToggle: function (s) { if (s.isActive) root.setAttribute('data-act', 'pantai'); else root.removeAttribute('data-act'); } });
+  } else if ('IntersectionObserver' in window) {
+    new IntersectionObserver(function (es) { if (es[0].isIntersecting) root.setAttribute('data-act', 'pantai'); else root.removeAttribute('data-act'); }, { rootMargin: '-72px 0px -92% 0px' }).observe(act);
+  }
+
+  // ---------- Rel samping: nama bagian + titik kemajuan ----------
+  var railLabel = $('#railLabel'), railDot = $('#railDot');
+  var RAIL = { top: 'Umbul Waru', turun: 'Turun', kondisi: 'Kapan datang', rute: 'Rute', paket: 'Paket', booking: 'Pesan', galeri: 'Galeri', sekitar: 'Sekitar', faq: 'Tanya jawab', akhir: 'Laut' };
+  if (ST) {
+    $$('section[id], footer[id]').forEach(function (s) {
+      if (!RAIL[s.id]) return;
+      ST.create({ trigger: s, start: 'top 50%', end: 'bottom 50%', onToggle: function (t) { if (t.isActive) railLabel.textContent = RAIL[s.id]; } });
     });
+    ST.create({ trigger: doc.body, start: 'top top', end: 'bottom bottom', onUpdate: function (t) { railDot.style.top = (t.progress * 100) + '%'; } });
   }
-  
-  var cv=$('#sea'), ctx=cv.getContext('2d'), t=0, W,H;
-  function size(){ var r=cv.parentElement.getBoundingClientRect(); W=cv.width=Math.max(1,Math.floor(r.width)); H=cv.height=Math.max(1,Math.floor(r.height)); }
-  function isDark(){ return window.matchMedia('(prefers-color-scheme: dark)').matches; }
-  function draw(){
-    ctx.clearRect(0,0,W,H);
-    var dark=isDark();
-    var layers=[ {a:14,f:.012,s:.6,y:.78,c:dark?'rgba(61,183,194,.10)':'rgba(19,122,134,.10)'},
-                 {a:18,f:.009,s:.9,y:.84,c:dark?'rgba(61,183,194,.14)':'rgba(19,122,134,.14)'},
-                 {a:22,f:.007,s:1.2,y:.90,c:dark?'rgba(61,183,194,.22)':'rgba(19,122,134,.20)'} ];
-    layers.forEach(function(L){
-      ctx.beginPath(); ctx.moveTo(0,H);
-      for(var x=0;x<=W;x+=6){ var y=H*L.y + Math.sin(x*L.f + t*L.s)*L.a + Math.sin(x*L.f*2.3 - t*L.s*.7)*L.a*.4; ctx.lineTo(x,y); }
-      ctx.lineTo(W,H); ctx.closePath(); ctx.fillStyle=L.c; ctx.fill();
+
+  // ---------- Menu seluler ----------
+  var sheet = $('#sheet'), menuOpen = $('#menuOpen'), menuClose = $('#menuClose');
+  function openSheet() {
+    sheet.hidden = false;
+    menuOpen.setAttribute('aria-expanded', 'true');
+    if (lenis) lenis.stop();
+    doc.body.style.overflow = 'hidden';
+    if (motion) gsap.from($$('nav a, .btn', sheet), { y: 22, opacity: 0, duration: 0.6, stagger: 0.05, ease: 'expo.out' });
+    $('nav a', sheet).focus();
+  }
+  function closeSheet() {
+    if (sheet.hidden) return;
+    sheet.hidden = true;
+    menuOpen.setAttribute('aria-expanded', 'false');
+    if (lenis) lenis.start();
+    doc.body.style.overflow = '';
+  }
+  menuOpen.addEventListener('click', openSheet);
+  menuClose.addEventListener('click', function () { closeSheet(); menuOpen.focus(); });
+  sheet.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') { closeSheet(); menuOpen.focus(); return; }
+    if (e.key !== 'Tab') return;
+    var f = $$('a, button', sheet), first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && doc.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && doc.activeElement === last) { e.preventDefault(); first.focus(); }
+  });
+
+  // ---------- Tautan jangkar ----------
+  $$('a[href^="#"]').forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      var target = $(a.getAttribute('href'));
+      if (!target) return;
+      e.preventDefault();
+      closeSheet();
+      scrollToEl(target);
+      if (a.classList.contains('skip')) { target.setAttribute('tabindex', '-1'); target.focus({ preventScroll: true }); }
     });
-    ctx.fillStyle=dark?'rgba(232,241,242,.35)':'rgba(255,255,255,.8)';
-    for(var i=0;i<24;i++){ var px=((i*173 + t*40)%(W+60))-30; var py=H*.90 + Math.sin(px*.007 + t*1.2)*22 - 4; ctx.beginPath(); ctx.arc(px,py,1.6+(i%3),0,6.283); ctx.fill(); }
+  });
+
+  // ---------- Penanda menu aktif ----------
+  var navLinks = $$('.pill__links a');
+  if ('IntersectionObserver' in window) {
+    var navIO = new IntersectionObserver(function (es) {
+      es.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        navLinks.forEach(function (a) { a.setAttribute('aria-current', a.getAttribute('href') === '#' + e.target.id ? 'true' : 'false'); });
+      });
+    }, { rootMargin: '-45% 0px -50% 0px' });
+    $$('main section[id]').forEach(function (s) { navIO.observe(s); });
   }
-  function loop(){ t+=0.018; draw(); if(!reduce) requestAnimationFrame(loop); }
-  size(); loop(); window.addEventListener('resize',function(){ size(); draw(); });
-  
-  var cond={laut:'surut',cuaca:'cerah',waktu:'pagi'};
-  var verdict=$('#verdict'), vStatus=$('#vStatus'), vTitle=$('#vTitle'), vList=$('#vList'), seaViz=$('#seaViz'), vBody=$('#vBody');
-  function setVerdict(animate){
-    var c=cond, items=[], status, title, color;
-    seaViz.classList.toggle('pasang', c.laut==='pasang');
-    if(c.cuaca==='hujan'){
-      status='Sebaiknya ditunda'; color='#B93A3A'; title='Jalur makadam licin dan arus sungai naik. Tunda kunjungan.';
-      items=['Jalan tanah di kebun tebu sulit dilewati motor saat hujan.','Debit air terjun meningkat, kolam alami dan tebing jadi berbahaya.','Operator biasanya menjadwalkan ulang canyoneering saat hujan.'];
-    } else if(c.laut==='pasang'){
-      status='Hanya dari atas'; color='#C27A1C'; title='Pantai tertutup ombak. Nikmati dari tebing dan kolam alami.';
-      items=['Jangan turun ke pantai; ombak selatan menghantam karang di bawah air terjun.','Kolam alami di atas tebing tetap bisa dikunjungi.','Foto air terjun dari atas, tunggu surut jika ingin turun.'];
-    } else {
-      status='Waktu terbaik'; color='#2E8B57'; title='Turun ke pantai, nikmati air terjun dari bawah.';
-      items=['Pasir putih dan kaki air terjun terbuka saat surut.', c.waktu==='pagi'?'Pagi: cahaya lembut dan udara belum panas, paling nyaman untuk trekking.':(c.waktu==='siang'?'Siang: panas terik, bawa topi, tabir surya, dan air cukup.':'Sore: perhatikan waktu, jalur turun tebing gelap setelah matahari terbenam.'),'Tetap pantau ombak; surut bisa berbalik dalam beberapa jam.'];
+
+  // ---------- Ticker: gandakan isi supaya berputar mulus ----------
+  var track = $('#tickerTrack');
+  if (track) {
+    var clone = track.cloneNode(true);
+    clone.setAttribute('aria-hidden', 'true');
+    Array.prototype.slice.call(clone.children).forEach(function (li) { track.appendChild(li); });
+  }
+
+  // ---------- Judul dipecah per kata (teks utuh tetap dibaca pembaca layar) ----------
+  function splitWords(el) {
+    var full = el.textContent.replace(/\s+/g, ' ').trim();
+    var visual = doc.createElement('span');
+    visual.setAttribute('aria-hidden', 'true');
+    var inners = [];
+    function addWord(node) {
+      var w = doc.createElement('span'); w.className = 'w';
+      var i = doc.createElement('span'); i.appendChild(node);
+      w.appendChild(i); visual.appendChild(w); visual.appendChild(doc.createTextNode(' '));
+      inners.push(i);
     }
-    var apply=function(){
-      verdict.style.setProperty('--vc',color); vStatus.textContent=status; vTitle.textContent=title;
-      vList.innerHTML=''; items.forEach(function(s){ var li=doc.createElement('li'); li.textContent=s; vList.appendChild(li); });
+    Array.prototype.slice.call(el.childNodes).forEach(function (n) {
+      if (n.nodeType === 3) n.textContent.split(/\s+/).filter(Boolean).forEach(function (t) { addWord(doc.createTextNode(t)); });
+      else if (n.nodeType === 1) addWord(n.cloneNode(true));
+    });
+    var sr = doc.createElement('span'); sr.className = 'sr-only'; sr.textContent = full;
+    el.textContent = '';
+    el.appendChild(sr); el.appendChild(visual);
+    return inners;
+  }
+
+  var heroPhoto = $('#heroPhoto');
+
+  // ---------- Intro hero ----------
+  if (motion) {
+    var lines = $$('.hero__title .ln > span');
+    var tl = gsap.timeline({ defaults: { ease: 'expo.out' } });
+    // Skala dan geser dipasang pada <figure> supaya satu elemen saja yang bergerak
+    tl.from(heroPhoto, { opacity: 0, duration: 1.2, ease: 'power2.out' }, 0)
+      .fromTo(heroPhoto, { scale: 1.18 }, { scale: finePointer ? 1.06 : 1, duration: 2.2 }, 0)
+      .from('.hero__grad', { opacity: 0, duration: 1.4 }, 0.2)
+      .from('.pill', { y: -24, opacity: 0, duration: 0.9 }, 0.3)
+      .from('.hero__top > *', { opacity: 0, y: 10, duration: 0.8, stagger: 0.08 }, 0.4)
+      .from(lines, { yPercent: 108, rotate: 2, transformOrigin: 'left top', duration: 1.2, stagger: 0.1 }, 0.45)
+      .from('.hero__lead, .hero__acts', { opacity: 0, y: 18, duration: 0.9, stagger: 0.1 }, 0.95)
+      .from('.hero__cue, .rail', { opacity: 0, duration: 0.8 }, 1.2);
+
+    // Foto hero bergeser halus mengikuti kursor (hanya pointer presisi)
+    if (finePointer) {
+      var hero = $('.hero');
+      var px = gsap.quickTo(heroPhoto, 'xPercent', { duration: 1.2, ease: 'power3.out' });
+      var py = gsap.quickTo(heroPhoto, 'yPercent', { duration: 1.2, ease: 'power3.out' });
+      var onHeroMove = function (e) {
+        var r = hero.getBoundingClientRect();
+        px(((e.clientX - r.left) / r.width - 0.5) * -2.2);
+        py(((e.clientY - r.top) / r.height - 0.5) * -2.2);
+      };
+      var resetHero = function () { px(0); py(0); };
+      hero.addEventListener('pointermove', onHeroMove, { passive: true });
+      hero.addEventListener('pointerleave', resetHero);
+      window.addEventListener('blur', resetHero);
+      cleanups.push(function () { hero.removeEventListener('pointermove', onHeroMove); window.removeEventListener('blur', resetHero); });
+    }
+
+    // Judul bagian muncul per kata, lalu teks pendukung menyusul
+    $$('h2.split, .fold__line.split, .akhir__line.split').forEach(function (h) {
+      var words = splitWords(h);
+      gsap.from(words, { yPercent: 110, duration: 1, stagger: 0.04, ease: 'expo.out', scrollTrigger: { trigger: h, start: 'top 88%', once: true } });
+    });
+    $$('.eyebrow, .lede, .alur, .kondisi__tool, .lokasi, .rute__steps, .lain li, .index li, .faq details, .fold__cap, .akhir__acts, .akhir__note, .utama__body > *').forEach(function (el) {
+      gsap.from(el, { opacity: 0, y: 26, duration: 1, ease: 'expo.out', scrollTrigger: { trigger: el, start: 'top 92%', once: true } });
+    });
+    // Foto muncul dari bawah lewat clip, isi foto sedikit membesar
+    // (.turun__media di desktop dikendalikan urutan pin, jadi reveal-nya hanya untuk layar sempit, lihat di bawah)
+    $$('.utama__photo, .g figure').forEach(function (fig) {
+      var img = fig.querySelector('img');
+      gsap.from(fig, { clipPath: 'inset(100% 0 0 0)', duration: 1.3, ease: 'expo.out', scrollTrigger: { trigger: fig, start: 'top 90%', once: true } });
+      gsap.from(img, { scale: 1.2, duration: 1.8, ease: 'expo.out', scrollTrigger: { trigger: fig, start: 'top 90%', once: true } });
+    });
+    // Parallax foto lipatan dan penutup
+    ['.fold__img', '.akhir__bg'].forEach(function (s) {
+      var el = $(s); if (!el) return;
+      gsap.fromTo(el, { yPercent: -14 }, { yPercent: 0, ease: 'none', scrollTrigger: { trigger: el.parentElement, start: 'top bottom', end: 'bottom top', scrub: true } });
+    });
+    // Ornamen peta bergeser pelan berlawanan arah gulir
+    var topo = $('.rute__topo');
+    if (topo) gsap.fromTo(topo, { yPercent: 10 }, { yPercent: -10, ease: 'none', scrollTrigger: { trigger: '.rute', start: 'top bottom', end: 'bottom top', scrub: true } });
+    // Harga menghitung naik saat terlihat
+    var amt = $('#priceAmt');
+    if (amt) {
+      var target = parseInt(amt.dataset.count, 10), o = { v: 0 };
+      gsap.to(o, { v: target, duration: 1.6, ease: 'expo.out', snap: { v: 1000 }, onUpdate: function () { amt.textContent = rupiah(o.v); }, scrollTrigger: { trigger: amt, start: 'top 88%', once: true } });
+    }
+
+    // Tombol magnet: tombol utama menarik ke arah kursor (pointer presisi saja)
+    if (finePointer) {
+      $$('.magnet').forEach(function (b) {
+        var mx = gsap.quickTo(b, 'x', { duration: 0.5, ease: 'power3.out' });
+        var my = gsap.quickTo(b, 'y', { duration: 0.5, ease: 'power3.out' });
+        var area = b.parentElement;
+        var move = function (e) {
+          var r = b.getBoundingClientRect();
+          var dx = e.clientX - (r.left + r.width / 2), dy = e.clientY - (r.top + r.height / 2);
+          var d = Math.hypot(dx, dy), reach = r.width * 0.9;
+          if (d < reach) { mx(dx * 0.28); my(dy * 0.28); } else { mx(0); my(0); }
+        };
+        var leave = function () { mx(0); my(0); };
+        area.addEventListener('pointermove', move, { passive: true });
+        area.addEventListener('pointerleave', leave);
+        cleanups.push(function () { area.removeEventListener('pointermove', move); area.removeEventListener('pointerleave', leave); });
+      });
+    }
+  }
+
+  // ---------- Turun: urutan foto; desktop dipin dan di-scrub, ponsel ditumpuk ----------
+  var steps = $$('.turun__step'), turunNum = $('#turunNum'), turunBar = $('#turunBar');
+  if (motion) {
+    var mm = gsap.matchMedia();
+    mm.add('(min-width: 64rem)', function () {
+      steps.forEach(function (s) { s.classList.add('is-active'); });
+      var medias = steps.map(function (s) { return s.querySelector('.turun__media'); });
+      var texts = steps.map(function (s) { return s.querySelector('.turun__text'); });
+      // Foto berikutnya menutup foto sebelumnya lewat sapuan dari bawah (bukan pudar) supaya tidak ada bayangan ganda
+      gsap.set(medias.slice(1), { clipPath: 'inset(100% 0 0 0)' });
+      gsap.set(texts.slice(1), { opacity: 0 });
+      var seq = gsap.timeline({
+        scrollTrigger: {
+          // refreshPriority: bagian yang dipin dihitung lebih dulu supaya pemicu lain memperhitungkan ruang pin
+          trigger: '#turunPin', start: 'top top', end: '+=' + (steps.length * 90) + '%', pin: true, scrub: 0.6, anticipatePin: 1, refreshPriority: 2,
+          onUpdate: function (t) {
+            var i = Math.min(steps.length - 1, Math.floor(t.progress * steps.length + 0.0001));
+            turunNum.textContent = (i + 1 < 10 ? '0' : '') + (i + 1);
+            turunBar.style.transform = 'scaleX(' + t.progress + ')';
+          }
+        }
+      });
+      for (var i = 1; i < steps.length; i++) {
+        seq.to(medias[i - 1], { scale: 0.96, duration: 0.7, ease: 'power2.inOut' }, i)
+          .to(texts[i - 1], { opacity: 0, y: -24, duration: 0.4, ease: 'power2.in' }, i)
+          .fromTo(medias[i], { clipPath: 'inset(100% 0 0 0)', scale: 1.08 }, { clipPath: 'inset(0% 0 0 0)', scale: 1, duration: 0.7, ease: 'power2.inOut' }, i)
+          .fromTo(texts[i], { opacity: 0, y: 32 }, { opacity: 1, y: 0, duration: 0.55, ease: 'power2.out' }, i + 0.45);
+      }
+      seq.to({}, { duration: 0.6 });
+      return function () { steps.forEach(function (s, k) { s.classList.toggle('is-active', k === 0); }); gsap.set(medias.concat(texts), { clearProps: 'all' }); };
+    });
+
+    mm.add('(max-width: 63.99rem)', function () {
+      $$('.turun__media').forEach(function (fig) {
+        gsap.from(fig, { clipPath: 'inset(100% 0 0 0)', duration: 1.3, ease: 'expo.out', scrollTrigger: { trigger: fig, start: 'top 90%', once: true } });
+        gsap.from(fig.querySelector('img'), { scale: 1.2, duration: 1.8, ease: 'expo.out', scrollTrigger: { trigger: fig, start: 'top 90%', once: true } });
+      });
+    });
+
+    // ---------- Galeri: digeser horizontal saat discroll, tiap foto ber-parallax ----------
+    mm.add('(min-width: 64rem)', function () {
+      root.classList.add('is-pinned');
+      var gtrack = $('.galeri__track'), section = $('.galeri');
+      var dist = function () { return Math.max(0, gtrack.scrollWidth + parseFloat(getComputedStyle(gtrack).paddingLeft) - section.clientWidth); };
+      var tween = gsap.to(gtrack, {
+        x: function () { return -dist(); },
+        ease: 'none',
+        scrollTrigger: {
+          trigger: section, start: 'top top', end: function () { return '+=' + dist(); }, pin: true, scrub: 0.8, invalidateOnRefresh: true, anticipatePin: 1, refreshPriority: 1,
+          // Rel samping disembunyikan selama foto lewat di bawahnya
+          onToggle: function (t) { $('.rail').classList.toggle('is-hidden', t.isActive); }
+        }
+      });
+      $$('.g img').forEach(function (img) {
+        gsap.fromTo(img, { xPercent: -6, scale: 1.12 }, { xPercent: 6, ease: 'none', scrollTrigger: { trigger: img, containerAnimation: tween, start: 'left right', end: 'right left', scrub: true } });
+      });
+      return function () { root.classList.remove('is-pinned'); };
+    });
+  }
+  if (gsap && ST) {
+    if (doc.fonts && doc.fonts.ready) doc.fonts.ready.then(function () { ST.refresh(); });
+    window.addEventListener('load', function () { ST.refresh(); });
+  }
+
+  // ---------- Kapan datang ----------
+  var cond = { laut: 'surut', cuaca: 'cerah', waktu: 'pagi' };
+  var verdict = $('#verdict'), vStatus = $('#vStatus'), vTitle = $('#vTitle'), vList = $('#vList'), seaViz = $('#seaViz'), vBody = $('#vBody'), gaugeLevel = $('#gaugeLevel');
+  function setVerdict(animate) {
+    var c = cond, items, status, title, color;
+    seaViz.classList.toggle('pasang', c.laut === 'pasang');
+    gaugeLevel.textContent = c.laut === 'pasang' ? 'pasang' : 'surut';
+    if (c.cuaca === 'hujan') {
+      status = 'Sebaiknya ditunda'; color = 'var(--color-bad)'; title = 'Jalur makadam licin dan arus sungai naik. Tunda kunjungan.';
+      items = ['Jalan tanah di kebun tebu sulit dilewati motor saat hujan.', 'Debit air terjun meningkat, kolam alami dan tebing jadi berbahaya.', 'Operator biasanya menjadwalkan ulang canyoneering saat hujan.'];
+    } else if (c.laut === 'pasang') {
+      status = 'Hanya dari atas'; color = 'var(--color-warn)'; title = 'Pantai tertutup ombak. Nikmati dari tebing dan kolam alami.';
+      items = ['Jangan turun ke pantai; ombak selatan menghantam karang di bawah air terjun.', 'Kolam alami di atas tebing tetap bisa dikunjungi.', 'Foto air terjun dari atas, tunggu surut jika ingin turun.'];
+    } else {
+      status = 'Waktu terbaik'; color = 'var(--color-ok)'; title = 'Turun ke pantai, nikmati air terjun dari bawah.';
+      items = ['Pasir putih dan kaki air terjun terbuka saat surut.',
+        c.waktu === 'pagi' ? 'Pagi: cahaya lembut dan udara belum panas, paling nyaman untuk trekking.' : (c.waktu === 'siang' ? 'Siang: panas terik, bawa topi, tabir surya, dan air cukup.' : 'Sore: perhatikan waktu, jalur turun tebing gelap setelah matahari terbenam.'),
+        'Tetap pantau ombak; surut bisa berbalik dalam beberapa jam.'];
+    }
+    var apply = function () {
+      verdict.style.setProperty('--vc', color); vStatus.textContent = status; vTitle.textContent = title;
+      vList.textContent = '';
+      items.forEach(function (s) { var li = doc.createElement('li'); li.textContent = s; vList.appendChild(li); });
     };
-    if(!animate || reduce){ apply(); return; }
+    if (!animate || reduce) { apply(); return; }
     vBody.classList.add('out'); clearTimeout(vBody._t);
-    vBody._t=setTimeout(function(){ apply(); vBody.classList.remove('out'); },120);
+    vBody._t = setTimeout(function () { apply(); vBody.classList.remove('out'); }, 130);
   }
-  $$('.seg button').forEach(function(b){ b.addEventListener('click',function(){ var k=b.dataset.k; cond[k]=b.dataset.v; $$('.seg button[data-k="'+k+'"]').forEach(function(x){ x.setAttribute('aria-pressed', x===b?'true':'false'); }); setVerdict(true); }); });
+  $$('.seg button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var k = b.dataset.k; cond[k] = b.dataset.v;
+      $$('.seg button[data-k="' + k + '"]').forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+      setVerdict(true);
+    });
+  });
   setVerdict(false);
-  
-  $$('.tabs [role=tab]').forEach(function(b){ b.addEventListener('click',function(){
-    $$('.tabs [role=tab]').forEach(function(x){ x.setAttribute('aria-selected', x===b?'true':'false'); });
-    ['klasik','jls','jemput'].forEach(function(id){ $('#tab-'+id).hidden = id!==b.dataset.tab; });
-  }); });
-  
-  var toast=$('#toast'), toastT;
-  function showToast(m){ toast.textContent=m; toast.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(function(){ toast.classList.remove('show'); },2200); }
-  function copyText(txt, el){
-    var done=function(){ showToast('Disalin'); };
-    var fallback=function(){ if(el){ var r=doc.createRange(); r.selectNodeContents(el); var s=window.getSelection(); s.removeAllRanges(); s.addRange(r); } showToast('Pilih teks lalu salin manual'); };
-    if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(done,fallback); } else fallback();
+
+  // ---------- Tab rute (klik dan tombol panah) ----------
+  var tabs = $$('.tabs [role=tab]');
+  function selectTab(b) {
+    tabs.forEach(function (x) {
+      var on = x === b;
+      x.setAttribute('aria-selected', on ? 'true' : 'false');
+      x.tabIndex = on ? 0 : -1;
+      var panel = $('#tab-' + x.dataset.tab);
+      panel.hidden = !on;
+      if (on && motion) gsap.from($$('li', panel), { opacity: 0, x: -10, duration: 0.5, stagger: 0.05, ease: 'expo.out' });
+    });
+    if (ST) ST.refresh();
   }
-  $('#copyCoord').addEventListener('click',function(){ copyText($('#coordText').textContent,$('#coordText')); });
-  
-  var form=$('#bookForm'), panes=$$('.pane',form), bars=$$('.stepper div',form), step=1;
-  var f={ pkg:function(){ var r=$('input[name=pkg]:checked'); return r?r.value:'canyoneering'; }, tgl:$('#tgl'), pax:$('#pax'), jemput:$('#jemput'), nama:$('#nama'), wa:$('#wa'), asal:$('#asal'), catatan:$('#catatan') };
-  var iso=function(d){ return d.toISOString().slice(0,10); };
-  f.tgl.min=iso(new Date());
-  function fmtDate(v){ if(!v) return 'Belum dipilih'; var d=new Date(v+'T00:00:00'); return d.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'}); }
-  function buildMsg(){
-    var p=f.pkg(), n=parseInt(f.pax.value,10)||0;
-    var lines=['Halo Wisata Umbul Waru, saya ingin memesan:','',
-      'Layanan: '+LABELS[p], 'Tanggal: '+fmtDate(f.tgl.value), 'Jumlah peserta: '+n+' orang', 'Titik kumpul: '+f.jemput.value,
-      'Nama: '+(f.nama.value||'-'), 'WhatsApp: '+(f.wa.value||'-'), 'Asal: '+(f.asal.value||'-')];
-    if(f.catatan.value) lines.push('Catatan: '+f.catatan.value);
-    if(PRICES[p]) lines.push('', 'Estimasi dari situs: '+rupiah(PRICES[p]*n)+' (mulai dari, belum termasuk transport dan parkir). Mohon konfirmasi harga dan ketersediaan.');
+  tabs.forEach(function (b, i) {
+    b.addEventListener('click', function () { selectTab(b); });
+    b.addEventListener('keydown', function (e) {
+      var d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+      if (!d) return;
+      e.preventDefault();
+      var n = tabs[(i + d + tabs.length) % tabs.length];
+      n.focus({ preventScroll: true }); selectTab(n);
+    });
+  });
+
+  // ---------- Salin dan toast ----------
+  var toast = $('#toast'), toastT;
+  function showToast(m) { toast.textContent = m; toast.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(function () { toast.classList.remove('show'); }, 2400); }
+  function copyText(txt, el) {
+    var done = function () { showToast('Disalin'); };
+    var fallback = function () {
+      if (el) { var r = doc.createRange(); r.selectNodeContents(el); var s = window.getSelection(); s.removeAllRanges(); s.addRange(r); }
+      showToast('Pilih teks lalu salin manual');
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(done, fallback); else fallback();
+  }
+  $('#copyCoord').addEventListener('click', function () { copyText($('#coordText').textContent, $('#coordText')); });
+
+  // ---------- Pemesanan ----------
+  var form = $('#bookForm'), panes = $$('.pane', form), bars = $$('.stepper div', form), step = 1;
+  var f = {
+    pkg: function () { var r = $('input[name=pkg]:checked'); return r ? r.value : 'canyoneering'; },
+    tgl: $('#tgl'), pax: $('#pax'), jemput: $('#jemput'), nama: $('#nama'), wa: $('#wa'), asal: $('#asal'), catatan: $('#catatan')
+  };
+  var iso = function (d) { return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10); };
+  f.tgl.min = iso(new Date());
+  function fmtDate(v) { if (!v) return 'Belum dipilih'; var d = new Date(v + 'T00:00:00'); return d.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }); }
+  function buildMsg() {
+    var p = f.pkg(), n = parseInt(f.pax.value, 10) || 0;
+    var lines = ['Halo Wisata Umbul Waru, saya ingin memesan:', '',
+      'Layanan: ' + LABELS[p], 'Tanggal: ' + fmtDate(f.tgl.value), 'Jumlah peserta: ' + n + ' orang', 'Titik kumpul: ' + f.jemput.value,
+      'Nama: ' + (f.nama.value || '-'), 'WhatsApp: ' + (f.wa.value || '-'), 'Asal: ' + (f.asal.value || '-')];
+    if (f.catatan.value) lines.push('Catatan: ' + f.catatan.value);
+    if (PRICES[p]) lines.push('', 'Estimasi dari situs: ' + rupiah(PRICES[p] * n) + ' (mulai dari, belum termasuk transport dan parkir). Mohon konfirmasi harga dan ketersediaan.');
     else lines.push('', 'Mohon info harga dan ketersediaan untuk tanggal tersebut.');
     lines.push('', 'Dikirim dari lautputra.com');
     return lines.join('\n');
   }
-  function render(){
-    var p=f.pkg(), n=parseInt(f.pax.value,10)||0;
-    $('#sPkg').textContent=LABELS[p]; $('#sTgl').textContent=fmtDate(f.tgl.value); $('#sPax').textContent=n+' orang';
-    $('#sJemput').textContent=f.jemput.value; $('#sNama').textContent=f.nama.value||'Belum diisi';
-    if(PRICES[p]){ $('#totalLabel').textContent='Estimasi mulai dari'; $('#sTotal').textContent=rupiah(PRICES[p]*n); $('#totalNote').textContent='Perhitungan: '+rupiah(PRICES[p])+' × '+n+' peserta. Harga final dikonfirmasi operator; biaya transport dan parkir belum termasuk.'; }
-    else { $('#totalLabel').textContent='Harga'; $('#sTotal').textContent='Tanya operator'; $('#totalNote').textContent='Tarif layanan ini belum dipublikasikan. Operator akan membalas dengan harga dan ketersediaan.'; }
-    $('#msgPreview').textContent=buildMsg();
-    bars.forEach(function(b,i){ b.classList.toggle('done', i<step); });
-    panes.forEach(function(pn){ pn.hidden = parseInt(pn.dataset.pane,10)!==step; });
-    try{ localStorage.setItem('uw-draft',JSON.stringify({pkg:p,tgl:f.tgl.value,pax:f.pax.value,jemput:f.jemput.value,nama:f.nama.value,wa:f.wa.value,asal:f.asal.value,catatan:f.catatan.value})); }catch(e){}
+  function render() {
+    var p = f.pkg(), n = parseInt(f.pax.value, 10) || 0;
+    $('#sPkg').textContent = LABELS[p]; $('#sTgl').textContent = fmtDate(f.tgl.value); $('#sPax').textContent = n + ' orang';
+    $('#sJemput').textContent = f.jemput.value; $('#sNama').textContent = f.nama.value || 'Belum diisi';
+    if (PRICES[p]) {
+      $('#totalLabel').textContent = 'Estimasi mulai dari'; $('#sTotal').textContent = rupiah(PRICES[p] * n);
+      $('#totalNote').textContent = 'Perhitungan: ' + rupiah(PRICES[p]) + ' × ' + n + ' peserta. Harga final dikonfirmasi operator; biaya transport dan parkir belum termasuk.';
+    } else {
+      $('#totalLabel').textContent = 'Harga'; $('#sTotal').textContent = 'Tanya operator';
+      $('#totalNote').textContent = 'Tarif layanan ini belum dipublikasikan. Operator akan membalas dengan harga dan ketersediaan.';
+    }
+    $('#msgPreview').textContent = buildMsg();
+    bars.forEach(function (b, i) { b.classList.toggle('done', i < step); });
+    panes.forEach(function (pn) { pn.hidden = parseInt(pn.dataset.pane, 10) !== step; });
+    try { localStorage.setItem('uw-draft', JSON.stringify({ pkg: p, tgl: f.tgl.value, pax: f.pax.value, jemput: f.jemput.value, nama: f.nama.value, wa: f.wa.value, asal: f.asal.value, catatan: f.catatan.value })); } catch (e) {}
   }
-  function validate(s){
-    var ok=true;
-    var mark=function(inp,bad){ var fd=inp.closest('.field'); if(fd) fd.classList.toggle('invalid',bad); if(bad) ok=false; };
-    if(s===2){ mark(f.tgl, !f.tgl.value || f.tgl.value<f.tgl.min); mark(f.pax, !(parseInt(f.pax.value,10)>=1)); }
-    if(s===3){ mark(f.nama, f.nama.value.trim().length<2); mark(f.wa, !/^(\+?62|0)8\d{7,12}$/.test(f.wa.value.replace(/[\s-]/g,''))); }
+  function validate(s) {
+    var ok = true;
+    var mark = function (inp, bad) { var fd = inp.closest('.field'); if (fd) fd.classList.toggle('invalid', bad); inp.setAttribute('aria-invalid', bad ? 'true' : 'false'); if (bad && ok) { ok = false; inp.focus({ preventScroll: true }); } };
+    if (s === 2) { mark(f.tgl, !f.tgl.value || f.tgl.value < f.tgl.min); mark(f.pax, !(parseInt(f.pax.value, 10) >= 1)); }
+    if (s === 3) { mark(f.nama, f.nama.value.trim().length < 2); mark(f.wa, !/^(\+?62|0)8\d{7,12}$/.test(f.wa.value.replace(/[\s-]/g, ''))); }
     return ok;
   }
-  $$('[data-next]',form).forEach(function(b){ b.addEventListener('click',function(){ if(validate(step)){ step=Math.min(3,step+1); render(); form.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'}); } }); });
-  $$('[data-prev]',form).forEach(function(b){ b.addEventListener('click',function(){ step=Math.max(1,step-1); render(); }); });
-  $('#paxMinus').addEventListener('click',function(){ f.pax.value=Math.max(1,(parseInt(f.pax.value,10)||1)-1); render(); });
-  $('#paxPlus').addEventListener('click',function(){ f.pax.value=Math.min(30,(parseInt(f.pax.value,10)||1)+1); render(); });
-  form.addEventListener('input',render); form.addEventListener('change',render);
-  form.addEventListener('submit',function(e){
+  function goStep(n) {
+    step = n; render();
+    var pane = $('[data-pane="' + step + '"]', form);
+    if (motion) gsap.from(pane, { opacity: 0, x: 16, duration: 0.5, ease: 'expo.out' });
+    var first = $('input, select', pane);
+    if (first) first.focus({ preventScroll: true });
+    if (ST) ST.refresh();
+  }
+  $$('[data-next]', form).forEach(function (b) { b.addEventListener('click', function () { if (validate(step)) { goStep(Math.min(3, step + 1)); scrollToEl(form, -96); } }); });
+  $$('[data-prev]', form).forEach(function (b) { b.addEventListener('click', function () { goStep(Math.max(1, step - 1)); }); });
+  $('#paxMinus').addEventListener('click', function () { f.pax.value = Math.max(1, (parseInt(f.pax.value, 10) || 1) - 1); render(); });
+  $('#paxPlus').addEventListener('click', function () { f.pax.value = Math.min(30, (parseInt(f.pax.value, 10) || 1) + 1); render(); });
+  form.addEventListener('input', render); form.addEventListener('change', render);
+  form.addEventListener('submit', function (e) {
     e.preventDefault();
-    if(!validate(3)) return;
-    var url='https://wa.me/'+WA+'?text='+encodeURIComponent(buildMsg());
-    var a=doc.createElement('a'); a.href=url; a.target='_blank'; a.rel='noopener'; doc.body.appendChild(a); a.click(); a.remove();
+    if (!validate(3)) return;
+    var a = doc.createElement('a');
+    a.href = 'https://wa.me/' + WA + '?text=' + encodeURIComponent(buildMsg()); a.target = '_blank'; a.rel = 'noopener';
+    doc.body.appendChild(a); a.click(); a.remove();
     showToast('Membuka WhatsApp. Jika tidak terbuka, salin pesan di ringkasan.');
   });
-  $('#copyMsg').addEventListener('click',function(){ copyText(buildMsg(),$('#msgPreview')); });
-  $$('[data-pick]').forEach(function(b){ b.addEventListener('click',function(){ var r=$('input[name=pkg][value="'+b.dataset.pick+'"]'); if(r) r.checked=true; step=1; render(); $('#booking').scrollIntoView({behavior:reduce?'auto':'smooth'}); }); });
-  try{ var d=JSON.parse(localStorage.getItem('uw-draft')||'null'); if(d){ var r=$('input[name=pkg][value="'+d.pkg+'"]'); if(r) r.checked=true; if(d.tgl&&d.tgl>=f.tgl.min) f.tgl.value=d.tgl; if(d.pax) f.pax.value=d.pax; if(d.jemput) f.jemput.value=d.jemput; f.nama.value=d.nama||''; f.wa.value=d.wa||''; f.asal.value=d.asal||''; f.catatan.value=d.catatan||''; } }catch(e){}
+  $('#copyMsg').addEventListener('click', function () { copyText(buildMsg(), $('#msgPreview')); });
+  $$('[data-pick]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var r = $('input[name=pkg][value="' + b.dataset.pick + '"]'); if (r) r.checked = true;
+      step = 1; render(); scrollToEl($('#booking'));
+    });
+  });
+  try {
+    var d = JSON.parse(localStorage.getItem('uw-draft') || 'null');
+    if (d) {
+      var r = $('input[name=pkg][value="' + d.pkg + '"]'); if (r) r.checked = true;
+      if (d.tgl && d.tgl >= f.tgl.min) f.tgl.value = d.tgl;
+      if (d.pax) f.pax.value = d.pax; if (d.jemput) f.jemput.value = d.jemput;
+      f.nama.value = d.nama || ''; f.wa.value = d.wa || ''; f.asal.value = d.asal || ''; f.catatan.value = d.catatan || '';
+    }
+  } catch (e) {}
   render();
-  var yr=$('#year'); if(yr) yr.textContent=new Date().getFullYear();
+
+  var yr = $('#year'); if (yr) yr.textContent = new Date().getFullYear();
+
+  // ---------- Bersih-bersih saat halaman ditinggalkan ----------
+  window.addEventListener('pagehide', function (e) {
+    if (e.persisted) return;
+    cleanups.forEach(function (fn) { fn(); });
+    if (lenis) lenis.destroy();
+    if (ST) ST.getAll().forEach(function (t) { t.kill(); });
+  });
 });

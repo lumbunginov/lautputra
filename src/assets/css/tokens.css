@@ -1,0 +1,98 @@
+/* Hallmark · tokens · theme: custom (vibe: "turun dari bayang tebing ke pasir terang, lalu senja di laut")
+ * Dua babak warna: laut (gelap, default) dan pantai (pasir, babak tengah: rute, paket, pemesanan).
+ * display Bricolage Grotesque (sumbu lebar 75–100) · aksen Instrument Serif italic · body Plus Jakarta Sans
+ * axes: dark / display-heavy / warm
+ */
+:root {
+  color-scheme: dark;
+
+  /* Babak laut */
+  --color-paper:        oklch(15% 0.030 232);
+  --color-paper-2:      oklch(19% 0.032 230);
+  --color-paper-3:      oklch(24% 0.034 228);
+  --color-rule:         oklch(34% 0.030 225);
+  --color-muted:        oklch(74% 0.022 215);
+  --color-ink:          oklch(96% 0.010 200);
+  --color-accent:       oklch(82% 0.125 80);
+  --color-accent-hover: oklch(88% 0.115 84);
+  --color-accent-ink:   oklch(22% 0.040 70);
+  --color-foam:         oklch(78% 0.070 195);
+  --color-focus:        oklch(88% 0.140 88);
+  --color-ok:           oklch(80% 0.140 150);
+  --color-warn:         oklch(82% 0.140 65);
+  --color-bad:          oklch(74% 0.160 25);
+  --color-scrim:        oklch(11% 0.030 232);
+  --color-shadow:       oklch(6% 0.020 232);
+  --color-ornamen:      oklch(82% 0.125 80);
+
+  /* Tipografi: 2+1 (display condensed, body, aksen serif italic) */
+  --font-display: "Bricolage Grotesque", "Plus Jakarta Sans", ui-sans-serif, sans-serif;
+  --font-body:    "Plus Jakarta Sans", ui-sans-serif, "Segoe UI", sans-serif;
+  --font-accent:  "Instrument Serif", "Times New Roman", serif;
+
+  --text-xs:   0.8125rem;
+  --text-sm:   0.9375rem;
+  --text-base: 1.0625rem;
+  --text-md:   1.25rem;
+  --text-lg:   clamp(1.5rem, 1.15rem + 1.3vw, 2.25rem);
+  --text-xl:   clamp(2.4rem, 1.4rem + 3.6vw, 4.75rem);
+  --text-2xl:  clamp(3rem, 1.5rem + 5.6vw, 7rem);
+  --text-hero: clamp(3.6rem, 12.5vw, 12.5rem);
+
+  /* Spasi 4pt */
+  --space-3xs: 0.125rem;
+  --space-2xs: 0.25rem;
+  --space-xs:  0.5rem;
+  --space-sm:  0.75rem;
+  --space-md:  1rem;
+  --space-lg:  1.5rem;
+  --space-xl:  2.5rem;
+  --space-2xl: 4rem;
+  --space-3xl: 6rem;
+  --space-4xl: 9rem;
+  --gutter: clamp(1rem, 4vw, 3.5rem);
+
+  --radius-sm: 10px;
+  --radius-md: 18px;
+  --radius-lg: 28px;
+  --radius-pill: 999px;
+  --rule-hair: 1px;
+
+  /* Gerak */
+  --ease-out:    cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in:     cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-micro: 120ms;
+  --dur-short: 240ms;
+  --dur-long:  520ms;
+  --dur-theme: 700ms;
+
+  --z-base: 1;
+  --z-raised: 10;
+  --z-rail: 150;
+  --z-sticky: 200;
+  --z-modal: 400;
+  --z-toast: 500;
+}
+
+/* Babak pantai: dipakai sebagai token terlingkup pada .act--pantai, dan pada html[data-act="pantai"] untuk nav + rail */
+.act--pantai, html[data-act="pantai"] .pill, html[data-act="pantai"] .rail, html[data-act="pantai"] .sheet {
+  color-scheme: light;
+  --color-paper:        oklch(94% 0.024 84);
+  --color-paper-2:      oklch(90% 0.030 82);
+  --color-paper-3:      oklch(85% 0.036 80);
+  --color-rule:         oklch(74% 0.034 76);
+  --color-muted:        oklch(44% 0.035 62);
+  --color-ink:          oklch(21% 0.034 52);
+  --color-accent:       oklch(40% 0.095 228);
+  --color-accent-hover: oklch(34% 0.095 228);
+  --color-accent-ink:   oklch(97% 0.010 200);
+  --color-foam:         oklch(62% 0.080 205);
+  --color-focus:        oklch(45% 0.150 240);
+  --color-ok:           oklch(48% 0.140 150);
+  --color-warn:         oklch(58% 0.150 60);
+  --color-bad:          oklch(52% 0.180 25);
+  --color-scrim:        oklch(90% 0.030 82);
+  --color-shadow:       oklch(30% 0.040 60);
+  --color-ornamen:      oklch(40% 0.060 55);
+}

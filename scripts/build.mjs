@@ -19,7 +19,8 @@ await cp(src, dist, { recursive: true });
 
 // CSS dan JS: minify, lalu beri versi berdasarkan isi agar cache browser selalu benar
 const versions = {};
-for (const [rel, loader] of [['assets/css/style.css', 'css'], ['assets/js/main.js', 'js']]) {
+const assets = [['assets/css/fonts.css', 'css'], ['assets/css/tokens.css', 'css'], ['assets/css/style.css', 'css'], ['assets/js/main.js', 'js']];
+for (const [rel, loader] of assets) {
   const file = path.join(dist, rel);
   const input = await readFile(file, 'utf8');
   const { code } = await esbuild.transform(input, { loader, minify: true, ...(loader === 'js' ? { target: 'es2018' } : {}) });
@@ -44,6 +45,9 @@ await sharp(await readFile(path.join(src, 'assets/img/hero-canyoneering.jpg')))
   .resize(1200, 630, { fit: 'cover', position: 'attention' })
   .jpeg({ quality: 80, mozjpeg: true })
   .toFile(path.join(imgDir, 'og-image.jpg'));
+
+// Library vendor sudah minified; cukup diberi versi
+for (const rel of ['assets/vendor/gsap.min.js', 'assets/vendor/ScrollTrigger.min.js', 'assets/vendor/lenis.min.js']) versions[rel] = hash(await readFile(path.join(dist, rel)));
 
 // HTML: pasang versi aset, lalu minify
 const htmlFile = path.join(dist, 'index.html');
