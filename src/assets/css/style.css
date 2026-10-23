@@ -409,10 +409,17 @@ html:not(.js) .turun__big > p, html.no-motion .turun__big > p { margin: 0; }
   color: var(--color-muted); font-weight: 600; font-size: var(--text-sm); white-space: nowrap;
   transition: background-color var(--dur-short) var(--ease-out), color var(--dur-short) var(--ease-out), transform var(--dur-micro) var(--ease-out);
 }
-.seg button:hover { color: var(--color-ink); }
+@media (hover: hover) and (pointer: fine) { .seg button:hover { color: var(--color-ink); } }
 .seg button[aria-pressed="true"] { background: var(--color-ink); color: var(--color-paper); }
 /* Gauge: potongan melintang tebing, air terjun, pantai, dan tinggi laut (SVG) */
-.gauge { position: relative; width: 100%; aspect-ratio: 640 / 220; min-height: 11rem; border-radius: var(--radius-md); overflow: hidden; background: var(--color-paper); isolation: isolate; }
+.gauge { position: relative; width: 100%; aspect-ratio: 640 / 220; min-height: 11rem; border-radius: var(--radius-md); overflow: hidden; background: var(--color-paper); isolation: isolate; transition: background-color 900ms var(--ease-in-out); }
+/* Waktu: rona langit dan posisi matahari (pagi rendah di kanan, siang tinggi, sore turun ke bibir tebing) */
+.gauge[data-waktu="siang"] { background: color-mix(in oklab, var(--color-foam) 10%, var(--color-paper)); }
+.gauge[data-waktu="sore"] { background: color-mix(in oklab, var(--color-warn) 14%, var(--color-paper)); }
+.gg-matahari { fill: color-mix(in oklab, var(--color-warn) 55%, var(--color-accent)); transform: translate(320px, 72px); transition: transform 900ms var(--ease-in-out), fill 900ms var(--ease-in-out), opacity var(--dur-long) var(--ease-out); }
+.gauge[data-waktu="siang"] .gg-matahari { fill: var(--color-accent); transform: translate(232px, 38px); }
+.gauge[data-waktu="sore"] .gg-matahari { fill: var(--color-warn); transform: translate(214px, 112px); }
+.gauge.hujan .gg-matahari { opacity: 0; }
 .gauge svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .gg-tebing { fill: color-mix(in oklab, var(--color-accent) 18%, var(--color-paper-3)); stroke: var(--color-rule); stroke-width: 1.5; stroke-linejoin: round; }
 .gg-gurat { fill: none; stroke: var(--color-paper-2); stroke-width: 1.5; stroke-linecap: round; opacity: 0.45; }
@@ -422,42 +429,55 @@ html:not(.js) .turun__big > p, html.no-motion .turun__big > p { margin: 0; }
 .gg-pori { fill: none; stroke: var(--color-paper-2); stroke-width: 3; stroke-linecap: round; }
 .gg-air { fill: var(--color-foam); opacity: 0.75; }
 .gg-sungai { fill: none; stroke: var(--color-foam); stroke-width: 2.5; stroke-linecap: round; opacity: 0.75; }
-.gg-terjun { fill: none; stroke: var(--color-foam); stroke-width: 7; stroke-linejoin: round; stroke-linecap: round; opacity: 0.85; }
+.gg-terjun { fill: none; stroke: var(--color-foam); stroke-width: 7; stroke-linejoin: round; stroke-linecap: round; opacity: 0.85; transition: stroke-width var(--dur-long) var(--ease-out); }
 .gg-terjun--tipis { stroke-width: 2.5; opacity: 0.45; }
 .gg-terjun-arus { fill: none; stroke: var(--color-ink); stroke-width: 2; stroke-linecap: round; stroke-dasharray: 4 18; opacity: 0.55; animation: gg-arus 0.9s linear infinite; }
 @keyframes gg-arus { to { stroke-dashoffset: -44; } }
 .gg-percik { fill: var(--color-foam); opacity: 0.6; }
-.gg-pasir, .gg-batu, .gg-pori { transition: fill 900ms var(--ease-in-out), stroke 900ms var(--ease-in-out); }
+/* Koreografi: tiap elemen berubah saat air mencapainya. Transisi di state tujuan, jadi surut dan pasang punya urutan sendiri. */
+.gg-pasir, .gg-batu, .gg-pori { transition: fill 400ms var(--ease-out) 450ms, stroke 400ms var(--ease-out) 450ms; }
 .gg-pasir { fill: var(--color-accent); }
 .gg-batu { fill: var(--color-rule); }
-.gg-label { font-family: var(--font-body); font-size: 12px; font-weight: 600; letter-spacing: 0.04em; fill: var(--color-muted); transition: opacity var(--dur-long) var(--ease-out); }
+.gg-label { font-family: var(--font-body); font-size: 12px; font-weight: 600; letter-spacing: 0.04em; fill: var(--color-muted); transition: opacity 320ms var(--ease-out) 600ms; }
 .gg-label--pantai { fill: var(--color-accent-ink); }
-.gg-orang { fill: var(--color-ink); stroke: var(--color-ink); stroke-width: 2; stroke-linecap: round; transition: opacity var(--dur-long) var(--ease-out); }
-.gg-orang--atas { opacity: 0; }
+.gg-orang { fill: var(--color-ink); stroke: var(--color-ink); stroke-width: 2; stroke-linecap: round; }
+.gg-orang--bawah { transition: opacity 320ms var(--ease-out) 600ms, transform 320ms var(--ease-out) 600ms; }
+.gg-orang--atas { opacity: 0; transform: translateY(4px); transition: opacity 200ms var(--ease-out), transform 200ms var(--ease-out); }
 .gg-laut__level { transform: translateY(207px); transition: transform 900ms var(--ease-in-out); }
 .gg-ombak--depan { fill: color-mix(in oklch, var(--color-foam) 50%, var(--color-paper-3)); stroke: var(--color-foam); stroke-width: 1.5; animation: gg-ombak 7s linear infinite; }
 .gg-ombak--belakang { fill: color-mix(in oklch, var(--color-foam) 28%, var(--color-paper-2)); animation: gg-ombak 11s linear infinite reverse; }
 @keyframes gg-ombak { from { transform: translateX(0); } to { transform: translateX(-80px); } }
-.gg-semprot { fill: var(--color-foam); opacity: 0; transition: opacity var(--dur-long) var(--ease-out); }
+.gg-semprot { fill: var(--color-foam); opacity: 0; transition: opacity 200ms var(--ease-out); }
 .gg-semprot circle { animation: gg-semprot 1.6s var(--ease-out) infinite; }
 .gg-semprot circle:nth-child(2n) { animation-delay: -0.8s; }
 @keyframes gg-semprot { from { transform: translateY(6px); opacity: 0; } 40% { opacity: 1; } to { transform: translateY(-8px); opacity: 0; } }
-.gg-hujan { opacity: 0; transition: opacity var(--dur-long) var(--ease-out); animation: gg-hujan 0.6s linear infinite; }
+.gg-hujan { opacity: 0; transition: opacity 200ms var(--ease-out); animation: gg-hujan 0.6s linear infinite; }
 #gg-rintik path { fill: none; stroke: var(--color-muted); stroke-width: 1.4; stroke-linecap: round; opacity: 0.6; }
 @keyframes gg-hujan { from { transform: translateY(0); } to { transform: translateY(36px); } }
+/* Loop hanya jalan saat gauge terlihat dan elemennya tampil */
+html.js .gauge .gg-terjun-arus, html.js .gauge .gg-ombak, html.js .gauge .gg-semprot circle, html.js .gauge .gg-hujan { animation-play-state: paused; }
+html.js .gauge.is-live .gg-terjun-arus, html.js .gauge.is-live .gg-ombak, html.js .gauge.is-live.pasang .gg-semprot circle, html.js .gauge.is-live.hujan .gg-hujan { animation-play-state: running; }
 .gauge__level { position: absolute; right: var(--space-md); top: var(--space-sm); z-index: 3; color: var(--color-muted); font-size: var(--text-xs); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
 .gauge__level b { color: var(--color-ink); }
 .gauge.pasang .gg-laut__level { transform: translateY(146px); }
-.gauge.pasang .gg-label--pantai, .gauge.pasang .gg-orang--bawah { opacity: 0; }
+/* Pasang: orang bawah pergi dulu ke arah tebing, lalu muncul di atas; pasir larut saat air sampai (~250ms); semprotan saat ombak mencapai karang */
+.gauge.pasang .gg-label--pantai { opacity: 0; transition-duration: 200ms; transition-delay: 0ms; }
+.gauge.pasang .gg-orang--bawah { opacity: 0; transform: translateX(-6px); transition: opacity 200ms var(--ease-out), transform 200ms var(--ease-out); }
+.gauge.pasang .gg-orang--atas { opacity: 1; transform: none; transition: opacity 320ms var(--ease-out) 250ms, transform 320ms var(--ease-out) 250ms; }
+.gauge.pasang .gg-pasir, .gauge.pasang .gg-batu, .gauge.pasang .gg-pori { transition: fill 650ms var(--ease-out) 250ms, stroke 650ms var(--ease-out) 250ms; }
+.gauge.pasang .gg-semprot { opacity: 1; transition: opacity var(--dur-long) var(--ease-out) 600ms; }
+.gauge.hujan .gg-hujan { opacity: 1; transition-duration: var(--dur-long); }
+/* Hujan: debit air terjun naik */
+.gauge.hujan .gg-terjun { stroke-width: 10; }
+.gauge.hujan .gg-terjun-arus { animation-duration: 0.5s; }
 /* Pasang: pasir dan karang terendam, warnanya larut ke warna laut */
 .gauge.pasang .gg-pasir { fill: color-mix(in oklab, var(--color-accent) 22%, color-mix(in oklch, var(--color-foam) 50%, var(--color-paper-3))); }
 .gauge.pasang .gg-batu { fill: color-mix(in oklch, var(--color-rule) 45%, color-mix(in oklch, var(--color-foam) 50%, var(--color-paper-3))); }
 .gauge.pasang .gg-pori { stroke: color-mix(in oklch, var(--color-foam) 40%, var(--color-paper-3)); }
-.gauge.pasang .gg-orang--atas, .gauge.pasang .gg-semprot, .gauge.hujan .gg-hujan { opacity: 1; }
 .kondisi__fine { margin-top: calc(-1 * var(--space-sm)); }
 .verdict { --vc: var(--color-ok); background: var(--color-paper); border-radius: var(--radius-md); padding: var(--space-lg); }
-.verdict__body { display: grid; gap: var(--space-md); transition: opacity var(--dur-micro) var(--ease-out), transform var(--dur-micro) var(--ease-out); }
-.verdict__body.out { opacity: 0.2; transform: translateY(4px); }
+.verdict__body { display: grid; gap: var(--space-md); transition: opacity var(--dur-micro) var(--ease-out), transform var(--dur-micro) var(--ease-out), filter var(--dur-micro) var(--ease-out); }
+.verdict__body.out { opacity: 0.2; transform: translateY(4px); filter: blur(2px); }
 .verdict__status { display: inline-flex; align-items: center; gap: var(--space-xs); color: var(--vc); font-weight: 600; font-size: var(--text-sm); }
 .verdict__status i { width: 0.65rem; height: 0.65rem; border-radius: 50%; background: var(--vc); box-shadow: 0 0 0 4px color-mix(in oklch, var(--vc) 22%, transparent); }
 .verdict__title { font-family: var(--font-display); font-weight: 800; font-stretch: 84%; font-size: var(--text-lg); line-height: 1.05; letter-spacing: -0.02em; max-width: 22ch; text-wrap: balance; }
@@ -771,6 +791,7 @@ html.js .faq details[open] p { animation: faqIn var(--dur-long) var(--ease-out);
 /* ---------- Gerak dikurangi: tampil di posisi akhir ---------- */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition-duration: 150ms !important; animation: none !important; }
+  .gauge * { transition-delay: 0s !important; }
   .fold__img, .akhir__bg { height: 100%; }
   .hero__cue i::after { display: none; }
 }

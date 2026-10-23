@@ -446,6 +446,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var c = cond, items, status, title, color;
     seaViz.classList.toggle('pasang', c.laut === 'pasang');
     seaViz.classList.toggle('hujan', c.cuaca === 'hujan');
+    seaViz.dataset.waktu = c.waktu;
     gaugeLevel.textContent = c.laut === 'pasang' ? 'pasang' : 'surut';
     if (c.cuaca === 'hujan') {
       status = 'Sebaiknya ditunda'; color = 'var(--color-bad)'; title = 'Jalur makadam licin dan arus sungai naik. Tunda kunjungan.';
@@ -476,6 +477,9 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
   setVerdict(false);
+  // Loop ombak, arus, hujan hanya berjalan saat gauge ada di layar
+  if ('IntersectionObserver' in window) new IntersectionObserver(function (es) { seaViz.classList.toggle('is-live', es[0].isIntersecting); }).observe(seaViz);
+  else seaViz.classList.add('is-live');
 
   // ---------- Tab rute (klik dan tombol panah) ----------
   var tabs = $$('.tabs [role=tab]');
