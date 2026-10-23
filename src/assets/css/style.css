@@ -188,6 +188,7 @@ h3 { font-size: var(--text-md); font-weight: 700; font-stretch: 92%; line-height
   pointer-events: none;
 }
 .rail.is-hidden { opacity: 0; }
+html.turun-pinned .rail { opacity: 0; pointer-events: none; transition: opacity 0.3s; }
 .rail__label, .rail__end { writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; }
 .rail__label { color: var(--color-ink); font-weight: 600; transition: color var(--dur-theme) var(--ease-out); }
 .rail__line { position: relative; width: 1px; height: 30svh; background: color-mix(in oklch, currentColor 35%, transparent); }

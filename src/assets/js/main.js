@@ -226,6 +226,140 @@ document.addEventListener('DOMContentLoaded', function () {
   if (motion) {
     var mm = gsap.matchMedia();
 
+    // ---------- Turun: adegan close-up canyoning. Satu loop ticker membaca progres pin, menggerakkan dinding, air, foto, meteran, dan teks stasiun ----------
+    function turunDesktop() {
+      var panel = $('#turunPanel');
+      if (!panel) return;
+      var N = 4, TINGGI_M = 30, TRAVEL = 3;
+      var S = { raw: 0, p: 0, v: 0, amp: 0, phase: 0, bounce: 0, station: 0, dir: 1, lean: 0 };
+      var fig = $('#turunFigur'), aman = $('#turunAman'), meter = $('#turunMeter'), nomor = $('#turunNomor');
+      var bigs = $$('.turun__big', panel), photos = $$('.turun__foto img', panel);
+      // Dinding: tiap <i> digeser dengan transform sejauh d (px) modulo periode tile mask; periode = lebar × 1.3 × 1961 / 480
+      var wDekat = { el: $('#turunDekat i', panel), per: 0 }, wJauh = { el: $('#turunJauh i', panel), per: 0 }, wAir = { el: $('#turunAir i', panel), per: 0 };
+      var walls = [wDekat, wJauh, wAir];
+      // Potongan figur (dipakai penataan rig di Task 4)
+      var J = {};
+      ['rig', 'pahaB', 'betisB', 'pahaA', 'betisA', 'badan', 'lenganB', 'lenganB2', 'kepala', 'karabiner', 'lenganA', 'lenganA2'].forEach(function (id) { J[id] = $('#' + id, panel); });
+      var H = 0, lastMeter = '', photoOn = [];
+
+      function lerp(a, b, t) { return a + (b - a) * t; }
+      // Transform potongan: translate(sendi) rotate(sudut) scale(skala) translate(-pivot), sama dengan markup statis
+      function pose(el, a) {
+        var j = el.getAttribute('data-j').split(','), p = el.getAttribute('data-p').split(','), sc = el.getAttribute('data-s');
+        el.setAttribute('transform', 'translate(' + j[0] + ' ' + j[1] + ') rotate(' + a.toFixed(2) + ') scale(' + sc + ') translate(' + (-p[0]) + ' ' + (-p[1]) + ')');
+      }
+      function moveWall(w, d) {
+        var y = w.per > 0 ? -(((d % w.per) + w.per) % w.per) : 0;
+        w.el.style.transform = 'translate3d(0,' + y.toFixed(2) + 'px,0)';
+      }
+
+      // Ukuran yang bergantung layar: tinggi panel, periode dinding, dan tali pengaman yang sejajar tali di figur
+      function measure() {
+        H = panel.clientHeight;
+        walls.forEach(function (w) {
+          w.per = w.el.offsetWidth * 1.3 * 1961 / 480;
+          // <i> harus lebih tinggi satu periode dari kotaknya supaya tetap menutup saat digeser naik
+          w.el.style.height = Math.ceil(w.el.parentNode.clientHeight + w.per) + 'px';
+        });
+        var pt = new DOMPoint(60, 0).matrixTransform(fig.getScreenCTM());
+        aman.style.left = (pt.x - panel.getBoundingClientRect().left - 20) + 'px';
+        aman.style.top = (H * 0.3) + 'px';
+      }
+
+      function showStation(i, dir) {
+        bigs.forEach(function (b, k) {
+          var lines = $$('.ln > span', b), rest = [$('.turun__tag', b), $('p:last-child', b)];
+          gsap.killTweensOf([b].concat(lines, rest));
+          if (k === i) {
+            b.classList.add('is-on'); gsap.set(b, { opacity: 1 });
+            gsap.fromTo(lines, { yPercent: dir > 0 ? 110 : -110 }, { yPercent: 0, duration: 0.9, ease: 'expo.out', stagger: 0.08 });
+            gsap.fromTo(rest, { opacity: 0, y: dir > 0 ? 16 : -16 }, { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out', stagger: 0.08, delay: 0.1 });
+          } else if (b.classList.contains('is-on')) {
+            gsap.to(lines, { yPercent: dir > 0 ? -110 : 110, duration: 0.4, ease: 'power3.in' });
+            gsap.to(b, { opacity: 0, duration: 0.35, ease: 'power2.in', onComplete: function () { b.classList.remove('is-on'); } });
+          }
+        });
+        nomor.textContent = '0' + (i + 1);
+      }
+
+      function tick(time, dtMs) {
+        var dt = Math.min(0.05, (dtMs || 0) / 1000), prev = S.p;
+        S.p = lerp(S.p, S.raw, 1 - Math.pow(0.0005, dt));
+        S.v = lerp(S.v, (S.p - prev) / Math.max(dt, 1e-4), 1 - Math.pow(0.001, dt));
+        if (Math.abs(S.v) > 0.02) S.dir = S.v > 0 ? 1 : -1;
+        var vn = Math.min(1, Math.abs(S.v) / 0.45);
+        S.amp = lerp(S.amp, vn, 1 - Math.pow(0.002, dt));
+        S.phase += dt * (0.15 + 2.1 * vn) * 2 * Math.PI;
+
+        var st = Math.max(0, Math.min(N - 1, Math.round(S.p * (N - 1))));
+        if (st !== S.station) {
+          var dir = st > S.station ? 1 : -1;
+          S.station = st; showStation(st, dir);
+          gsap.killTweensOf(S, 'bounce');
+          gsap.fromTo(S, { bounce: dir * 22 }, { bounce: 0, duration: 1.1, ease: 'elastic.out(1, 0.35)' });
+        }
+
+        // Dinding naik mengikuti gulir; air ikut dinding dan mengalir ke bawah 140 px/detik
+        var d = S.p * TRAVEL * H, t = (time || 0) % ((wAir.per || 1) / 140);
+        moveWall(wDekat, d);
+        moveWall(wJauh, d * 0.45);
+        moveWall(wAir, d - 140 * t);
+
+        // Foto latar: crossfade per stasiun, bergeser pelan lewat transform
+        photos.forEach(function (im, k) {
+          var c = k / (N - 1), w = 1 / (N - 1), o = Math.min(1, 1.6 * Math.max(0, 1 - Math.abs(S.p - c) / (w * 0.9))) * 0.6;
+          im.style.opacity = o.toFixed(3);
+          im.style.transform = 'translate3d(0,' + (S.p * -10).toFixed(2) + '%,0)';
+          var on = o > 0.05;
+          if (on !== photoOn[k]) { photoOn[k] = on; im.setAttribute('aria-hidden', on ? 'false' : 'true'); }
+        });
+
+        // Meteran menunggu di 0 m sampai tengah stasiun 02 (p = 1/3), lalu naik rata
+        var m = Math.round(Math.max(0, (S.p - 1 / 3) / (2 / 3)) * TINGGI_M) + ' m';
+        if (m !== lastMeter) { lastMeter = m; meter.textContent = m; }
+      }
+
+      var pin = ST.create({
+        trigger: panel, start: 'top top', end: '+=' + (N * 120) + '%', pin: true, anticipatePin: 1, refreshPriority: 2,
+        onUpdate: function (t) { S.raw = t.progress; },
+        onRefresh: function (t) { S.raw = t.progress; },
+        onToggle: function (t) { root.classList.toggle('turun-pinned', t.isActive); }
+      });
+      // Muat ulang di tengah bagian: mulai dari progres tersimpan, bukan dari 0
+      S.raw = S.p = pin.progress;
+      S.station = Math.max(0, Math.min(N - 1, Math.round(S.p * (N - 1))));
+      bigs.forEach(function (b, k) { b.classList.toggle('is-on', k === S.station); });
+      nomor.textContent = '0' + (S.station + 1);
+      // Foto lebih tinggi 12% dari panel supaya geseran naik sampai 10% tidak membuka celah di bawah
+      photos.forEach(function (im) { im.style.height = '112%'; });
+      measure();
+      tick(0, 0);
+      gsap.ticker.add(tick);
+      window.addEventListener('resize', measure);
+      ST.addEventListener('refresh', measure);
+      if (location.search.indexOf('debug') > -1) { window.__turun = S; window.__turunTick = tick; }
+
+      return function () {
+        gsap.ticker.remove(tick);
+        window.removeEventListener('resize', measure);
+        ST.removeEventListener('refresh', measure);
+        pin.kill();
+        root.classList.remove('turun-pinned');
+        bigs.forEach(function (b) {
+          var lines = $$('.ln > span', b), rest = [$('.turun__tag', b), $('p:last-child', b)];
+          gsap.killTweensOf([b].concat(lines, rest));
+          gsap.set([b].concat(lines, rest), { clearProps: 'all' });
+        });
+        gsap.killTweensOf(S);
+        gsap.set(walls.map(function (w) { return w.el; }).concat(photos, aman), { clearProps: 'all' });
+        photos.forEach(function (im) { im.removeAttribute('aria-hidden'); });
+        bigs.forEach(function (b, k) { b.classList.toggle('is-on', k === 0); });
+        nomor.textContent = '01'; meter.textContent = '0 m';
+        if (window.__turun === S) { delete window.__turun; delete window.__turunTick; }
+      };
+    }
+    mm.add('(min-width: 64rem)', turunDesktop);
+
     // ---------- Galeri: digeser horizontal saat discroll, tiap foto ber-parallax ----------
     mm.add('(min-width: 64rem)', function () {
       root.classList.add('is-pinned');
