@@ -311,7 +311,14 @@ html.js .ticker__track { animation: ticker 48s linear infinite; }
 @supports not (mask-mode: luminance) { .turun__dinding { display: none; } }
 .turun__dinding--dekat { opacity: 0.6; }
 .turun__dinding--jauh { opacity: 0.2; width: calc(var(--wall-w) * 0.85 + 24vw); left: calc(-24vw + var(--wall-w) * 0.62); transform: rotate(-6deg); }
-.turun__dinding--air { opacity: 0.95; clip-path: inset(0 0 0 52%); }
+/* Air terjun: debit kecil, jadi hanya pita tipis putih di atas batu (47-65% lebar kotak, tepi memudar). Tile air rata kiri
+   supaya pita mengambil bagian tile yang selalu penuh; tepi tebing tile yang bergelombang membuat pita putus-putus. */
+.turun__dinding--air {
+  opacity: 0.85;
+  -webkit-mask-image: linear-gradient(to right, transparent 47%, #000 52%, #000 60%, transparent 65%);
+  mask-image: linear-gradient(to right, transparent 47%, #000 52%, #000 60%, transparent 65%);
+}
+.turun__dinding--air > i { background: var(--color-ink); -webkit-mask-position: 0 0; mask-position: 0 0; }
 /* Figur: rig 11 potongan, warna dari token lewat currentColor */
 .turun__figur {
   position: absolute; left: var(--fig-x); top: var(--fig-top); height: var(--fig-h); aspect-ratio: 740 / 1760; overflow: visible;
