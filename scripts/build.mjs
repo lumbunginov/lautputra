@@ -13,7 +13,14 @@ const dist = path.join(root, 'dist');
 const kb = (n) => (n / 1024).toFixed(1) + ' KB';
 const hash = (buf) => createHash('sha256').update(buf).digest('hex').slice(0, 8);
 
-await rm(dist, { recursive: true, force: true });
+// Kosongkan dist/. Di Windows, folder yang sedang dibuka Explorer/terminal tidak bisa dihapus (EBUSY/EPERM);
+// kalau begitu, hapus isinya saja dan pakai foldernya lagi.
+try {
+  await rm(dist, { recursive: true, force: true });
+} catch (e) {
+  if (e.code !== 'EBUSY' && e.code !== 'EPERM' && e.code !== 'ENOTEMPTY') throw e;
+  for (const name of await readdir(dist)) await rm(path.join(dist, name), { recursive: true, force: true });
+}
 await mkdir(dist, { recursive: true });
 await cp(src, dist, { recursive: true });
 
