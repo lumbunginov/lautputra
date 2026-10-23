@@ -307,6 +307,8 @@ html.js .ticker__track { animation: ticker 48s linear infinite; }
   -webkit-mask-repeat: repeat-y; mask-repeat: repeat-y;
   -webkit-mask-position: 100% 0; mask-position: 100% 0;
 }
+/* Peramban tanpa mask-mode akan menggambar dinding sebagai lempengan aksen pejal, jadi disembunyikan */
+@supports not (mask-mode: luminance) { .turun__dinding { display: none; } }
 .turun__dinding--dekat { opacity: 0.6; }
 .turun__dinding--jauh { opacity: 0.2; width: calc(var(--wall-w) * 0.85 + 24vw); left: calc(-24vw + var(--wall-w) * 0.62); transform: rotate(-6deg); }
 .turun__dinding--air { opacity: 0.95; clip-path: inset(0 0 0 52%); }
@@ -337,9 +339,11 @@ html.js .ticker__track { animation: ticker 48s linear infinite; }
 .turun__big .ln > span { display: inline-block; }
 .turun__big em { font-family: var(--font-accent); font-style: italic; font-weight: 400; font-stretch: 100%; letter-spacing: -0.01em; color: var(--color-accent); }
 .turun__big > p:last-child { margin: 0; color: var(--color-muted); font-size: var(--text-sm); line-height: 1.55; max-width: 42ch; }
-/* Dengan JS dan gerak: hanya stasiun aktif yang tampak, bertumpuk di pojok kanan bawah */
-html.js:not(.no-motion) .turun__big { position: absolute; inset: auto 0 0 0; opacity: 0; visibility: hidden; }
-html.js:not(.no-motion) .turun__big.is-on { opacity: 1; visibility: visible; }
+/* Dengan JS dan gerak: hanya stasiun aktif yang tampak, bertumpuk di pojok kanan bawah.
+   Tanpa visibility:hidden supaya keempat stasiun tetap ada di pohon aksesibilitas (tidak ada tautan di dalamnya);
+   blok tak aktif cukup transparan dan kebal pointer agar teksnya tak bisa terseleksi lewat seret. */
+html.js:not(.no-motion) .turun__big { position: absolute; inset: auto 0 0 0; opacity: 0; pointer-events: none; }
+html.js:not(.no-motion) .turun__big.is-on { opacity: 1; pointer-events: auto; }
 /* Kedua mode (desktop dan ponsel) dipin: ruang di bawah panel datang dari pin-spacer, jadi padding bawah bagian dibuang di keduanya. */
 html.js:not(.no-motion) .turun { padding-bottom: 0; }
 /* Foto lebih tinggi 12% dari panel supaya geseran naik sampai 10% (transform dari JS) tidak membuka celah di bawah */
@@ -378,6 +382,13 @@ html:not(.js) .turun__big > p, html.no-motion .turun__big > p { margin: 0; }
   .turun__hud small { font-size: 10px; }
   .turun__hud b { font-size: 20px; }
   html.js:not(.no-motion) .turun__teks { left: var(--gutter); right: var(--gutter); bottom: clamp(20px, 4svh, 36px); width: auto; }
+  /* Latar kertas bergradien di belakang tiap blok (melebar sampai tepi layar, naik ~2rem di atas tag) supaya teks terbaca di atas tekstur dinding */
+  html.js:not(.no-motion) .turun__big {
+    --teks-bawah: clamp(20px, 4svh, 36px);
+    margin: 0 calc(-1 * var(--gutter)) calc(-1 * var(--teks-bawah));
+    padding: 2rem var(--gutter) var(--teks-bawah);
+    background: linear-gradient(to top, color-mix(in oklch, var(--color-paper) 92%, transparent) 0%, color-mix(in oklch, var(--color-paper) 75%, transparent) 60%, transparent 100%);
+  }
   html.js:not(.no-motion) .turun__tag { margin-bottom: 10px; }
   html.js:not(.no-motion) .turun__big h3 { font-size: clamp(40px, 11vw, 60px); margin-bottom: 12px; }
   html.js:not(.no-motion) .turun__big > p:last-child {

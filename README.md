@@ -31,6 +31,8 @@ npm install      # sekali saja
 npm run build
 ```
 
+`npm run check` memeriksa anggaran aset adegan Turun (tambahkan `-- --dist` untuk memeriksa hasil build).
+
 Build akan melakukan:
 - minify CSS, JS, dan HTML (library vendor disalin apa adanya)
 - kompres foto (lebar maks 1000 px, mozjpeg)

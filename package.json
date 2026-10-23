@@ -5,7 +5,8 @@
   "description": "Situs promosi dan pemesanan Wisata Umbul Waru (lautputra.com)",
   "type": "module",
   "scripts": {
-    "build": "node scripts/build.mjs"
+    "build": "node scripts/build.mjs",
+    "check": "node scripts/check-turun-aset.mjs"
   },
   "devDependencies": {
     "esbuild": "^0.25.0",

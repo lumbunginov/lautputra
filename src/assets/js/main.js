@@ -1,4 +1,4 @@
-// Interaksi halaman Umbul Waru: Lenis + GSAP (intro hero, urutan "Turun", galeri, parallax, tombol magnet),
+// Interaksi halaman Umbul Waru: Lenis + GSAP (intro hero, adegan close-up "Turun", galeri, parallax, tombol magnet),
 // babak warna, menu, kondisi laut, rute, dan pemesanan WhatsApp. Reduced-motion: semua gerak dilewati.
 document.addEventListener('DOMContentLoaded', function () {
   var doc = document;
@@ -250,7 +250,7 @@ document.addEventListener('DOMContentLoaded', function () {
       // Keadaan statis dari markup, dipulihkan saat adegan dicabut
       var statis = {}, statisD = tali.getAttribute('d');
       Object.keys(J).forEach(function (id) { statis[id] = J[id].getAttribute('transform'); });
-      var H = 0, lastMeter = '', photoOn = [];
+      var H = 0, lastMeter = '', photoOn = [], lastFoto = -1;
 
       function lerp(a, b, t) { return a + (b - a) * t; }
       // Transform potongan: translate(sendi) rotate(sudut) scale(skala) translate(-pivot), sama dengan markup statis
@@ -305,6 +305,8 @@ document.addEventListener('DOMContentLoaded', function () {
         var vn = Math.min(1, Math.abs(S.v) / 0.45);
         S.amp = lerp(S.amp, vn, 1 - Math.pow(0.002, dt));
         S.phase += dt * (0.15 + 2.1 * vn) * 2 * Math.PI;
+        // Di luar layar: cukup keadaan skalar di atas, tanpa tulis DOM maupun getScreenCTM (hindari layout paksa tiap frame)
+        if (!S.vis) return;
 
         var st = Math.max(0, Math.min(N - 1, Math.round(S.p * (N - 1))));
         if (st !== S.station) {
@@ -321,7 +323,9 @@ document.addEventListener('DOMContentLoaded', function () {
         moveWall(wAir, d - 140 * t);
 
         // Foto latar: crossfade per stasiun, bergeser pelan lewat transform
-        photos.forEach(function (im, k) {
+        var tulisFoto = Math.abs(S.p - lastFoto) > 1e-4;
+        if (tulisFoto) lastFoto = S.p;
+        if (tulisFoto) photos.forEach(function (im, k) {
           var c = k / (N - 1), w = 1 / (N - 1), o = Math.min(1, 1.6 * Math.max(0, 1 - Math.abs(S.p - c) / (w * 0.9))) * 0.6;
           im.style.opacity = o.toFixed(3);
           im.style.transform = 'translate3d(0,' + (S.p * -10).toFixed(2) + '%,0)';
@@ -370,6 +374,9 @@ document.addEventListener('DOMContentLoaded', function () {
         onRefresh: function (t) { S.raw = t.progress; },
         onToggle: function (t) { root.classList.toggle('turun-pinned', t.isActive); }
       });
+      // Gerbang visibilitas: loop hanya menulis DOM selagi bagian ini terlihat di layar (tanpa pin)
+      var visGate = ST.create({ trigger: '#turun', start: 'top bottom', end: 'bottom top', onToggle: function (t) { S.vis = t.isActive; } });
+      S.vis = visGate.isActive;
       // Muat ulang di tengah bagian: mulai dari progres tersimpan, bukan dari 0
       S.raw = S.p = pin.progress;
       S.station = Math.max(0, Math.min(N - 1, Math.round(S.p * (N - 1))));
@@ -386,6 +393,7 @@ document.addEventListener('DOMContentLoaded', function () {
         gsap.ticker.remove(tick);
         ST.removeEventListener('refresh', measure);
         pin.kill();
+        visGate.kill();
         root.classList.remove('turun-pinned');
         blocks.forEach(function (o) {
           var all = [o.b].concat(o.lines, o.rest);
