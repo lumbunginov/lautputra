@@ -144,56 +144,71 @@
   </div>
 </section>
 
-<!-- Turun: urutan foto yang berganti mengikuti gulir; di desktop dipin, di ponsel ditumpuk -->
+<!-- Turun: adegan close-up rappelling; desktop dipin dan di-scrub (JS), tanpa JS atau reduced-motion tampil sebagai komposisi statis lalu empat stasiun ditumpuk -->
 <section class="turun" id="turun" aria-labelledby="turun-title">
   <div class="turun__intro">
     <p class="eyebrow">Satu lokasi, satu perjalanan turun</p>
     <h2 class="split" id="turun-title">Dari kolam di atas tebing sampai pasir di kaki air terjun.</h2>
     <p class="lede">Pantainya sempit dan ombak selatannya besar. Yang membuat orang rela menempuh jalan makadam adalah apa yang ada di atas dan di samping pantai itu.</p>
   </div>
-  <div class="turun__pin" id="turunPin" style="--turun-depth: 0">
-    <div class="turun__num" aria-hidden="true"><span id="turunNum">01</span><small>/ 04</small></div>
-    <!-- Tali: garis turun dengan simpul per langkah dan karabiner yang ikut gulir (hanya dengan JS + gerak) -->
-    <div class="turun__rope" id="turunRope" aria-hidden="true">
-      <i class="rope__line"></i><i class="rope__fill" id="ropeFill"></i>
-      <b class="rope__knot" data-knot="0"></b><b class="rope__knot" data-knot="1"></b><b class="rope__knot" data-knot="2"></b><b class="rope__knot" data-knot="3"></b>
-      <span class="rope__clip" id="ropeClip"><i></i><em id="ropeDepth">0%</em></span>
+  <div class="turun__panel" id="turunPanel">
+    <div class="turun__foto">
+      <img src="assets/img/galeri-puncak-tebing.jpg" alt="Peserta merentangkan tangan di puncak tebing menghadap Samudra Hindia" width="1012" height="1800" loading="eager" decoding="async">
+      <img src="assets/img/galeri-siap-turun.jpg" alt="Peserta memegang tali rappelling, ombak putih di belakangnya" width="1012" height="1800" loading="eager" decoding="async">
+      <img src="assets/img/galeri-turun-tebing.jpg" alt="Peserta rappelling di tebing dengan garis pantai dan laut di latar belakang" width="1012" height="1800" loading="eager" decoding="async">
+      <img src="assets/img/galeri-bawah-air-terjun.jpg" alt="Peserta canyoneering bergelantungan di tebing tepat di samping air terjun, ombak laut di bawahnya" width="1350" height="1800" loading="eager" decoding="async">
+      <i class="turun__grad"></i>
     </div>
-    <ol class="turun__steps" id="turunSteps">
-      <li class="turun__step is-active">
-        <figure class="turun__media"><img src="assets/img/galeri-puncak-tebing.jpg" alt="Peserta merentangkan tangan di puncak tebing menghadap Samudra Hindia" width="1012" height="1800" loading="lazy" decoding="async"></figure>
-        <div class="turun__text">
-          <span class="turun__tag">Atas tebing</span>
-          <h3>Kolam alami tanpa tepi</h3>
-          <p>Cekungan sungai sebelum terjun menampung air jernih. Berendam di sini terasa seperti kolam tanpa tepi dengan latar laut lepas.</p>
-        </div>
-      </li>
-      <li class="turun__step">
-        <figure class="turun__media"><img src="assets/img/galeri-siap-turun.jpg" alt="Peserta memegang tali rappelling, ombak putih di belakangnya" width="1012" height="1800" loading="lazy" decoding="async"></figure>
-        <div class="turun__text">
-          <span class="turun__tag">Bibir air terjun</span>
-          <h3>Helm, harness, cek simpul</h3>
-          <p>Pemandu lokal Desa Sidomulyo memasang alat dan mengecek tali. Di depan hanya ada Samudra Hindia.</p>
-        </div>
-      </li>
-      <li class="turun__step">
-        <figure class="turun__media"><img src="assets/img/galeri-turun-tebing.jpg" alt="Peserta rappelling di tebing dengan garis pantai dan laut di latar belakang" width="1012" height="1800" loading="lazy" decoding="async"></figure>
-        <div class="turun__text">
-          <span class="turun__tag">Di tali</span>
-          <h3>Menuruni dinding kapur</h3>
-          <p>Rappelling di samping air terjun, menyusuri relief tebing hasil gerusan laut. Percikan ombak terasa sebelum kaki menyentuh pasir.</p>
-        </div>
-      </li>
-      <li class="turun__step">
-        <figure class="turun__media"><img src="assets/img/galeri-bawah-air-terjun.jpg" alt="Peserta canyoneering bergelantungan di tebing tepat di samping air terjun, ombak laut di bawahnya" width="1350" height="1800" loading="lazy" decoding="async"></figure>
-        <div class="turun__text">
-          <span class="turun__tag">Pantai</span>
-          <h3>Pasir putih di kaki air terjun</h3>
-          <p>Air sungai jatuh tepat ke batuan karang di bibir pantai. Debitnya disebut tidak kering saat kemarau, dan paling deras di musim hujan.</p>
-        </div>
-      </li>
-    </ol>
-    <div class="turun__bar" aria-hidden="true"><i id="turunBar"></i></div>
+    <div class="turun__dinding turun__dinding--jauh" id="turunJauh"><i></i></div>
+    <div class="turun__dinding turun__dinding--dekat" id="turunDekat"><i></i></div>
+    <div class="turun__dinding turun__dinding--air" id="turunAir"><i></i></div>
+    <i class="turun__aman" id="turunAman"></i>
+    <svg class="turun__figur" id="turunFigur" viewBox="-230 -330 740 1760" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+      <defs>
+        <mask id="mk-kepala" maskUnits="userSpaceOnUse" x="0" y="0" width="320" height="510"><image href="assets/img/rig/kepala.webp" width="320" height="510"/></mask>
+        <mask id="mk-badan" maskUnits="userSpaceOnUse" x="0" y="0" width="572" height="1137"><image href="assets/img/rig/badan.webp" width="572" height="1137"/></mask>
+        <mask id="mk-karabiner" maskUnits="userSpaceOnUse" x="0" y="0" width="834" height="1437"><image href="assets/img/rig/karabiner.webp" width="834" height="1437"/></mask>
+        <mask id="mk-lengan-atas-kiri" maskUnits="userSpaceOnUse" x="0" y="0" width="1017" height="441"><image href="assets/img/rig/lengan-atas-kiri.webp" width="1017" height="441"/></mask>
+        <mask id="mk-lengan-atas-kanan" maskUnits="userSpaceOnUse" x="0" y="0" width="1017" height="440"><image href="assets/img/rig/lengan-atas-kanan.webp" width="1017" height="440"/></mask>
+        <mask id="mk-lengan-bawah-kiri" maskUnits="userSpaceOnUse" x="0" y="0" width="944" height="277"><image href="assets/img/rig/lengan-bawah-kiri.webp" width="944" height="277"/></mask>
+        <mask id="mk-lengan-bawah-kanan" maskUnits="userSpaceOnUse" x="0" y="0" width="941" height="259"><image href="assets/img/rig/lengan-bawah-kanan.webp" width="941" height="259"/></mask>
+        <mask id="mk-paha-kiri" maskUnits="userSpaceOnUse" x="0" y="0" width="450" height="1000"><image href="assets/img/rig/paha-kiri.webp" width="450" height="1000"/></mask>
+        <mask id="mk-paha-kanan" maskUnits="userSpaceOnUse" x="0" y="0" width="450" height="1000"><image href="assets/img/rig/paha-kanan.webp" width="450" height="1000"/></mask>
+        <mask id="mk-betis-kiri" maskUnits="userSpaceOnUse" x="0" y="0" width="250" height="400"><image href="assets/img/rig/betis-kiri.webp" width="250" height="400"/></mask>
+        <mask id="mk-betis-kanan" maskUnits="userSpaceOnUse" x="0" y="0" width="250" height="400"><image href="assets/img/rig/betis-kanan.webp" width="250" height="400"/></mask>
+      </defs>
+      <path class="turun__tali" id="turunTali" d="M146 -2000 L146 -223 L227 578 C 267 638, 389 567, 419 607 C 429 807, 433 1300, 433 1430"/>
+      <g id="rig">
+        <g id="kakiJauh" opacity=".45">
+          <g id="pahaB" data-j="147,500" data-p="215,229" data-s=".49" transform="translate(147 500) rotate(70) scale(.49) translate(-215 -229)"><rect width="450" height="1000" fill="currentColor" mask="url(#mk-paha-kanan)"/>
+            <g id="betisB" data-j="243,900" data-p="158,60" data-s="2.8" transform="translate(243 900) rotate(-14) scale(2.8) translate(-158 -60)"><rect width="250" height="400" fill="currentColor" mask="url(#mk-betis-kanan)"/></g>
+          </g>
+        </g>
+        <g id="kakiDekat">
+          <g id="pahaA" data-j="147,500" data-p="215,229" data-s=".49" transform="translate(147 500) rotate(62) scale(.49) translate(-215 -229)"><rect width="450" height="1000" fill="currentColor" mask="url(#mk-paha-kiri)"/>
+            <g id="betisA" data-j="243,900" data-p="158,60" data-s="2.8" transform="translate(243 900) rotate(-8) scale(2.8) translate(-158 -60)"><rect width="250" height="400" fill="currentColor" mask="url(#mk-betis-kiri)"/></g>
+          </g>
+        </g>
+        <g id="badan" data-j="147,500" data-p="286,1181" data-s=".4" transform="translate(147 500) rotate(18) scale(.4) translate(-286 -1181)">
+          <g id="lenganB" data-j="392,256" data-p="880,220" data-s=".67" opacity=".7" transform="translate(392 256) rotate(-100) scale(.67) translate(-880 -220)"><rect width="1017" height="440" fill="currentColor" mask="url(#mk-lengan-atas-kanan)"/>
+            <g id="lenganB2" data-j="100,236" data-p="845,129" data-s="1.4" transform="translate(100 236) rotate(-40) scale(1.4) translate(-845 -129)"><rect width="941" height="259" fill="currentColor" mask="url(#mk-lengan-bawah-kanan)"/></g>
+          </g>
+          <g id="kepala" data-j="292,115" data-p="152,303" data-s="2.25" transform="translate(292 115) rotate(-4) scale(2.25) translate(-152 -303)"><rect width="320" height="510" fill="currentColor" mask="url(#mk-kepala)"/></g>
+          <rect width="572" height="1137" fill="currentColor" mask="url(#mk-badan)"/>
+          <g id="karabiner" data-j="98,838" data-p="538,40" data-s=".13" transform="translate(98 838) rotate(0) scale(.13) translate(-538 -40)"><rect width="834" height="1437" fill="currentColor" mask="url(#mk-karabiner)"/></g>
+          <g id="lenganA" data-j="392,256" data-p="880,220" data-s=".67" transform="translate(392 256) rotate(15) scale(.67) translate(-880 -220)"><rect width="1017" height="441" fill="currentColor" mask="url(#mk-lengan-atas-kiri)"/>
+            <g id="lenganA2" data-j="100,236" data-p="845,129" data-s="1.4" transform="translate(100 236) rotate(60) scale(1.4) translate(-845 -129)"><rect width="944" height="277" fill="currentColor" mask="url(#mk-lengan-bawah-kiri)"/></g>
+          </g>
+        </g>
+      </g>
+    </svg>
+    <div class="turun__hud"><small>Kedalaman</small><b id="turunMeter">0 m</b><span><b id="turunNomor">01</b>/ 04</span></div>
+    <div class="turun__teks">
+      <div class="turun__big is-on" data-stasiun="0" style="--foto: url(../img/galeri-puncak-tebing.jpg)"><p class="turun__tag">01 · Atas tebing</p><h3><span class="ln"><span>Kolam alami</span></span><span class="ln"><span><em>tanpa tepi.</em></span></span></h3><p>Cekungan sungai sebelum terjun menampung air jernih. Berendam di sini terasa seperti kolam tanpa tepi dengan latar laut lepas.</p></div>
+      <div class="turun__big" data-stasiun="1" style="--foto: url(../img/galeri-siap-turun.jpg)"><p class="turun__tag">02 · Bibir air terjun</p><h3><span class="ln"><span>Helm, harness,</span></span><span class="ln"><span><em>cek simpul.</em></span></span></h3><p>Pemandu lokal Desa Sidomulyo memasang alat dan mengecek tali. Di depan hanya ada Samudra Hindia.</p></div>
+      <div class="turun__big" data-stasiun="2" style="--foto: url(../img/galeri-turun-tebing.jpg)"><p class="turun__tag">03 · Di tali</p><h3><span class="ln"><span>Menuruni</span></span><span class="ln"><span><em>dinding kapur.</em></span></span></h3><p>Rappelling di samping air terjun, menyusuri relief tebing hasil gerusan laut. Percikan ombak terasa sebelum kaki menyentuh pasir.</p></div>
+      <div class="turun__big" data-stasiun="3" style="--foto: url(../img/galeri-bawah-air-terjun.jpg)"><p class="turun__tag">04 · Pantai</p><h3><span class="ln"><span>Pasir putih</span></span><span class="ln"><span>di kaki <em>air terjun.</em></span></span></h3><p>Air sungai jatuh tepat ke batuan karang di bibir pantai. Debitnya disebut tidak kering saat kemarau, dan paling deras di musim hujan.</p></div>
+    </div>
   </div>
 </section>
 

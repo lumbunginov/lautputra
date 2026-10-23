@@ -276,72 +276,88 @@ html.js .ticker__track { animation: ticker 48s linear infinite; }
 .ticker li::after { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--color-accent); }
 @keyframes ticker { to { transform: translateX(-50%); } }
 
-/* ---------- Turun: urutan foto ---------- */
+/* ---------- Turun: adegan close-up rappelling ---------- */
 .turun { padding-block: var(--space-3xl) var(--space-2xl); }
 .turun__intro { display: grid; gap: var(--space-lg); padding-inline: var(--gutter); margin-bottom: var(--space-2xl); }
-.turun__pin { position: relative; display: grid; gap: var(--space-2xl); padding-inline: var(--gutter); }
-.turun__num, .turun__bar, .turun__rope { display: none; }
-/* Tali: garis, isian kemajuan, simpul per langkah, karabiner dengan label persen turun */
-html.js:not(.no-motion) .turun__rope { display: block; position: absolute; width: 2px; }
-.rope__line, .rope__fill { position: absolute; inset: 0; border-radius: 1px; }
-.rope__line { background: color-mix(in oklch, var(--color-ink) 16%, transparent); }
-.rope__fill { background: var(--color-accent); transform: scaleY(0); transform-origin: top; }
-.rope__knot { position: absolute; left: 50%; width: 0.7rem; height: 0.7rem; border-radius: 50%; translate: -50% -50%; background: var(--color-paper); border: 2px solid color-mix(in oklch, var(--color-ink) 28%, transparent); transition: border-color 0.4s var(--ease-out), background-color 0.4s var(--ease-out), transform 0.4s var(--ease-out); }
-.rope__knot.is-passed { background: var(--color-accent); border-color: var(--color-accent); }
-.rope__knot.is-here { transform: scale(1.35); }
-.rope__clip { position: absolute; left: 50%; top: 0; display: grid; justify-items: center; gap: 0.35rem; translate: -50% -50%; transform-origin: 50% 0; }
-.rope__clip i { width: 1.1rem; height: 1.6rem; border: 3px solid var(--color-accent); border-radius: 0.55rem 0.55rem 0.5rem 0.5rem / 0.6rem 0.6rem 0.9rem 0.9rem; background: var(--color-paper); box-shadow: 0 6px 18px color-mix(in oklch, var(--color-accent) 35%, transparent); }
-.rope__clip em { font-family: var(--font-display); font-style: normal; font-weight: 800; font-stretch: 80%; font-size: var(--text-sm); letter-spacing: -0.01em; font-variant-numeric: tabular-nums; color: var(--color-accent); white-space: nowrap; }
-/* Ponsel: tali menempel di tepi kiri daftar langkah; simpul diposisikan JS di tengah tiap foto */
-@media (max-width: 63.99rem) {
-  html.js:not(.no-motion) .turun__pin { padding-left: calc(var(--gutter) + 2rem); }
-  html.js:not(.no-motion) .turun__rope { left: calc(var(--gutter) + 0.35rem); top: 0; bottom: 0; }
-  /* Label persen ditulis vertikal di bawah karabiner supaya tidak menimpa foto */
-  html.js:not(.no-motion) .rope__clip em { writing-mode: vertical-rl; font-size: var(--text-xs); margin-top: 0.1rem; }
+.turun__panel {
+  --wall-w: calc(4vw + 26vh); --fig-x: calc(4vw + 26.5vh);
+  position: relative; height: 100svh; overflow: hidden; background: var(--color-paper);
 }
-.turun__step { display: grid; gap: var(--space-md); }
-.turun__media { position: relative; aspect-ratio: 4 / 5; border-radius: var(--radius-md); overflow: hidden; background: var(--color-paper-2); }
-.turun__media img { width: 100%; height: 100%; object-fit: cover; }
-.turun__text { display: grid; gap: var(--space-sm); max-width: 44ch; }
-.turun__tag { color: var(--color-accent); font-size: var(--text-xs); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
-.turun__text h3 { font-size: var(--text-lg); font-weight: 800; font-stretch: 84%; letter-spacing: -0.02em; }
-.turun__text p { color: var(--color-muted); }
+/* Foto asli sebagai suasana: hanya foto pertama tampak sampai JS mengatur crossfade; gradien menggelapkan kiri dan bawah */
+.turun__foto { position: absolute; inset: 0; }
+.turun__foto img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 60% 0; opacity: 0; }
+.turun__foto img:first-child { opacity: 0.6; }
+.turun__grad {
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(to right, color-mix(in oklch, var(--color-paper) 97%, transparent) 0%, color-mix(in oklch, var(--color-paper) 90%, transparent) 42%, color-mix(in oklch, var(--color-paper) 50%, transparent) 100%),
+    linear-gradient(to top, color-mix(in oklch, var(--color-scrim) 92%, transparent), transparent 50%);
+}
+/* Dinding: lempengan travertin miring, diputar dari sudut kanan-atas dan diperlebar ke kiri/atas supaya tanpa celah.
+   Isinya (<i>) setinggi 300vh dengan tile mask luminance yang diulang; JS menggesernya naik mengikuti gulir. */
+.turun__dinding { position: absolute; left: -24vw; top: -12vh; height: 128vh; width: calc(var(--wall-w) + 24vw); transform-origin: 100% 0; transform: rotate(-9deg); pointer-events: none; }
+.turun__dinding > i {
+  position: absolute; inset: 0 0 auto 0; height: 300vh; background: var(--color-accent);
+  -webkit-mask-image: url(../img/dinding-turun.webp); mask-image: url(../img/dinding-turun.webp);
+  -webkit-mask-mode: luminance; mask-mode: luminance;
+  -webkit-mask-size: 130% auto; mask-size: 130% auto;
+  -webkit-mask-repeat: repeat-y; mask-repeat: repeat-y;
+  -webkit-mask-position: 100% 0; mask-position: 100% 0;
+}
+.turun__dinding--dekat { opacity: 0.6; }
+.turun__dinding--jauh { opacity: 0.2; width: calc(var(--wall-w) * 0.85 + 24vw); left: calc(-24vw + var(--wall-w) * 0.62); transform: rotate(-6deg); }
+.turun__dinding--air { opacity: 0.95; clip-path: inset(0 0 0 52%); }
+/* Tali pengaman diagonal (tebing ke pantai); JS menimpa left/top dengan nilai terukur */
+.turun__aman {
+  position: absolute; left: calc(var(--fig-x) + (60 + 230) / 740 * (80svh * 740 / 1760) - 20px); top: 30svh;
+  width: 160vw; height: 2px; background: var(--color-accent); opacity: 0.35; transform-origin: 0 0; transform: rotate(17deg); pointer-events: none;
+}
+/* Figur: rig 11 potongan, warna dari token lewat currentColor */
+.turun__figur {
+  position: absolute; left: var(--fig-x); top: 8svh; height: 80svh; aspect-ratio: 740 / 1760; overflow: visible;
+  color: var(--color-ornamen); filter: drop-shadow(0 8px 18px rgba(0 0 0 / 0.55)); pointer-events: none;
+}
+.turun__tali { stroke: var(--color-accent); stroke-width: 4; fill: none; opacity: 0.9; }
+/* Kanan atas: kedalaman dan nomor stasiun */
+.turun__hud { position: absolute; z-index: 4; right: 40px; top: 28px; text-align: right; font-size: var(--text-xs); letter-spacing: 0.04em; text-shadow: 0 1px 12px rgba(0 0 0 / 0.7); }
+.turun__hud small { display: block; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-muted); }
+.turun__hud b { font-family: var(--font-display); font-weight: 800; font-size: 28px; line-height: 1.2; color: var(--color-accent); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+.turun__hud > b { display: block; }
+.turun__hud span { display: block; margin-top: var(--space-sm); color: var(--color-muted); }
+.turun__hud span b { margin-right: 6px; }
+/* Kanan bawah: teks stasiun bergaya hero */
+.turun__teks { position: absolute; z-index: 4; right: clamp(24px, 4vw, 56px); bottom: clamp(28px, 6vh, 56px); width: min(50%, 680px); }
+.turun__big::before { content: none; }
+.turun__tag { color: var(--color-accent); font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; margin: 0 0 14px; }
+.turun__big h3 { margin: 0 0 18px; font-family: var(--font-display); font-weight: 800; font-stretch: 78%; font-size: clamp(52px, 7.6vw, 112px); line-height: 0.88; letter-spacing: -0.03em; color: var(--color-ink); }
+.turun__big .ln { display: block; overflow: hidden; padding-bottom: 0.06em; margin-bottom: -0.06em; }
+.turun__big .ln > span { display: inline-block; }
+.turun__big em { font-family: var(--font-accent); font-style: italic; font-weight: 400; font-stretch: 100%; letter-spacing: -0.01em; color: var(--color-accent); }
+.turun__big > p:last-child { margin: 0; color: var(--color-muted); font-size: var(--text-sm); line-height: 1.55; max-width: 42ch; }
+/* Dengan JS dan gerak: hanya stasiun aktif yang tampak, bertumpuk di pojok kanan bawah */
+html.js:not(.no-motion) .turun__big { position: absolute; inset: auto 0 0 0; opacity: 0; visibility: hidden; }
+html.js:not(.no-motion) .turun__big.is-on { opacity: 1; visibility: visible; }
+html.js:not(.no-motion) .turun { padding-bottom: 0; }
+/* Tanpa JS atau reduced-motion: panel jadi satu layar statis sebagai pembuka (tanpa HUD); empat stasiun ditumpuk di bawahnya.
+   Panel memanjang ke bawah (padding-top 100svh = layar pembuka), dipotong ke kotaknya; lapisan yang meluber ke area teks tertutup latar teks. */
+html:not(.js) .turun__panel, html.no-motion .turun__panel { height: auto; overflow: visible; clip-path: inset(0); padding-top: 100svh; }
+html:not(.js) .turun__foto, html.no-motion .turun__foto { bottom: auto; height: 100svh; }
+html:not(.js) .turun__hud, html.no-motion .turun__hud { display: none; }
+html:not(.js) .turun__teks, html.no-motion .turun__teks {
+  position: relative; right: auto; bottom: auto; width: auto; background: var(--color-paper);
+  display: grid; gap: var(--space-3xl); padding: var(--space-2xl) var(--gutter);
+}
+html:not(.js) .turun__big, html.no-motion .turun__big { display: grid; gap: var(--space-md); width: min(100%, 40rem); position: static; opacity: 1; visibility: visible; }
+/* --foto diisi di atribut style tiap blok; url() di custom property dihitung dari lokasi stylesheet ini, makanya ../img/ */
+html:not(.js) .turun__big::before, html.no-motion .turun__big::before {
+  content: ""; display: block; aspect-ratio: 4 / 5; max-height: 60svh; border-radius: var(--radius-md); background: var(--foto) center / cover;
+}
+html:not(.js) .turun__big h3, html.no-motion .turun__big h3 { font-size: clamp(40px, 6vw, 72px); margin: 0; }
+html:not(.js) .turun__big > p, html.no-motion .turun__big > p { margin: 0; }
 @media (min-width: 64rem) {
   .turun__intro { grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); align-items: end; column-gap: var(--space-3xl); }
   .turun__intro .eyebrow { grid-column: 1 / -1; }
   .turun__intro .lede { align-self: end; }
-  /* Tanpa JS atau reduced-motion: tiap langkah dua kolom, foto dibatasi tingginya */
-  .turun__step { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); column-gap: var(--space-3xl); align-items: center; }
-  .turun__media { height: min(70svh, 40rem); aspect-ratio: auto; }
-  /* Desktop dengan gerak penuh: satu panel dipin, foto dan teks bertumpuk lalu berganti mengikuti gulir */
-  html.js:not(.no-motion) .turun__pin {
-    position: relative; height: 100svh; gap: 0;
-    grid-template-columns: minmax(0, 0.9fr) 2rem minmax(0, 1.1fr); column-gap: var(--space-2xl);
-    align-items: center; padding-block: var(--space-xl);
-    /* --turun-depth 0..1 (diisi GSAP): latar makin dalam makin biru, seperti turun dari bayang tebing ke air */
-    background: color-mix(in oklch, var(--color-paper) calc((1 - var(--turun-depth, 0)) * 100%), oklch(10% 0.05 240));
-  }
-  html.js:not(.no-motion) .turun__steps { display: contents; }
-  html.js:not(.no-motion) .turun__step { display: contents; }
-  /* Tiap figure jadi jendela yang sama (bertumpuk); gambar di dalamnya digeser vertikal seperti strip yang diturunkan */
-  html.js:not(.no-motion) .turun__media { grid-column: 3; grid-row: 1; height: min(78svh, 46rem); aspect-ratio: auto; border-radius: var(--radius-lg); background: transparent; will-change: transform; transform-origin: 50% 0; }
-  html.js:not(.no-motion) .turun__step:first-child .turun__media { background: var(--color-paper-2); }
-  html.js:not(.no-motion) .turun__media img { will-change: transform; }
-  html.js:not(.no-motion) .turun__text { grid-column: 1; grid-row: 1; align-self: end; padding-bottom: var(--space-xl); }
-  html.js:not(.no-motion) .turun__rope { grid-column: 2; grid-row: 1; position: relative; align-self: stretch; justify-self: center; margin-block: var(--space-md) var(--space-xl); }
-  html.js:not(.no-motion) .rope__knot[data-knot="0"] { top: 0; }
-  html.js:not(.no-motion) .rope__knot[data-knot="1"] { top: 33.333%; }
-  html.js:not(.no-motion) .rope__knot[data-knot="2"] { top: 66.666%; }
-  html.js:not(.no-motion) .rope__knot[data-knot="3"] { top: 100%; }
-  html.js:not(.no-motion) .turun__step:not(.is-active) .turun__media, html.js:not(.no-motion) .turun__step:not(.is-active) .turun__text { opacity: 0; }
-  html.js:not(.no-motion) .turun__num {
-    display: flex; align-items: baseline; gap: var(--space-xs); grid-column: 1; grid-row: 1; align-self: start;
-    font-family: var(--font-display); font-weight: 800; font-stretch: 78%; font-size: var(--text-2xl); line-height: 1; letter-spacing: -0.03em; font-variant-numeric: tabular-nums;
-  }
-  html.js:not(.no-motion) .turun__num small { font-family: var(--font-body); font-weight: 600; font-size: var(--text-sm); color: var(--color-muted); letter-spacing: 0.06em; }
-  html.js:not(.no-motion) .turun__bar { display: block; grid-column: 1; grid-row: 1; align-self: end; height: 2px; background: color-mix(in oklch, var(--color-ink) 14%, transparent); overflow: hidden; }
-  html.js:not(.no-motion) .turun__bar i { display: block; height: 100%; background: var(--color-accent); transform: scaleX(0); transform-origin: left; }
-  html.js:not(.no-motion) .turun { padding-bottom: 0; }
 }
 
 /* ---------- Kapan datang ---------- */
