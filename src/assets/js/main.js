@@ -445,6 +445,7 @@ document.addEventListener('DOMContentLoaded', function () {
   function setVerdict(animate) {
     var c = cond, items, status, title, color;
     seaViz.classList.toggle('pasang', c.laut === 'pasang');
+    seaViz.classList.toggle('hujan', c.cuaca === 'hujan');
     gaugeLevel.textContent = c.laut === 'pasang' ? 'pasang' : 'surut';
     if (c.cuaca === 'hujan') {
       status = 'Sebaiknya ditunda'; color = 'var(--color-bad)'; title = 'Jalur makadam licin dan arus sungai naik. Tunda kunjungan.';
