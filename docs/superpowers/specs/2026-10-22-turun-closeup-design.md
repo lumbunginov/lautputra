@@ -163,6 +163,19 @@ Kalau pengujian di ponsel nyata menunjukkan pin patah-patah, cadangannya: tanpa 
 - Ukuran WebP tiap potongan (batas di bagian Aset) dan apakah warna dibakar atau lewat CSS.
 - Pembaruan `README.md` (bagian "Desain dan gerak") dan `.hallmark/log.json` sesuai kebiasaan repo.
 
+### Perubahan saat implementasi (2026-10-23)
+
+Yang dibangun menyimpang dari rancangan di atas pada hal berikut (rancangan di atas dibiarkan sebagai catatan keputusan awal):
+
+- **Format mask.** Rig dan dinding adalah WebP **abu-abu tanpa alpha** (luminance; putih = tinta, hitam = kertas), bukan mask beralpha. Rig dipakai lewat SVG `<mask>` luminance (`<image>` di dalamnya) dengan `<rect fill="currentColor">` yang diberi `mask="url(#mk-...)"`; dinding lewat CSS `mask-mode: luminance`. Dibuat oleh `scripts/ornamen.mjs`; diperiksa `scripts/check-turun-aset.mjs` (mode `--dist` memeriksa hasil build: WebP byte-identik dengan `src/`).
+- **Lebar WebP:** kepala 260, badan 240, karabiner 100, lengan (keempatnya) 400, paha 200, betis 250, dinding 480×1961 (752×3072 diperkecil ke lebar 480). Tinggi mengikuti rasio sumber.
+- **Anggaran:** rig <= 250 KB (terukur 141.5 KB), dinding <= 450 KB (terukur 427.6 KB; target 300 KB di bagian Aset dilonggarkan demi kontur), total <= 600 KB (terukur 569.2 KB, sama persis di `dist/`).
+- **Ujung tali rem.** Tali satu path: lurus dari atas ke genggaman tangan atas, ke ujung karabiner, melengkung ke genggaman tangan rem, lalu turun keluar kotak figur; kurva terakhir berakhir di `(hB.x+14, 2200)` dengan titik kontrol kedua `(hB.x+14, 1500)` (y dalam satuan viewBox, jauh di bawah tepi bawah kotak figur) sehingga tali tidak berhenti di dalam layar. `hB` = genggaman tangan rem hasil `getScreenCTM()`.
+- **Sepatu menjejak permukaan, bukan siluet.** Sepatu mendarat 80–320 px (satuan layar, diuji di 1280/1440/1920) di dalam tepi kanan kotak dinding, yaitu pada permukaan dinding, bukan tepat di garis siluet tepi.
+- **Ukuran lewat variabel CSS** di `.turun__panel`: `--fig-h`, `--fig-top`, `--fig-x`, `--wall-w`. Desktop: `--wall-w: calc(4vw + 26vh)`, `--fig-x: calc(4vw + 26.5vh)`, `--fig-h: 80svh`, `--fig-top: 8svh`. JS tidak punya angka ukuran; ia hanya menerima panjang pin per stasiun (`opts.endPct`: 120 desktop, 100 ponsel) dan mengukur ulang periode tile dinding serta tali pengaman di `measure()`.
+- **Pose diam sebagai keadaan statis.** Rotasi kaki pada pose hidup saat diam (paha dekat 59, betis dekat −2, paha jauh 69, betis jauh −10) dibakar ke `transform` di `src/index.html`, sehingga mode tanpa JS dan reduced-motion sama dengan pose hidup tanpa gerak. Tinggi `<i>` dinding 300vh di CSS hanya cadangan tanpa JS; dengan JS tingginya tinggi kotak + satu periode tile.
+- **Ponsel (< 64rem, pasangan `(max-width: 63.999rem)` di CSS dan JS):** **pin dipertahankan** (cadangan sticky tidak dibutuhkan), `turunCloseup({ endPct: 100 })`. Nilai akhir: `--wall-w: calc(4vw + 14svh)`, `--fig-x: calc(4vw + 14.5svh)`, `--fig-h: 62svh`, `--fig-top: 6svh`; teks stasiun di bawah dengan gutter (`bottom: clamp(20px, 4svh, 36px)`), judul `clamp(40px, 11vw, 60px)`, lead 13px dipotong 3 baris; HUD kanan atas lebih kecil (`right/top: 16px`, label 10px, meteran 20px). Gerak dan logika loop identik dengan desktop.
+
 ## Verifikasi sebelum selesai
 
 - Screenshot pada tiga momen (diam, gulir cepat, berhenti di stasiun 3) di 1280×800 dan 390×844, dibandingkan dengan spike.

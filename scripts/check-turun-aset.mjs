@@ -1,6 +1,7 @@
 // Cek aset Turun (11 potongan rig + tile dinding, WebP abu-abu tanpa alpha sebagai luminance mask) hasil scripts/ornamen.mjs.
 // Keluar dengan kode 1 bila ada yang gagal; mencetak tabel nama / ukuran / KB.
-// Jalankan: node scripts/check-turun-aset.mjs
+// Jalankan: node scripts/check-turun-aset.mjs            (cek sumber di src/)
+//           node scripts/check-turun-aset.mjs --dist     (cek hasil build di dist/: WebP byte-identik, total <= 600 KB, cetak ukuran JS/CSS)
 import sharp from 'sharp';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -17,6 +18,8 @@ const BATAS_RIG_KB = 250;
 const BATAS_DINDING_KB = 450;
 const BATAS_TOTAL_KB = 600;
 const DINDING_W = 480, DINDING_H = 1961; // 752x3072 diperkecil ke lebar 480
+
+const MODE_DIST = process.argv.includes('--dist');
 
 const gagal = [];
 const baris = [];
@@ -81,6 +84,30 @@ if (!fs.existsSync(path.join(root, dinding))) {
   baris.push(['dinding-turun', `${w}x${h}`, kb.toFixed(1)]);
   cek(totalRig + kb <= BATAS_TOTAL_KB, `rig + dinding ${(totalRig + kb).toFixed(1)} KB melebihi ${BATAS_TOTAL_KB} KB`);
   baris.push(['(total rig + dinding)', '', (totalRig + kb).toFixed(1)]);
+}
+
+// Mode --dist: hasil build harus memuat WebP rig + dinding yang byte-identik dengan src/ (build tidak boleh mengompres ulang WebP).
+if (MODE_DIST) {
+  const dRig = path.join(root, 'dist/assets/img/rig');
+  if (!fs.existsSync(dRig)) {
+    gagal.push('dist/ belum dibangun (tidak ada dist/assets/img/rig); jalankan npm run build');
+  } else {
+    let totalDist = 0;
+    const berkas = [...Object.keys(RIG).map((n) => `assets/img/rig/${n}.webp`), 'assets/img/dinding-turun.webp'];
+    for (const rel of berkas) {
+      const d = path.join(root, 'dist', rel), s = path.join(root, 'src', rel);
+      if (!fs.existsSync(d)) { gagal.push(`tidak ada di dist: ${rel}`); continue; }
+      totalDist += fs.statSync(d).size / 1024;
+      if (fs.existsSync(s) && !fs.readFileSync(d).equals(fs.readFileSync(s))) gagal.push(`dist/${rel} tidak byte-identik dengan src/`);
+    }
+    cek(totalDist <= BATAS_TOTAL_KB, `dist rig + dinding ${totalDist.toFixed(1)} KB melebihi ${BATAS_TOTAL_KB} KB`);
+    baris.push(['(dist rig + dinding)', '', totalDist.toFixed(1)]);
+    for (const rel of ['assets/js/main.js', 'assets/css/style.css']) {
+      const f = path.join(root, 'dist', rel);
+      if (!fs.existsSync(f)) { gagal.push(`tidak ada di dist: ${rel}`); continue; }
+      baris.push([`dist/${rel} (info)`, '', (fs.statSync(f).size / 1024).toFixed(1)]);
+    }
+  }
 }
 
 console.log('nama'.padEnd(22) + 'ukuran'.padEnd(12) + 'KB');

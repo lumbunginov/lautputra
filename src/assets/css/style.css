@@ -188,7 +188,7 @@ h3 { font-size: var(--text-md); font-weight: 700; font-stretch: 92%; line-height
   pointer-events: none;
 }
 .rail.is-hidden { opacity: 0; }
-html.turun-pinned .rail { opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+html.turun-pinned .rail { opacity: 0; pointer-events: none; transition: color var(--dur-theme) var(--ease-out), opacity 0.3s; }
 .rail__label, .rail__end { writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; }
 .rail__label { color: var(--color-ink); font-weight: 600; transition: color var(--dur-theme) var(--ease-out); }
 .rail__line { position: relative; width: 1px; height: 30svh; background: color-mix(in oklch, currentColor 35%, transparent); }
@@ -296,7 +296,8 @@ html.js .ticker__track { animation: ticker 48s linear infinite; }
     linear-gradient(to top, color-mix(in oklch, var(--color-scrim) 92%, transparent), transparent 50%);
 }
 /* Dinding: lempengan travertin miring, diputar dari sudut kanan-atas dan diperlebar ke kiri/atas supaya tanpa celah.
-   Isinya (<i>) setinggi 300vh dengan tile mask luminance yang diulang; JS menggesernya naik mengikuti gulir. */
+   Isinya (<i>) berisi tile mask luminance yang diulang; JS menggesernya naik mengikuti gulir dan menyetel tingginya
+   (tinggi kotak + satu periode tile, lihat measure()); 300vh di bawah hanya nilai cadangan tanpa JS. */
 .turun__dinding { position: absolute; left: -24vw; top: -12vh; height: 128vh; width: calc(var(--wall-w) + 24vw); transform-origin: 100% 0; transform: rotate(-9deg); pointer-events: none; }
 .turun__dinding > i {
   position: absolute; inset: 0 0 auto 0; height: 300vh; background: var(--color-accent);

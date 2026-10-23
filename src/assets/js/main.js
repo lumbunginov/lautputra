@@ -273,8 +273,11 @@ document.addEventListener('DOMContentLoaded', function () {
           // <i> harus lebih tinggi satu periode dari kotaknya supaya tetap menutup saat digeser naik
           w.el.style.height = Math.ceil(w.el.parentNode.clientHeight + w.per) + 'px';
         });
-        var pt = new DOMPoint(60, 0).matrixTransform(fig.getScreenCTM());
-        aman.style.left = (pt.x - panel.getBoundingClientRect().left - 20) + 'px';
+        var ctm0 = fig.getScreenCTM();
+        if (ctm0) {
+          var pt = new DOMPoint(60, 0).matrixTransform(ctm0);
+          aman.style.left = (pt.x - panel.getBoundingClientRect().left - 20) + 'px';
+        }
         aman.style.top = (H * 0.3) + 'px';
       }
 

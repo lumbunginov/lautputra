@@ -31,5 +31,16 @@
     "nav": "N5 (ikut babak warna, sembunyi saat gulir turun)",
     "footer": "Ft5",
     "brief": "Permintaan: gulir di bagian Turun harus terasa seperti canyoneering. Tinggi tebing tidak dicantumkan karena sumber berbeda (30 m vs 80 m); meteran dibuat persen."
+  },
+  {
+    "date": "2026-10-23",
+    "macrostructure": "Photographic (bagian Turun jadi adegan close-up: figur boneka 11 potongan menuruni dinding miring)",
+    "theme": "custom dua babak: laut (gelap) dan pantai (pasir terang)",
+    "theme_axes": "dark / display-heavy / warm",
+    "vibe": "close-up menuruni dinding basah, air mengalir di sebelah, tali satu garis dari atas",
+    "enrichment": "rig SVG mask WebP, warna token; dinding CSS mask miring −9°, air mengalir; tali satu path",
+    "nav": "N5 (ikut babak warna, sembunyi saat gulir turun)",
+    "footer": "Ft5",
+    "brief": "Permintaan: bagian Turun diganti adegan close-up figur menuruni dinding, gulir menggerakkan dinding, air, foto latar, dan pose. Tinggi lintasan 30 m, meteran menunggu sampai tengah stasiun 02 lalu naik rata."
   }
 ]
