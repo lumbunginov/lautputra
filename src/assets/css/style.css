@@ -370,7 +370,8 @@ html:not(.js) .turun__big > p, html.no-motion .turun__big > p { margin: 0; }
 }
 /* Ponsel: figur lebih kecil (62svh), dinding menyempit, teks stasiun di bawah figur selebar layar dengan gutter, HUD lebih kecil.
    Ukuran lewat variabel panel; teks hanya untuk mode gerak (blok statis tanpa JS/reduced-motion punya aturannya sendiri). */
-@media (max-width: 63.99rem) {
+/* 63.999rem (bukan 63.99rem) supaya lebar pecahan antara 63.99 dan 64rem tetap tercakup; pasangan dengan (min-width: 64rem) di main.js */
+@media (max-width: 63.999rem) {
   .turun__panel { --wall-w: calc(4vw + 14svh); --fig-x: calc(4vw + 14.5svh); --fig-h: 62svh; --fig-top: 6svh; }
   .turun__hud { right: 16px; top: 16px; }
   .turun__hud small { font-size: 10px; }

@@ -229,6 +229,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // ---------- Turun: adegan close-up canyoning. Satu loop ticker membaca progres pin, menggerakkan dinding, air, foto, meteran, dan teks stasiun ----------
     // Dipakai kedua media (desktop dan ponsel); ukuran figur/dinding dari variabel CSS di .turun__panel, JS hanya menerima panjang pin per stasiun (opts.endPct, % tinggi layar).
     // Ponsel: tetap dipin seperti desktop. Gulir cepat 390x844 dengan CPU 4x (CDP): frame Δt p95 16,7 ms (batas 33 ms), maks 25 ms, jadi cadangan sticky tanpa pin tidak dipakai.
+    // Strip gelap di screenshot gulir ponsel hanya artefak Playwright screenshot(): lewat CDP Page.captureScreenshot (gulir sentuh dan rAF) strip <= 0,8 px di 23 frame.
     function turunCloseup(opts) {
       var panel = $('#turunPanel');
       if (!panel) return;
@@ -399,7 +400,8 @@ document.addEventListener('DOMContentLoaded', function () {
       };
     }
     mm.add('(min-width: 64rem)', function () { return turunCloseup({ endPct: 120 }); });
-    mm.add('(max-width: 63.99rem)', function () { return turunCloseup({ endPct: 100 }); });
+    // 63.999rem (bukan 63.99rem): lebar pecahan antara 63.99 dan 64rem tidak jatuh di celah antara dua media
+    mm.add('(max-width: 63.999rem)', function () { return turunCloseup({ endPct: 100 }); });
 
     // ---------- Galeri: digeser horizontal saat discroll, tiap foto ber-parallax ----------
     mm.add('(min-width: 64rem)', function () {
