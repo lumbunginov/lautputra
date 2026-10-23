@@ -348,7 +348,7 @@ document.addEventListener('DOMContentLoaded', function () {
           var f = function (n) { return n.toFixed(1); };
           tali.setAttribute('d', 'M' + f(hA.x) + ' -2000 L' + f(hA.x) + ' ' + f(hA.y) + ' L' + f(kr.x) + ' ' + f(kr.y) +
             ' C' + f(kr.x + 40) + ' ' + f(kr.y + 60) + ' ' + f(hB.x - 30) + ' ' + f(hB.y - 40) + ' ' + f(hB.x) + ' ' + f(hB.y) +
-            ' C' + f(hB.x + 10) + ' ' + f(hB.y + 200) + ' ' + f(hB.x + 14) + ' 1300 ' + f(hB.x + 14) + ' 1430');
+            ' C' + f(hB.x + 10) + ' ' + f(hB.y + 200) + ' ' + f(hB.x + 14) + ' 1500 ' + f(hB.x + 14) + ' 2200');
         }
 
         // Meteran menunggu di 0 m sampai tengah stasiun 02 (p = 1/3), lalu naik rata
