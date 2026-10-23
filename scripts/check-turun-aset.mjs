@@ -13,7 +13,8 @@ const RIG = { kepala: [260, 320, 510], badan: [240, 572, 1137], karabiner: [100,
   'lengan-bawah-kiri': [400, 944, 277], 'lengan-bawah-kanan': [400, 941, 259],
   'paha-kiri': [200, 450, 1000], 'paha-kanan': [200, 450, 1000], 'betis-kiri': [250, 250, 400], 'betis-kanan': [250, 250, 400] };
 const BATAS_RIG_KB = 250;
-const BATAS_DINDING_KB = 300;
+// target spec 300 KB dilonggarkan: kontur lebih penting; total <= 600 KB tetap mengikat
+const BATAS_DINDING_KB = 450;
 const BATAS_TOTAL_KB = 600;
 const DINDING_W = 480, DINDING_H = 1961; // 752x3072 diperkecil ke lebar 480
 

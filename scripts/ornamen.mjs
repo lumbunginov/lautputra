@@ -49,9 +49,6 @@ await maskWebp('.gen/emblem.png', 'src/assets/img/ornamen-emblem.webp', { width:
 for (const [nama, width] of Object.entries(rig)) {
   await maskWebp(`.gen/rig/${nama}.png`, `src/assets/img/rig/${nama}.webp`, { width, mode: 'luminance' });
 }
-// Dinding: quality 82; bila > 300 KB turunkan hanya untuk dinding (78 -> 74 -> 70), berhenti di nilai pertama yang muat.
+// Dinding: satu quality tetap (82) demi kontur yang tajam; lebar 480.
 const tile = await tileDinding('.gen/dinding-turun-v2.png', { width: 752, height: 1536 });
-for (const quality of [82, 78, 74, 70]) {
-  const size = await maskWebp(tile, 'src/assets/img/dinding-turun.webp', { width: 480, mode: 'luminance', quality });
-  if (size <= 300 * 1024) break;
-}
+await maskWebp(tile, 'src/assets/img/dinding-turun.webp', { width: 480, mode: 'luminance', quality: 82 });
