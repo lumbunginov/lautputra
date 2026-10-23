@@ -243,7 +243,7 @@ document.addEventListener('DOMContentLoaded', function () {
       var wDekat = { el: $('#turunDekat i', panel), per: 0 }, wJauh = { el: $('#turunJauh i', panel), per: 0 }, wAir = { el: $('#turunAir i', panel), per: 0 };
       var walls = [wDekat, wJauh, wAir];
       // Potongan figur dan sudut dasar pose menggantung (derajat)
-      var BASE = { badan: 18, kepala: -4, lenganA: 15, lenganA2: 60, lenganB: -100, lenganB2: -40, pahaA: 62, betisA: -8, pahaB: 70, betisB: -14 };
+      var BASE = { badan: 18, kepala: -4, lenganA: 15, lenganA2: 60, lenganB: -100, lenganB2: -40 };
       var tali = $('#turunTali', panel), inv, ptA = new DOMPoint(120, 160), ptB = new DOMPoint(120, 130), ptK = new DOMPoint(538, 1300);
       var J = {};
       ['rig', 'pahaB', 'betisB', 'pahaA', 'betisA', 'badan', 'lenganB', 'lenganB2', 'kepala', 'karabiner', 'lenganA', 'lenganA2'].forEach(function (id) { J[id] = $('#' + id, panel); });
@@ -251,6 +251,19 @@ document.addEventListener('DOMContentLoaded', function () {
       var statis = {}, statisD = tali.getAttribute('d');
       Object.keys(J).forEach(function (id) { statis[id] = J[id].getAttribute('transform'); });
       var H = 0, lastMeter = '', photoOn = [], lastFoto = -1;
+
+      // Kaki: IK dua tulang (paha, betis) dalam satuan viewBox. Sendi dan pivot dari data-j/data-p markup: panggul (147,500),
+      // lutut = gambar paha (243,900), pergelangan = gambar betis (165,320). Pergelangan menempel di garis dinding dekat yang
+      // miring 9° (sama dengan .turun__dinding), lewat pergelangan kaki dekat pada pose statis (paha 59°, betis -2°).
+      var D2R = Math.PI / 180, HIP = { x: 147, y: 500 };
+      var V1 = { x: 28 * 0.49, y: 671 * 0.49 }, V2 = { x: 7 * 0.49 * 2.8, y: 260 * 0.49 * 2.8 };
+      var L1 = Math.hypot(V1.x, V1.y), L2 = Math.hypot(V2.x, V2.y), PHI1 = Math.atan2(V1.y, V1.x), PHI2 = Math.atan2(V2.y, V2.x);
+      var U = { x: Math.sin(9 * D2R), y: Math.cos(9 * D2R) }, NRM = { x: U.y, y: -U.x }; // U menuruni dinding, NRM menjauhi dinding
+      var F0 = { x: HIP.x + L1 * Math.cos(59 * D2R + PHI1) + L2 * Math.cos(57 * D2R + PHI2), y: HIP.y + L1 * Math.sin(59 * D2R + PHI1) + L2 * Math.sin(57 * D2R + PHI2) };
+      var t0 = (HIP.x - F0.x) * U.x + (HIP.y - F0.y) * U.y, C = { x: F0.x + t0 * U.x, y: F0.y + t0 * U.y }; // C: titik dinding terdekat ke panggul
+      // s = jarak pijakan menuruni dinding dari C. Pose statis ada di s ≈ 289 (kaki lurus); langkah memakai rentang S_ATAS..S_BAWAH
+      var S_BAWAH = 268, S_ATAS = 20, ANGKAT = 95, figK = 1, Dw = null;
+      var kaki = [{ paha: J.pahaA, betis: J.betisA, w: 0, s: S_BAWAH, ayun: null }, { paha: J.pahaB, betis: J.betisB, w: 0, s: 140, ayun: null }];
 
       function lerp(a, b, t) { return a + (b - a) * t; }
       // Transform potongan: translate(sendi) rotate(sudut) scale(skala) translate(-pivot), sama dengan markup statis
@@ -265,9 +278,50 @@ document.addEventListener('DOMContentLoaded', function () {
         w.el.style.transform = 'translate3d(0,' + y.toFixed(2) + 'px,0)';
       }
 
+      // Pergelangan ke (x, y) di ruang rig; lutut menekuk ke atas. Target di luar jangkauan dipendekkan ke panjang kaki
+      function ik(k, x, y) {
+        var dx = x - HIP.x, dy = y - HIP.y, al = Math.atan2(dy, dx);
+        var d = Math.max(Math.abs(L1 - L2) + 1, Math.min(L1 + L2 - 0.5, Math.hypot(dx, dy)));
+        var t1 = al + Math.acos((L1 * L1 + d * d - L2 * L2) / (2 * L1 * d));
+        var kx = HIP.x + L1 * Math.cos(t1), ky = HIP.y + L1 * Math.sin(t1);
+        var t2 = Math.atan2(HIP.y + d * Math.sin(al) - ky, HIP.x + d * Math.cos(al) - kx), a = (t1 - PHI1) / D2R;
+        pose(k.paha, a);
+        pose(k.betis, (t2 - PHI2) / D2R - a);
+      }
+      // Berjalan mundur menuruni tebing: kaki berpijak menempel di dinding dan ikut naik bersama dinding (d px layar -> satuan
+      // viewBox lewat figK). Kalau pijakan sudah terlalu tinggi, kaki diangkat menjauhi dinding dan dipijakkan lagi di bawah;
+      // gulir balik membalik arahnya. Hanya satu kaki mengayun sekaligus. Kembali dari luar layar (lompatan besar): pijakan disetel ulang.
+      function langkah(dt, d, rigY) {
+        var D = d / figK, v = Dw === null ? 0 : (D - Dw) / Math.max(dt, 1e-4);
+        if (Dw === null || Math.abs(D - Dw) > 400) kaki.forEach(function (k, i) { k.ayun = null; k.w = (i ? 140 : S_BAWAH) + D; v = 0; });
+        Dw = D;
+        kaki.forEach(function (k, i) {
+          if (!k.ayun) {
+            k.s = k.w - D;
+            var naik = k.s < S_ATAS, mundur = k.s > S_BAWAH + 18;
+            if ((naik || mundur) && !kaki[1 - i].ayun) {
+              k.ayun = { s0: k.s, s1: naik ? S_BAWAH : S_ATAS + 60, u: 0, T: Math.max(0.16, Math.min(0.55, (S_BAWAH - S_ATAS) / (Math.abs(v) * 1.3 + 1))) };
+            }
+          }
+          var lift = 0;
+          if (k.ayun) {
+            var a = k.ayun, e;
+            a.u = Math.min(1, a.u + dt / a.T);
+            e = a.u * a.u * (3 - 2 * a.u);
+            // Angkat dulu, baru turun: puncak angkatan di awal ayunan, pijakan mendarat pelan
+            k.s = a.s0 + (a.s1 - a.s0) * e;
+            lift = ANGKAT * Math.sin(Math.PI * Math.pow(a.u, 0.75));
+            if (a.u >= 1) { k.ayun = null; k.w = k.s + D; }
+          }
+          ik(k, C.x + U.x * k.s + NRM.x * lift, C.y + U.y * k.s + NRM.y * lift - rigY);
+        });
+      }
+
       // Ukuran yang bergantung layar: tinggi panel dan periode dinding
       function measure() {
         H = panel.clientHeight;
+        var c = fig.getScreenCTM();
+        if (c && c.a) figK = c.a;
         walls.forEach(function (w) {
           w.per = w.el.offsetWidth * 1.3 * 1961 / 480;
           // <i> harus lebih tinggi satu periode dari kotaknya supaya tetap menutup saat digeser naik
@@ -327,12 +381,15 @@ document.addEventListener('DOMContentLoaded', function () {
           if (on !== photoOn[k]) { photoOn[k] = on; im.setAttribute('aria-hidden', on ? 'false' : 'true'); }
         });
 
-        // Rig: dua kaki berlawanan fase, badan condong mengikuti arah dan kecepatan gulir, seluruh rig naik-turun
+        // Rig: badan condong mengikuti arah dan kecepatan gulir, lengan berayun; kaki melangkah lewat langkah() di akhir
         var tt = time || 0, sw = Math.sin(S.phase + 1);
-        var pushA = S.amp * (1 + Math.sin(S.phase)) / 2, pushB = S.amp * (1 + Math.sin(S.phase + Math.PI)) / 2;
         var idle = Math.sin(tt * 1.1) * 0.8;
         S.lean = lerp(S.lean, S.dir * 5 * S.amp + S.v * 10, 1 - Math.pow(0.01, dt));
-        J.rig.setAttribute('transform', 'translate(0 ' + (S.bounce + 6 * S.amp * Math.sin(2 * S.phase)).toFixed(2) + ')');
+        // Badan sedikit turun bertumpu ke tali selagi satu kaki terangkat
+        var dip = 0;
+        kaki.forEach(function (k) { if (k.ayun) dip += 9 * Math.sin(Math.PI * k.ayun.u); });
+        var rigY = S.bounce + dip;
+        J.rig.setAttribute('transform', 'translate(0 ' + rigY.toFixed(2) + ')');
         pose(J.badan, BASE.badan + idle + S.lean);
         pose(J.kepala, BASE.kepala - S.lean * 0.5 + Math.sin(tt * 0.9) * 1.2);
         pose(J.karabiner, Math.sin(tt * 1.3) * 3 - S.lean * 0.3);
@@ -340,11 +397,7 @@ document.addEventListener('DOMContentLoaded', function () {
         pose(J.lenganA2, BASE.lenganA2 + 4 * S.amp * sw);
         pose(J.lenganB, BASE.lenganB + 8 * S.amp * sw + Math.sin(tt * 1.7) * 1.5);
         pose(J.lenganB2, BASE.lenganB2 - 5 * S.amp * sw);
-        // Paha: + = lutut turun; betis: - = sepatu maju ke dinding (lutut membuka)
-        pose(J.pahaA, BASE.pahaA - 3 + 14 * pushA + idle * 0.5);
-        pose(J.betisA, BASE.betisA + 6 - 30 * pushA);
-        pose(J.pahaB, BASE.pahaB - 1 + 14 * pushB + idle * 0.5);
-        pose(J.betisB, BASE.betisB + 4 - 30 * pushB);
+        langkah(dt, d, rigY);
 
         // Tali: dari atas lurus ke genggaman tangan atas, ke ujung karabiner, melengkung ke tangan rem, lalu turun keluar kotak
         var ctm = fig.getScreenCTM();
