@@ -11,7 +11,7 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 // `from` boleh path PNG (relatif root) atau buffer gambar. Kertas (terang) jadi 0, tinta (gelap) jadi pekat (255).
-async function maskWebp(from, to, { width, mode = 'alpha' }) {
+async function maskWebp(from, to, { width, mode = 'alpha', quality = 82 }) {
   const src = typeof from === 'string' ? path.join(root, from) : from;
   const { data, info } = await sharp(src).resize({ width }).greyscale().raw().toBuffer({ resolveWithObject: true });
   // Ambang lembut supaya tepi garis tetap halus.
@@ -26,7 +26,7 @@ async function maskWebp(from, to, { width, mode = 'alpha' }) {
     ? sharp(alpha, { raw: { width: info.width, height: info.height, channels: 1 } })
     : sharp(Buffer.alloc(info.width * info.height * 3, 0), { raw: { width: info.width, height: info.height, channels: 3 } })
         .joinChannel(alpha, { raw: { width: info.width, height: info.height, channels: 1 } });
-  const out = await pipeline.webp(mode === 'luminance' ? { quality: 82, effort: 6 } : { quality: 82, alphaQuality: 90, effort: 6 }).toFile(dest);
+  const out = await pipeline.webp(mode === 'luminance' ? { quality, effort: 6 } : { quality: 82, alphaQuality: 90, effort: 6 }).toFile(dest);
   console.log(`${to}  ${info.width}x${info.height}  ${(out.size / 1024).toFixed(1)} KB`);
 }
 
@@ -40,13 +40,18 @@ async function tileDinding(from, { width, height }) {
 }
 
 // nama: lebar keluaran (px); tinggi mengikuti rasio sumber. Ruang koordinat rig = ukuran PNG sumber.
-const rig = { kepala: 260, badan: 400, karabiner: 160,
-  'lengan-atas-kiri': 640, 'lengan-atas-kanan': 640, 'lengan-bawah-kiri': 640, 'lengan-bawah-kanan': 640,
-  'paha-kiri': 320, 'paha-kanan': 320, 'betis-kiri': 200, 'betis-kanan': 200 };
+const rig = { kepala: 260, badan: 240, karabiner: 100,
+  'lengan-atas-kiri': 400, 'lengan-atas-kanan': 400, 'lengan-bawah-kiri': 400, 'lengan-bawah-kanan': 400,
+  'paha-kiri': 200, 'paha-kanan': 200, 'betis-kiri': 250, 'betis-kanan': 250 };
 
 await maskWebp('.gen/topo.png', 'src/assets/img/ornamen-topo.webp', { width: 1400 });
 await maskWebp('.gen/emblem.png', 'src/assets/img/ornamen-emblem.webp', { width: 900 });
 for (const [nama, width] of Object.entries(rig)) {
   await maskWebp(`.gen/rig/${nama}.png`, `src/assets/img/rig/${nama}.webp`, { width, mode: 'luminance' });
 }
-await maskWebp(await tileDinding('.gen/dinding-turun-v2.png', { width: 752, height: 1536 }), 'src/assets/img/dinding-turun.webp', { width: 640, mode: 'luminance' });
+// Dinding: quality 82; bila > 300 KB turunkan hanya untuk dinding (78 -> 74 -> 70), berhenti di nilai pertama yang muat.
+const tile = await tileDinding('.gen/dinding-turun-v2.png', { width: 752, height: 1536 });
+for (const quality of [82, 78, 74, 70]) {
+  const size = await maskWebp(tile, 'src/assets/img/dinding-turun.webp', { width: 480, mode: 'luminance', quality });
+  if (size <= 300 * 1024) break;
+}

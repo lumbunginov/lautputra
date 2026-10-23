@@ -8,12 +8,14 @@ import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 // nama: [lebar batas, lebar sumber, tinggi sumber]
-const RIG = { kepala: [260, 320, 510], badan: [400, 572, 1137], karabiner: [160, 834, 1437],
-  'lengan-atas-kiri': [640, 1017, 441], 'lengan-atas-kanan': [640, 1017, 440],
-  'lengan-bawah-kiri': [640, 944, 277], 'lengan-bawah-kanan': [640, 941, 259],
-  'paha-kiri': [320, 450, 1000], 'paha-kanan': [320, 450, 1000], 'betis-kiri': [200, 250, 400], 'betis-kanan': [200, 250, 400] };
+const RIG = { kepala: [260, 320, 510], badan: [240, 572, 1137], karabiner: [100, 834, 1437],
+  'lengan-atas-kiri': [400, 1017, 441], 'lengan-atas-kanan': [400, 1017, 440],
+  'lengan-bawah-kiri': [400, 944, 277], 'lengan-bawah-kanan': [400, 941, 259],
+  'paha-kiri': [200, 450, 1000], 'paha-kanan': [200, 450, 1000], 'betis-kiri': [250, 250, 400], 'betis-kanan': [250, 250, 400] };
 const BATAS_RIG_KB = 250;
 const BATAS_DINDING_KB = 300;
+const BATAS_TOTAL_KB = 600;
+const DINDING_W = 480, DINDING_H = 1961; // 752x3072 diperkecil ke lebar 480
 
 const gagal = [];
 const baris = [];
@@ -62,8 +64,8 @@ if (!fs.existsSync(path.join(root, dinding))) {
   const file = path.join(root, dinding);
   const { data, info, hasAlpha } = await bacaAbu(file);
   const kb = fs.statSync(file).size / 1024;
-  cek(info.width === 640, `${dinding}: lebar ${info.width}, harapan 640`);
-  cek(Math.abs(info.height - 2614) <= 1, `${dinding}: tinggi ${info.height}, harapan 2614 ±1`);
+  cek(info.width === DINDING_W, `${dinding}: lebar ${info.width}, harapan ${DINDING_W}`);
+  cek(Math.abs(info.height - DINDING_H) <= 1, `${dinding}: tinggi ${info.height}, harapan ${DINDING_H} ±1`);
   cek(!hasAlpha, `${dinding}: masih punya alpha`);
   const [maks, modus] = maksDanModus(data);
   cek(maks >= 240, `${dinding}: piksel terang maksimum ${maks}, harapan >= 240`);
@@ -76,6 +78,8 @@ if (!fs.existsSync(path.join(root, dinding))) {
   const rata = selisih / w;
   cek(rata < 2, `${dinding}: baris 0 dan ${h - 1} tidak mulus (selisih abu-abu rata-rata ${rata.toFixed(2)})`);
   baris.push(['dinding-turun', `${w}x${h}`, kb.toFixed(1)]);
+  cek(totalRig + kb <= BATAS_TOTAL_KB, `rig + dinding ${(totalRig + kb).toFixed(1)} KB melebihi ${BATAS_TOTAL_KB} KB`);
+  baris.push(['(total rig + dinding)', '', (totalRig + kb).toFixed(1)]);
 }
 
 console.log('nama'.padEnd(22) + 'ukuran'.padEnd(12) + 'KB');
