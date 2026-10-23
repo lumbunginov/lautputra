@@ -244,7 +244,7 @@ document.addEventListener('DOMContentLoaded', function () {
       var walls = [wDekat, wJauh, wAir];
       // Potongan figur dan sudut dasar pose menggantung (derajat)
       var BASE = { kepala: -4, lenganA: 15, lenganA2: 60, lenganB: -100, lenganB2: -40 };
-      var tali = $('#turunTali', panel), inv, ptA = new DOMPoint(120, 160), ptB = new DOMPoint(120, 130), ptK = new DOMPoint(538, 1300);
+      var tali = $('#turunTali', panel), inv, ptA = new DOMPoint(120, 160), ptB = new DOMPoint(120, 130), ptK = new DOMPoint(538, 1300), ptKaki = new DOMPoint(165, 320);
       var J = {};
       ['rig', 'pahaB', 'betisB', 'pahaA', 'betisA', 'badan', 'lenganB', 'lenganB2', 'kepala', 'karabiner', 'lenganA', 'lenganA2'].forEach(function (id) { J[id] = $('#' + id, panel); });
       // Keadaan statis dari markup, dipulihkan saat adegan dicabut
@@ -261,11 +261,19 @@ document.addEventListener('DOMContentLoaded', function () {
       var U = { x: Math.sin(9 * D2R), y: Math.cos(9 * D2R) }, NRM = { x: U.y, y: -U.x }; // U menuruni dinding, NRM menjauhi dinding
       var F0 = { x: HIP.x + L1 * Math.cos(59 * D2R + PHI1) + L2 * Math.cos(57 * D2R + PHI2), y: HIP.y + L1 * Math.sin(59 * D2R + PHI1) + L2 * Math.sin(57 * D2R + PHI2) };
       // Pijakan dinyatakan sebagai a = jarak sepanjang U dari F0 (garis dinding tetap; yang berubah posisi orangnya, lihat postur())
-      var ANGKAT = 95, figK = 1, Dw = null, LM = 0.9 * (L1 + L2);
+      var ANGKAT = 95, figK = 1, figE = 0, PW = 0, Dw = null, LM = 0.9 * (L1 + L2);
       var pos = { tx: 0, ty: 0, aM: 0, badan: 18 };
       var kaki = [{ paha: J.pahaA, betis: J.betisA, w: 0, s: 0, ayun: null }, { paha: J.pahaB, betis: J.betisB, w: 0, s: 0, ayun: null }];
+      // Pose ikonik di kedalaman 15 m (referensi: tergantung terbalik ala Spider-Man): tali bawah ditarik pemandu ke kanan,
+      // orangnya rebah ke belakang sampai terbalik. Bobot w naik di 12-15 m, bertahan 15-18 m, turun di 18-21 m.
+      // Rig diputar 180 derajat x w searah jarum jam di panggul dan bergeser menjauhi dinding; badan lurus, kaki lurus segaris
+      // badan (jadi menunjuk ke atas) dengan pergelangannya nyantol di tali atas, kaki jauh menekuk ke arah dinding
+      // (referensi Tebing 3), lengan lurus menjuntai ke bawah.
+      var IKON = { dari: 12, puncak: 15, akhir: 18, lepas: 21, geserX: 120, geserY: 40, lenganA: 82, lenganA2: 12, lenganB: 98, lenganB2: 20 };
+      var rig = { tx: 0, ty: 0, rot: 0 };
 
       function lerp(a, b, t) { return a + (b - a) * t; }
+      function halus(x) { x = Math.min(1, Math.max(0, x)); return x * x * (3 - 2 * x); }
       // Transform potongan: translate(sendi) rotate(sudut) scale(skala) translate(-pivot), sama dengan markup statis
       function pose(el, a) {
         var j = el.getAttribute('data-j').split(','), p = el.getAttribute('data-p').split(','), sc = el.getAttribute('data-s');
@@ -310,20 +318,25 @@ document.addEventListener('DOMContentLoaded', function () {
       // Berjalan mundur menuruni tebing: kaki berpijak menempel di dinding dan ikut naik bersama dinding (d px layar -> satuan
       // viewBox lewat figK). Kalau pijakan sudah terlalu tinggi, kaki diangkat menjauhi dinding dan dipijakkan lagi di bawah;
       // gulir balik membalik arahnya. Hanya satu kaki mengayun sekaligus. Kembali dari luar layar (lompatan besar): pijakan disetel ulang.
-      function langkah(dt, d, rigY) {
+      function langkah(dt, d, w) {
         var D = d / figK, v = Dw === null ? 0 : (D - Dw) / Math.max(dt, 1e-4);
         // Panggul dalam ruang viewBox; rentang pijakan aAtas..aBawah di sekitar M, dibatasi jangkauan kaki
-        var ox = pos.tx, oy = pos.ty + rigY, hx = HIP.x + ox, hy = HIP.y + oy;
+        var hx = HIP.x + rig.tx, hy = HIP.y + rig.ty;
+        var rc = Math.cos(-rig.rot * D2R), rs = Math.sin(-rig.rot * D2R);
+        // Titik viewBox -> ruang rig: kurangi geseran, putar balik di panggul
+        function lokal(x, y) { var dx = x - hx, dy = y - hy; return { x: HIP.x + dx * rc - dy * rs, y: HIP.y + dx * rs + dy * rc }; }
         var aC = (hx - F0.x) * U.x + (hy - F0.y) * U.y, h = (hx - F0.x) * NRM.x + (hy - F0.y) * NRM.y;
         var aMax = aC + Math.sqrt(Math.max(0, Math.pow(0.97 * (L1 + L2), 2) - h * h));
         var aBawah = Math.min(pos.aM + 110, aMax), aAtas = pos.aM - 120;
         if (Dw === null || Math.abs(D - Dw) > 400) kaki.forEach(function (k, i) { k.ayun = null; k.w = (i ? pos.aM - 20 : aBawah - 10) + D; v = 0; });
         Dw = D;
         kaki.forEach(function (k, i) {
+          // Selama pose ikonik kaki lepas dari dinding; pijakan disiapkan ulang supaya mendarat rapi saat pose selesai
+          if (w > 0.5) { k.ayun = null; k.w = (i ? pos.aM - 20 : aBawah - 10) + D; }
           if (!k.ayun) {
             k.s = k.w - D;
             var naik = k.s < aAtas, mundur = k.s > aBawah + 18;
-            if ((naik || mundur) && !kaki[1 - i].ayun) {
+            if ((naik || mundur) && !kaki[1 - i].ayun && w < 0.05) {
               k.ayun = { s0: k.s, s1: naik ? aBawah : aAtas + 60, u: 0, T: Math.max(0.16, Math.min(0.55, (aBawah - aAtas) / (Math.abs(v) * 1.3 + 1))) };
             }
           }
@@ -337,7 +350,15 @@ document.addEventListener('DOMContentLoaded', function () {
             lift = ANGKAT * Math.sin(Math.PI * Math.pow(a.u, 0.75));
             if (a.u >= 1) { k.ayun = null; k.w = k.s + D; }
           }
-          ik(k, F0.x + U.x * k.s + NRM.x * lift - ox, F0.y + U.y * k.s + NRM.y * lift - oy);
+          var t = lokal(F0.x + U.x * k.s + NRM.x * lift, F0.y + U.y * k.s + NRM.y * lift);
+          if (w > 0) {
+            // Pose (arah sebelum rig diputar 180°): kaki dekat lurus segaris badan; kaki jauh menekuk, telapak ke kanan bawah,
+            // jadi setelah terbalik lututnya di atas dan betisnya mengarah ke dinding.
+            // Di tengah putaran lutut ditekuk supaya badan yang melintang tidak terlalu panjang (layar ponsel)
+            var r = (i ? 0.6 : 0.97) * (L1 + L2) * (1 - 0.4 * Math.sin(Math.PI * w)), al = (i ? 24 : 90) * D2R;
+            t = { x: lerp(t.x, HIP.x + r * Math.cos(al), w), y: lerp(t.y, HIP.y + r * Math.sin(al), w) };
+          }
+          ik(k, t.x, t.y);
         });
       }
 
@@ -345,7 +366,8 @@ document.addEventListener('DOMContentLoaded', function () {
       function measure() {
         H = panel.clientHeight;
         var c = fig.getScreenCTM();
-        if (c && c.a) figK = c.a;
+        if (c && c.a) { figK = c.a; figE = c.e; }
+        PW = panel.clientWidth;
         walls.forEach(function (w) {
           w.per = w.el.offsetWidth * 1.3 * 1961 / 480;
           // <i> harus lebih tinggi satu periode dari kotaknya supaya tetap menutup saat digeser naik
@@ -414,26 +436,41 @@ document.addEventListener('DOMContentLoaded', function () {
         var dip = 0;
         kaki.forEach(function (k) { if (k.ayun) dip += 9 * Math.sin(Math.PI * k.ayun.u); });
         var rigY = S.bounce + dip;
-        J.rig.setAttribute('transform', 'translate(' + pos.tx.toFixed(2) + ' ' + (pos.ty + rigY).toFixed(2) + ')');
-        // Sudut badan dari postur(); kepala mengimbangi sebagian supaya tetap menghadap dinding
-        pose(J.badan, pos.badan + idle + S.lean);
-        pose(J.kepala, BASE.kepala - S.lean * 0.5 - (pos.badan - 18) * 0.4 + Math.sin(tt * 0.9) * 1.2);
-        pose(J.karabiner, Math.sin(tt * 1.3) * 3 - S.lean * 0.3);
-        pose(J.lenganA, BASE.lenganA - 6 * S.amp * sw - idle * 0.6);
-        pose(J.lenganA2, BASE.lenganA2 + 4 * S.amp * sw);
-        pose(J.lenganB, BASE.lenganB + 8 * S.amp * sw + Math.sin(tt * 1.7) * 1.5);
-        pose(J.lenganB2, BASE.lenganB2 - 5 * S.amp * sw);
-        langkah(dt, d, rigY);
+        // Bobot pose ikonik dari kedalaman (sama dengan meteran), dihaluskan di kedua ujung
+        var kd = Math.max(0, (S.p - 1 / 3) / (2 / 3)) * TINGGI_M;
+        var w = halus((kd - IKON.dari) / (IKON.puncak - IKON.dari)) * (1 - halus((kd - IKON.akhir) / (IKON.lepas - IKON.akhir)));
+        var goyang = Math.sin(tt * 0.7) * 3 * w; // tergantung terbalik: berayun pelan di tali
+        // Geser menjauhi dinding, tapi di layar sempit panggul digeser ke kiri secukupnya supaya kepala (±720 satuan dari
+        // panggul) tidak keluar tepi kanan saat badan melintang di tengah putaran
+        var batas = (PW - 720 * figK - 8 - figE) / figK - HIP.x - pos.tx;
+        rig.tx = pos.tx + Math.min(IKON.geserX, batas) * w; rig.ty = pos.ty + rigY * (1 - w) + IKON.geserY * w; rig.rot = 180 * w + goyang;
+        J.rig.setAttribute('transform', 'translate(' + rig.tx.toFixed(2) + ' ' + rig.ty.toFixed(2) + ') rotate(' + rig.rot.toFixed(2) + ' ' + HIP.x + ' ' + HIP.y + ')');
+        // Sudut badan dari postur(); kepala mengimbangi sebagian supaya tetap menghadap dinding. Saat pose: badan lurus, lengan menjuntai
+        pose(J.badan, lerp(pos.badan + idle + S.lean, 0, w));
+        pose(J.kepala, lerp(BASE.kepala - S.lean * 0.5 - (pos.badan - 18) * 0.4, 6, w) + Math.sin(tt * 0.9) * 1.2);
+        pose(J.karabiner, Math.sin(tt * 1.3) * 3 - S.lean * 0.3 * (1 - w));
+        pose(J.lenganA, lerp(BASE.lenganA - 6 * S.amp * sw - idle * 0.6, IKON.lenganA + Math.sin(tt * 1.4) * 4, w));
+        pose(J.lenganA2, lerp(BASE.lenganA2 + 4 * S.amp * sw, IKON.lenganA2, w));
+        pose(J.lenganB, lerp(BASE.lenganB + 8 * S.amp * sw + Math.sin(tt * 1.7) * 1.5, IKON.lenganB + Math.sin(tt * 1.2 + 1) * 4, w));
+        pose(J.lenganB2, lerp(BASE.lenganB2 - 5 * S.amp * sw, IKON.lenganB2, w));
+        langkah(dt, d, w);
 
         // Tali: dari atas lurus ke genggaman tangan atas, ke ujung karabiner, melengkung ke tangan rem, lalu turun keluar kotak
+        // (saat pose ikonik tangan lepas dari tali, lihat jalur ikon)
         var ctm = fig.getScreenCTM();
         if (ctm) {
           inv = ctm.inverse();
           var hA = ropePoint(ptA, J.lenganA2), hB = ropePoint(ptB, J.lenganB2), kr = ropePoint(ptK, J.karabiner);
-          var f = function (n) { return n.toFixed(1); };
-          tali.setAttribute('d', 'M' + f(hA.x) + ' -2000 L' + f(hA.x) + ' ' + f(hA.y) + ' L' + f(kr.x) + ' ' + f(kr.y) +
-            ' C' + f(kr.x + 40) + ' ' + f(kr.y + 60) + ' ' + f(hB.x - 30) + ' ' + f(hB.y - 40) + ' ' + f(hB.x) + ' ' + f(hB.y) +
-            ' C' + f(hB.x + 10) + ' ' + f(hB.y + 200) + ' ' + f(hB.x + 14) + ' 1500 ' + f(hB.x + 14) + ' 2200');
+          var kk = w > 0 ? ropePoint(ptKaki, J.betisA) : kr; // pergelangan kaki dekat, tempat tali atas nyantol saat pose
+          // Jalur biasa dan jalur pose (tali atas datang miring dari kiri atas, nyantol di pergelangan kaki dekat, lalu ke karabiner;
+          // tali bawah lurus ditarik ke kanan bawah), dibaur w
+          var ex = kr.x + 420, ey = 2200, g = function (t) { return [kr.x + (ex - kr.x) * t, kr.y + (ey - kr.y) * t]; };
+          var biasa = [hA.x, -2000, hA.x, hA.y, kr.x, kr.y, kr.x + 40, kr.y + 60, hB.x - 30, hB.y - 40, hB.x, hB.y, hB.x + 10, hB.y + 200, hB.x + 14, 1500, hB.x + 14, 2200];
+          var ikon = [kk.x - 250, -2000, kk.x, kk.y, kr.x, kr.y, kr.x + 30, kr.y + 60].concat(g(0.2), g(0.3), g(0.55), g(0.85), [ex, ey]);
+          var q = biasa.map(function (n, k) { return lerp(n, ikon[k], w).toFixed(1); });
+          tali.setAttribute('d', 'M' + q[0] + ' ' + q[1] + ' L' + q[2] + ' ' + q[3] + ' L' + q[4] + ' ' + q[5] +
+            ' C' + q[6] + ' ' + q[7] + ' ' + q[8] + ' ' + q[9] + ' ' + q[10] + ' ' + q[11] +
+            ' C' + q[12] + ' ' + q[13] + ' ' + q[14] + ' ' + q[15] + ' ' + q[16] + ' ' + q[17]);
         }
 
         // Meteran menunggu di 0 m sampai tengah stasiun 02 (p = 1/3), lalu naik rata
