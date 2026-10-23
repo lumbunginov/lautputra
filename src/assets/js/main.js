@@ -237,9 +237,14 @@ document.addEventListener('DOMContentLoaded', function () {
       // Dinding: tiap <i> digeser dengan transform sejauh d (px) modulo periode tile mask; periode = lebar × 1.3 × 1961 / 480
       var wDekat = { el: $('#turunDekat i', panel), per: 0 }, wJauh = { el: $('#turunJauh i', panel), per: 0 }, wAir = { el: $('#turunAir i', panel), per: 0 };
       var walls = [wDekat, wJauh, wAir];
-      // Potongan figur (dipakai penataan rig di Task 4)
+      // Potongan figur dan sudut dasar pose menggantung (derajat)
+      var BASE = { badan: 18, kepala: -4, lenganA: 15, lenganA2: 60, lenganB: -100, lenganB2: -40, pahaA: 62, betisA: -8, pahaB: 70, betisB: -14 };
+      var tali = $('#turunTali', panel), inv, ptA = new DOMPoint(120, 160), ptB = new DOMPoint(120, 130), ptK = new DOMPoint(538, 1300);
       var J = {};
       ['rig', 'pahaB', 'betisB', 'pahaA', 'betisA', 'badan', 'lenganB', 'lenganB2', 'kepala', 'karabiner', 'lenganA', 'lenganA2'].forEach(function (id) { J[id] = $('#' + id, panel); });
+      // Keadaan statis dari markup, dipulihkan saat adegan dicabut
+      var statis = {}, statisD = tali.getAttribute('d');
+      Object.keys(J).forEach(function (id) { statis[id] = J[id].getAttribute('transform'); });
       var H = 0, lastMeter = '', photoOn = [];
 
       function lerp(a, b, t) { return a + (b - a) * t; }
@@ -248,6 +253,8 @@ document.addEventListener('DOMContentLoaded', function () {
         var j = el.getAttribute('data-j').split(','), p = el.getAttribute('data-p').split(','), sc = el.getAttribute('data-s');
         el.setAttribute('transform', 'translate(' + j[0] + ' ' + j[1] + ') rotate(' + a.toFixed(2) + ') scale(' + sc + ') translate(' + (-p[0]) + ' ' + (-p[1]) + ')');
       }
+      // Titik titik tali dalam satuan viewBox: titik di ruang gambar potongan -> layar lewat CTM potongan -> ruang SVG lewat inverse CTM figur
+      function ropePoint(pt, el) { return pt.matrixTransform(el.getScreenCTM()).matrixTransform(inv); }
       function moveWall(w, d) {
         var y = w.per > 0 ? -(((d % w.per) + w.per) % w.per) : 0;
         w.el.style.transform = 'translate3d(0,' + y.toFixed(2) + 'px,0)';
@@ -314,6 +321,36 @@ document.addEventListener('DOMContentLoaded', function () {
           if (on !== photoOn[k]) { photoOn[k] = on; im.setAttribute('aria-hidden', on ? 'false' : 'true'); }
         });
 
+        // Rig: dua kaki berlawanan fase, badan condong mengikuti arah dan kecepatan gulir, seluruh rig naik-turun
+        var tt = time || 0, sw = Math.sin(S.phase + 1);
+        var pushA = S.amp * (1 + Math.sin(S.phase)) / 2, pushB = S.amp * (1 + Math.sin(S.phase + Math.PI)) / 2;
+        var idle = Math.sin(tt * 1.1) * 0.8;
+        S.lean = lerp(S.lean, S.dir * 5 * S.amp + S.v * 10, 1 - Math.pow(0.01, dt));
+        J.rig.setAttribute('transform', 'translate(0 ' + (S.bounce + 6 * S.amp * Math.sin(2 * S.phase)).toFixed(2) + ')');
+        pose(J.badan, BASE.badan + idle + S.lean);
+        pose(J.kepala, BASE.kepala - S.lean * 0.5 + Math.sin(tt * 0.9) * 1.2);
+        pose(J.karabiner, Math.sin(tt * 1.3) * 3 - S.lean * 0.3);
+        pose(J.lenganA, BASE.lenganA - 6 * S.amp * sw - idle * 0.6);
+        pose(J.lenganA2, BASE.lenganA2 + 4 * S.amp * sw);
+        pose(J.lenganB, BASE.lenganB + 8 * S.amp * sw + Math.sin(tt * 1.7) * 1.5);
+        pose(J.lenganB2, BASE.lenganB2 - 5 * S.amp * sw);
+        // Paha: + = lutut turun; betis: - = sepatu maju ke dinding (lutut membuka)
+        pose(J.pahaA, BASE.pahaA - 3 + 14 * pushA + idle * 0.5);
+        pose(J.betisA, BASE.betisA + 6 - 30 * pushA);
+        pose(J.pahaB, BASE.pahaB - 1 + 14 * pushB + idle * 0.5);
+        pose(J.betisB, BASE.betisB + 4 - 30 * pushB);
+
+        // Tali: dari atas lurus ke genggaman tangan atas, ke ujung karabiner, melengkung ke tangan rem, lalu turun keluar kotak
+        var ctm = fig.getScreenCTM();
+        if (ctm) {
+          inv = ctm.inverse();
+          var hA = ropePoint(ptA, J.lenganA2), hB = ropePoint(ptB, J.lenganB2), kr = ropePoint(ptK, J.karabiner);
+          var f = function (n) { return n.toFixed(1); };
+          tali.setAttribute('d', 'M' + f(hA.x) + ' -2000 L' + f(hA.x) + ' ' + f(hA.y) + ' L' + f(kr.x) + ' ' + f(kr.y) +
+            ' C' + f(kr.x + 40) + ' ' + f(kr.y + 60) + ' ' + f(hB.x - 30) + ' ' + f(hB.y - 40) + ' ' + f(hB.x) + ' ' + f(hB.y) +
+            ' C' + f(hB.x + 10) + ' ' + f(hB.y + 200) + ' ' + f(hB.x + 14) + ' 1300 ' + f(hB.x + 14) + ' 1430');
+        }
+
         // Meteran menunggu di 0 m sampai tengah stasiun 02 (p = 1/3), lalu naik rata
         var m = Math.round(Math.max(0, (S.p - 1 / 3) / (2 / 3)) * TINGGI_M) + ' m';
         if (m !== lastMeter) { lastMeter = m; meter.textContent = m; }
@@ -337,7 +374,7 @@ document.addEventListener('DOMContentLoaded', function () {
       gsap.ticker.add(tick);
       window.addEventListener('resize', measure);
       ST.addEventListener('refresh', measure);
-      if (location.search.indexOf('debug') > -1) { window.__turun = S; window.__turunTick = tick; }
+      if (location.search.indexOf('debug') > -1) { window.__turun = S; window.__turunTick = tick; window.__turunBase = BASE; }
 
       return function () {
         gsap.ticker.remove(tick);
@@ -351,11 +388,13 @@ document.addEventListener('DOMContentLoaded', function () {
           gsap.set([b].concat(lines, rest), { clearProps: 'all' });
         });
         gsap.killTweensOf(S);
+        Object.keys(J).forEach(function (id) { if (statis[id] === null) J[id].removeAttribute('transform'); else J[id].setAttribute('transform', statis[id]); });
+        tali.setAttribute('d', statisD);
         gsap.set(walls.map(function (w) { return w.el; }).concat(photos, aman), { clearProps: 'all' });
         photos.forEach(function (im) { im.removeAttribute('aria-hidden'); });
         bigs.forEach(function (b, k) { b.classList.toggle('is-on', k === 0); });
         nomor.textContent = '01'; meter.textContent = '0 m';
-        if (window.__turun === S) { delete window.__turun; delete window.__turunTick; }
+        if (window.__turun === S) { delete window.__turun; delete window.__turunTick; delete window.__turunBase; }
       };
     }
     mm.add('(min-width: 64rem)', turunDesktop);

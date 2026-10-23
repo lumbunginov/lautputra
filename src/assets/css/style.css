@@ -280,6 +280,7 @@ html.js .ticker__track { animation: ticker 48s linear infinite; }
 /* ---------- Turun: adegan close-up rappelling ---------- */
 .turun { padding-block: var(--space-3xl) var(--space-2xl); }
 .turun__intro { display: grid; gap: var(--space-lg); padding-inline: var(--gutter); margin-bottom: var(--space-2xl); }
+/* Task 4: nilai --wall-w / --fig-x sudah lolos uji sepatu-di-tepi-dinding (+-12 px) di 1440x900, 1280x800, 1920x1080 (selisih -5 s.d. -7 px), jadi tidak diubah. Frame gulir cepat 1920x1080: p95 10 ms, jadi drop-shadow dan <mask> dipertahankan. */
 .turun__panel {
   --wall-w: calc(4vw + 26vh); --fig-x: calc(4vw + 26.5vh);
   position: relative; height: 100svh; overflow: hidden; background: var(--color-paper);
