@@ -225,42 +225,103 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // ---------- Turun: urutan foto; desktop dipin dan di-scrub, ponsel ditumpuk ----------
-  var steps = $$('.turun__step'), turunNum = $('#turunNum'), turunBar = $('#turunBar');
+  var steps = $$('.turun__step'), turunNum = $('#turunNum'), turunBar = $('#turunBar'), turunPin = $('#turunPin');
+  var ropeFill = $('#ropeFill'), ropeClip = $('#ropeClip'), ropeDepth = $('#ropeDepth'), knots = $$('.rope__knot');
+  var N = steps.length;
+  // Tali: isian, posisi karabiner, label persen, dan simpul yang sudah dilewati. pos 0..1 = kemajuan turun.
+  function rope(pos) {
+    ropeFill.style.transform = 'scaleY(' + pos + ')';
+    ropeClip.style.top = (pos * 100) + '%';
+    var pct = Math.round(pos * 100) + '%';
+    if (ropeDepth.textContent !== pct) ropeDepth.textContent = pct;
+    var here = Math.round(pos * (N - 1));
+    knots.forEach(function (k, j) { k.classList.toggle('is-passed', j / (N - 1) <= pos + 0.001); k.classList.toggle('is-here', j === here); });
+  }
   if (motion) {
     var mm = gsap.matchMedia();
     mm.add('(min-width: 64rem)', function () {
       steps.forEach(function (s) { s.classList.add('is-active'); });
       var medias = steps.map(function (s) { return s.querySelector('.turun__media'); });
+      var imgs = medias.map(function (m) { return m.querySelector('img'); });
       var texts = steps.map(function (s) { return s.querySelector('.turun__text'); });
-      // Foto berikutnya menutup foto sebelumnya lewat sapuan dari bawah (bukan pudar) supaya tidak ada bayangan ganda
-      gsap.set(medias.slice(1), { clipPath: 'inset(100% 0 0 0)' });
+      // Semua figure menempati jendela yang sama; gambar ke-k diparkir k jendela di bawah (skala dasar 1 supaya tepi slot tidak saling menimpa), lalu seluruh strip "diturunkan" satu jendela per langkah
+      imgs.forEach(function (im, k) { gsap.set(im, { yPercent: k * 100, transformOrigin: '50% 0%' }); }); // skala membesar ke bawah saja supaya tidak masuk ke jendela sebelumnya
+      gsap.set(medias, { transformOrigin: '50% 0%' }); // panel berayun menggantung dari tepi atasnya
       gsap.set(texts.slice(1), { opacity: 0 });
+      var HOLD = 0.8, DROP = 1;            // jeda di tiap pijakan, lalu panjang tiap penurunan (satuan waktu timeline)
+      var state = { pos: 0 };               // posisi di tali 0..1, dipakai untuk karabiner (bukan progress mentah supaya pas dengan simpul)
+      var swayT, rotTo = gsap.quickTo(medias, 'rotation', { duration: 0.9, ease: 'power3.out' }), clipTo = gsap.quickTo(ropeClip, 'rotation', { duration: 0.7, ease: 'power3.out' });
+      function sway(v) { rotTo(v * 1.2); clipTo(v * -14); }
       var seq = gsap.timeline({
         scrollTrigger: {
           // refreshPriority: bagian yang dipin dihitung lebih dulu supaya pemicu lain memperhitungkan ruang pin
-          trigger: '#turunPin', start: 'top top', end: '+=' + (steps.length * 90) + '%', pin: true, scrub: 0.6, anticipatePin: 1, refreshPriority: 2,
+          trigger: turunPin, start: 'top top', end: '+=' + (N * 110) + '%', pin: true, scrub: 0.7, anticipatePin: 1, refreshPriority: 2,
           onUpdate: function (t) {
-            var i = Math.min(steps.length - 1, Math.floor(t.progress * steps.length + 0.0001));
-            turunNum.textContent = (i + 1 < 10 ? '0' : '') + (i + 1);
-            turunBar.style.transform = 'scaleX(' + t.progress + ')';
+            // Ayunan tali: makin cepat gulir, strip dan karabiner makin miring; kembali tegak saat gulir berhenti
+            var v = gsap.utils.clamp(-1, 1, t.getVelocity() / 3500);
+            sway(v); clearTimeout(swayT); swayT = setTimeout(function () { sway(0); }, 140);
           }
+        },
+        onUpdate: function () {
+          var i = Math.round(state.pos * (N - 1));
+          var num = (i + 1 < 10 ? '0' : '') + (i + 1);
+          if (turunNum.textContent !== num) turunNum.textContent = num;
+          turunBar.style.transform = 'scaleX(' + state.pos + ')';
+          rope(state.pos);
         }
       });
-      for (var i = 1; i < steps.length; i++) {
-        seq.to(medias[i - 1], { scale: 0.96, duration: 0.7, ease: 'power2.inOut' }, i)
-          .to(texts[i - 1], { opacity: 0, y: -24, duration: 0.4, ease: 'power2.in' }, i)
-          .fromTo(medias[i], { clipPath: 'inset(100% 0 0 0)', scale: 1.08 }, { clipPath: 'inset(0% 0 0 0)', scale: 1, duration: 0.7, ease: 'power2.inOut' }, i)
-          .fromTo(texts[i], { opacity: 0, y: 32 }, { opacity: 1, y: 0, duration: 0.55, ease: 'power2.out' }, i + 0.45);
+      for (var i = 1; i < N; i++) {
+        var at = HOLD + (i - 1) * (DROP + HOLD);
+        // Turun satu jendela: semua gambar naik 100% dengan ease tali (pelan, deras, lalu mengerem di pijakan)
+        seq.to(imgs, { yPercent: '-=100', duration: DROP, ease: 'power2.inOut' }, at)
+          .to(state, { pos: i / (N - 1), duration: DROP, ease: 'power2.inOut' }, at)
+          .to(turunPin, { '--turun-depth': i / (N - 1), duration: DROP, ease: 'none' }, at)
+          // Bayangan tebing lewat: gambar yang ditinggalkan sedikit mengecil, yang datang mendekat
+          .fromTo(imgs[i], { scale: 1.12 }, { scale: 1, duration: DROP + HOLD, ease: 'power2.out', immediateRender: false }, at)
+          .to(texts[i - 1], { opacity: 0, y: -28, duration: 0.35, ease: 'power2.in' }, at)
+          .fromTo(texts[i], { opacity: 0, y: 36 }, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, at + DROP * 0.4);
       }
-      seq.to({}, { duration: 0.6 });
-      return function () { steps.forEach(function (s, k) { s.classList.toggle('is-active', k === 0); }); gsap.set(medias.concat(texts), { clearProps: 'all' }); };
+      seq.to({}, { duration: HOLD });
+      rope(0);
+      return function () {
+        clearTimeout(swayT);
+        steps.forEach(function (s, k) { s.classList.toggle('is-active', k === 0); });
+        gsap.set(medias.concat(imgs, texts, [ropeClip]), { clearProps: 'all' });
+        turunPin.style.setProperty('--turun-depth', 0);
+      };
     });
 
     mm.add('(max-width: 63.99rem)', function () {
-      $$('.turun__media').forEach(function (fig) {
+      var medias = $$('.turun__media'), stepsEl = $('#turunSteps');
+      medias.forEach(function (fig) {
         gsap.from(fig, { clipPath: 'inset(100% 0 0 0)', duration: 1.3, ease: 'expo.out', scrollTrigger: { trigger: fig, start: 'top 90%', once: true } });
         gsap.from(fig.querySelector('img'), { scale: 1.2, duration: 1.8, ease: 'expo.out', scrollTrigger: { trigger: fig, start: 'top 90%', once: true } });
       });
+      // Tali di tepi kiri: simpul di tengah tiap foto (dihitung ulang tiap refresh), karabiner mengikuti garis 60% layar
+      var ys = [];
+      function placeKnots() {
+        var pinTop = turunPin.getBoundingClientRect().top;
+        ys = medias.map(function (m) { var r = m.getBoundingClientRect(); return r.top - pinTop + r.height / 2; });
+        knots.forEach(function (k, j) { k.style.top = ys[j] + 'px'; });
+      }
+      placeKnots();
+      ST.addEventListener('refreshInit', placeKnots);
+      var ropeST = ST.create({
+        trigger: stepsEl, start: 'top 60%', end: 'bottom 60%',
+        onUpdate: function (t) {
+          // Petakan kemajuan ke posisi tali dalam px (antara simpul pertama dan terakhir) supaya simpul dan karabiner bertemu
+          var y0 = ys[0], y1 = ys[N - 1], ropeH = turunPin.clientHeight;
+          var yPx = gsap.utils.interpolate(y0, y1, t.progress);
+          var pos = gsap.utils.clamp(0, 1, (yPx - y0) / (y1 - y0));
+          ropeFill.style.transform = 'scaleY(' + (yPx / ropeH) + ')';
+          ropeClip.style.top = yPx + 'px';
+          var pct = Math.round(pos * 100) + '%';
+          if (ropeDepth.textContent !== pct) ropeDepth.textContent = pct;
+          var here = Math.round(pos * (N - 1));
+          knots.forEach(function (k, j) { k.classList.toggle('is-passed', ys[j] <= yPx + 1); k.classList.toggle('is-here', j === here); });
+        }
+      });
+      return function () { ST.removeEventListener('refreshInit', placeKnots); ropeST.kill(); knots.forEach(function (k) { k.style.top = ''; }); gsap.set(ropeClip, { clearProps: 'all' }); };
     });
 
     // ---------- Galeri: digeser horizontal saat discroll, tiap foto ber-parallax ----------

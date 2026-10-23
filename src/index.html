@@ -151,8 +151,14 @@
     <h2 class="split" id="turun-title">Dari kolam di atas tebing sampai pasir di kaki air terjun.</h2>
     <p class="lede">Pantainya sempit dan ombak selatannya besar. Yang membuat orang rela menempuh jalan makadam adalah apa yang ada di atas dan di samping pantai itu.</p>
   </div>
-  <div class="turun__pin" id="turunPin">
+  <div class="turun__pin" id="turunPin" style="--turun-depth: 0">
     <div class="turun__num" aria-hidden="true"><span id="turunNum">01</span><small>/ 04</small></div>
+    <!-- Tali: garis turun dengan simpul per langkah dan karabiner yang ikut gulir (hanya dengan JS + gerak) -->
+    <div class="turun__rope" id="turunRope" aria-hidden="true">
+      <i class="rope__line"></i><i class="rope__fill" id="ropeFill"></i>
+      <b class="rope__knot" data-knot="0"></b><b class="rope__knot" data-knot="1"></b><b class="rope__knot" data-knot="2"></b><b class="rope__knot" data-knot="3"></b>
+      <span class="rope__clip" id="ropeClip"><i></i><em id="ropeDepth">0%</em></span>
+    </div>
     <ol class="turun__steps" id="turunSteps">
       <li class="turun__step is-active">
         <figure class="turun__media"><img src="assets/img/galeri-puncak-tebing.jpg" alt="Peserta merentangkan tangan di puncak tebing menghadap Samudra Hindia" width="1012" height="1800" loading="lazy" decoding="async"></figure>

@@ -20,5 +20,16 @@
     "nav": "N5 (ikut babak warna, sembunyi saat gulir turun)",
     "footer": "Ft5",
     "brief": "Rombak kedua: hero foto penuh dengan judul condensed + serif italic, bagian Turun dipin, galeri horizontal, rel samping, tombol magnet, ticker"
+  },
+  {
+    "date": "2026-10-22",
+    "macrostructure": "Photographic (bagian Turun jadi pengalaman rappelling: strip foto vertikal diturunkan per langkah)",
+    "theme": "custom dua babak: laut (gelap) dan pantai (pasir terang)",
+    "theme_axes": "dark / display-heavy / warm",
+    "vibe": "menggantung di tali, pijakan demi pijakan, latar makin biru makin dalam",
+    "enrichment": "tali DOM (simpul per langkah, karabiner berlabel persen turun), ayunan mengikuti kecepatan gulir, CSS var --turun-depth untuk warna latar; tanpa WebGL",
+    "nav": "N5 (ikut babak warna, sembunyi saat gulir turun)",
+    "footer": "Ft5",
+    "brief": "Permintaan: gulir di bagian Turun harus terasa seperti canyoneering. Tinggi tebing tidak dicantumkan karena sumber berbeda (30 m vs 80 m); meteran dibuat persen."
   }
 ]

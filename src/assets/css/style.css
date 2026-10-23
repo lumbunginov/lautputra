@@ -279,8 +279,26 @@ html.js .ticker__track { animation: ticker 48s linear infinite; }
 /* ---------- Turun: urutan foto ---------- */
 .turun { padding-block: var(--space-3xl) var(--space-2xl); }
 .turun__intro { display: grid; gap: var(--space-lg); padding-inline: var(--gutter); margin-bottom: var(--space-2xl); }
-.turun__pin { display: grid; gap: var(--space-2xl); padding-inline: var(--gutter); }
-.turun__num, .turun__bar { display: none; }
+.turun__pin { position: relative; display: grid; gap: var(--space-2xl); padding-inline: var(--gutter); }
+.turun__num, .turun__bar, .turun__rope { display: none; }
+/* Tali: garis, isian kemajuan, simpul per langkah, karabiner dengan label persen turun */
+html.js:not(.no-motion) .turun__rope { display: block; position: absolute; width: 2px; }
+.rope__line, .rope__fill { position: absolute; inset: 0; border-radius: 1px; }
+.rope__line { background: color-mix(in oklch, var(--color-ink) 16%, transparent); }
+.rope__fill { background: var(--color-accent); transform: scaleY(0); transform-origin: top; }
+.rope__knot { position: absolute; left: 50%; width: 0.7rem; height: 0.7rem; border-radius: 50%; translate: -50% -50%; background: var(--color-paper); border: 2px solid color-mix(in oklch, var(--color-ink) 28%, transparent); transition: border-color 0.4s var(--ease-out), background-color 0.4s var(--ease-out), transform 0.4s var(--ease-out); }
+.rope__knot.is-passed { background: var(--color-accent); border-color: var(--color-accent); }
+.rope__knot.is-here { transform: scale(1.35); }
+.rope__clip { position: absolute; left: 50%; top: 0; display: grid; justify-items: center; gap: 0.35rem; translate: -50% -50%; transform-origin: 50% 0; }
+.rope__clip i { width: 1.1rem; height: 1.6rem; border: 3px solid var(--color-accent); border-radius: 0.55rem 0.55rem 0.5rem 0.5rem / 0.6rem 0.6rem 0.9rem 0.9rem; background: var(--color-paper); box-shadow: 0 6px 18px color-mix(in oklch, var(--color-accent) 35%, transparent); }
+.rope__clip em { font-family: var(--font-display); font-style: normal; font-weight: 800; font-stretch: 80%; font-size: var(--text-sm); letter-spacing: -0.01em; font-variant-numeric: tabular-nums; color: var(--color-accent); white-space: nowrap; }
+/* Ponsel: tali menempel di tepi kiri daftar langkah; simpul diposisikan JS di tengah tiap foto */
+@media (max-width: 63.99rem) {
+  html.js:not(.no-motion) .turun__pin { padding-left: calc(var(--gutter) + 2rem); }
+  html.js:not(.no-motion) .turun__rope { left: calc(var(--gutter) + 0.35rem); top: 0; bottom: 0; }
+  /* Label persen ditulis vertikal di bawah karabiner supaya tidak menimpa foto */
+  html.js:not(.no-motion) .rope__clip em { writing-mode: vertical-rl; font-size: var(--text-xs); margin-top: 0.1rem; }
+}
 .turun__step { display: grid; gap: var(--space-md); }
 .turun__media { position: relative; aspect-ratio: 4 / 5; border-radius: var(--radius-md); overflow: hidden; background: var(--color-paper-2); }
 .turun__media img { width: 100%; height: 100%; object-fit: cover; }
@@ -298,13 +316,23 @@ html.js .ticker__track { animation: ticker 48s linear infinite; }
   /* Desktop dengan gerak penuh: satu panel dipin, foto dan teks bertumpuk lalu berganti mengikuti gulir */
   html.js:not(.no-motion) .turun__pin {
     position: relative; height: 100svh; gap: 0;
-    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); column-gap: var(--space-3xl);
+    grid-template-columns: minmax(0, 0.9fr) 2rem minmax(0, 1.1fr); column-gap: var(--space-2xl);
     align-items: center; padding-block: var(--space-xl);
+    /* --turun-depth 0..1 (diisi GSAP): latar makin dalam makin biru, seperti turun dari bayang tebing ke air */
+    background: color-mix(in oklch, var(--color-paper) calc((1 - var(--turun-depth, 0)) * 100%), oklch(10% 0.05 240));
   }
   html.js:not(.no-motion) .turun__steps { display: contents; }
   html.js:not(.no-motion) .turun__step { display: contents; }
-  html.js:not(.no-motion) .turun__media { grid-column: 2; grid-row: 1; height: min(78svh, 46rem); aspect-ratio: auto; border-radius: var(--radius-lg); }
+  /* Tiap figure jadi jendela yang sama (bertumpuk); gambar di dalamnya digeser vertikal seperti strip yang diturunkan */
+  html.js:not(.no-motion) .turun__media { grid-column: 3; grid-row: 1; height: min(78svh, 46rem); aspect-ratio: auto; border-radius: var(--radius-lg); background: transparent; will-change: transform; transform-origin: 50% 0; }
+  html.js:not(.no-motion) .turun__step:first-child .turun__media { background: var(--color-paper-2); }
+  html.js:not(.no-motion) .turun__media img { will-change: transform; }
   html.js:not(.no-motion) .turun__text { grid-column: 1; grid-row: 1; align-self: end; padding-bottom: var(--space-xl); }
+  html.js:not(.no-motion) .turun__rope { grid-column: 2; grid-row: 1; position: relative; align-self: stretch; justify-self: center; margin-block: var(--space-md) var(--space-xl); }
+  html.js:not(.no-motion) .rope__knot[data-knot="0"] { top: 0; }
+  html.js:not(.no-motion) .rope__knot[data-knot="1"] { top: 33.333%; }
+  html.js:not(.no-motion) .rope__knot[data-knot="2"] { top: 66.666%; }
+  html.js:not(.no-motion) .rope__knot[data-knot="3"] { top: 100%; }
   html.js:not(.no-motion) .turun__step:not(.is-active) .turun__media, html.js:not(.no-motion) .turun__step:not(.is-active) .turun__text { opacity: 0; }
   html.js:not(.no-motion) .turun__num {
     display: flex; align-items: baseline; gap: var(--space-xs); grid-column: 1; grid-row: 1; align-self: start;
