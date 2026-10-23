@@ -235,7 +235,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (!panel) return;
       var N = 4, TINGGI_M = 30, TRAVEL = 3;
       var S = { raw: 0, p: 0, v: 0, amp: 0, phase: 0, bounce: 0, station: 0, dir: 1, lean: 0 };
-      var fig = $('#turunFigur'), aman = $('#turunAman'), meter = $('#turunMeter'), nomor = $('#turunNomor');
+      var fig = $('#turunFigur'), meter = $('#turunMeter'), nomor = $('#turunNomor');
       var photos = $$('.turun__foto img', panel);
       // Satu kali di awal: blok teks stasiun beserta baris dan sisa elemennya (dipakai showStation dan cleanup)
       var blocks = $$('.turun__big', panel).map(function (b) { return { b: b, lines: $$('.ln > span', b), rest: [$('.turun__tag', b), $('p:last-child', b)] }; });
@@ -265,7 +265,7 @@ document.addEventListener('DOMContentLoaded', function () {
         w.el.style.transform = 'translate3d(0,' + y.toFixed(2) + 'px,0)';
       }
 
-      // Ukuran yang bergantung layar: tinggi panel, periode dinding, dan tali pengaman yang sejajar tali di figur
+      // Ukuran yang bergantung layar: tinggi panel dan periode dinding
       function measure() {
         H = panel.clientHeight;
         walls.forEach(function (w) {
@@ -273,12 +273,6 @@ document.addEventListener('DOMContentLoaded', function () {
           // <i> harus lebih tinggi satu periode dari kotaknya supaya tetap menutup saat digeser naik
           w.el.style.height = Math.ceil(w.el.parentNode.clientHeight + w.per) + 'px';
         });
-        var ctm0 = fig.getScreenCTM();
-        if (ctm0) {
-          var pt = new DOMPoint(60, 0).matrixTransform(ctm0);
-          aman.style.left = (pt.x - panel.getBoundingClientRect().left - 20) + 'px';
-        }
-        aman.style.top = (H * 0.3) + 'px';
       }
 
       function showStation(i, dir) {
@@ -403,7 +397,7 @@ document.addEventListener('DOMContentLoaded', function () {
         gsap.killTweensOf(S);
         Object.keys(J).forEach(function (id) { if (statis[id] === null) J[id].removeAttribute('transform'); else J[id].setAttribute('transform', statis[id]); });
         tali.setAttribute('d', statisD);
-        gsap.set(walls.map(function (w) { return w.el; }).concat(photos, aman), { clearProps: 'all' });
+        gsap.set(walls.map(function (w) { return w.el; }).concat(photos), { clearProps: 'all' });
         photos.forEach(function (im) { im.removeAttribute('aria-hidden'); });
         blocks.forEach(function (o, k) { o.b.classList.toggle('is-on', k === 0); });
         nomor.textContent = '01'; meter.textContent = '0 m';

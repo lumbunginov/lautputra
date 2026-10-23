@@ -312,11 +312,6 @@ html.js .ticker__track { animation: ticker 48s linear infinite; }
 .turun__dinding--dekat { opacity: 0.6; }
 .turun__dinding--jauh { opacity: 0.2; width: calc(var(--wall-w) * 0.85 + 24vw); left: calc(-24vw + var(--wall-w) * 0.62); transform: rotate(-6deg); }
 .turun__dinding--air { opacity: 0.95; clip-path: inset(0 0 0 52%); }
-/* Tali pengaman diagonal (tebing ke pantai); JS menimpa left/top dengan nilai terukur */
-.turun__aman {
-  position: absolute; left: calc(var(--fig-x) + (60 + 230) / 740 * (var(--fig-h) * 740 / 1760) - 20px); top: 30svh;
-  width: 160vw; height: 2px; background: var(--color-accent); opacity: 0.35; transform-origin: 0 0; transform: rotate(17deg); pointer-events: none;
-}
 /* Figur: rig 11 potongan, warna dari token lewat currentColor */
 .turun__figur {
   position: absolute; left: var(--fig-x); top: var(--fig-top); height: var(--fig-h); aspect-ratio: 740 / 1760; overflow: visible;
