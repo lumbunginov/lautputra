@@ -348,10 +348,14 @@ html:not(.js) .turun__teks, html.no-motion .turun__teks {
   display: grid; gap: var(--space-3xl); padding: var(--space-2xl) var(--gutter);
 }
 html:not(.js) .turun__big, html.no-motion .turun__big { display: grid; gap: var(--space-md); width: min(100%, 40rem); position: static; opacity: 1; visibility: visible; }
-/* --foto diisi di atribut style tiap blok; url() di custom property dihitung dari lokasi stylesheet ini, makanya ../img/ */
+/* Foto stasiun di blok statis: satu aturan per stasiun (url() relatif ke stylesheet ini), kotaknya dibagi bersama */
 html:not(.js) .turun__big::before, html.no-motion .turun__big::before {
-  content: ""; display: block; aspect-ratio: 4 / 5; max-height: 60svh; border-radius: var(--radius-md); background: var(--foto) center / cover;
+  content: ""; display: block; aspect-ratio: 4 / 5; max-height: 60svh; border-radius: var(--radius-md); background: center / cover no-repeat;
 }
+html:not(.js) .turun__big[data-stasiun="0"]::before, html.no-motion .turun__big[data-stasiun="0"]::before { background-image: url(../img/galeri-puncak-tebing.jpg); }
+html:not(.js) .turun__big[data-stasiun="1"]::before, html.no-motion .turun__big[data-stasiun="1"]::before { background-image: url(../img/galeri-siap-turun.jpg); }
+html:not(.js) .turun__big[data-stasiun="2"]::before, html.no-motion .turun__big[data-stasiun="2"]::before { background-image: url(../img/galeri-turun-tebing.jpg); }
+html:not(.js) .turun__big[data-stasiun="3"]::before, html.no-motion .turun__big[data-stasiun="3"]::before { background-image: url(../img/galeri-bawah-air-terjun.jpg); }
 html:not(.js) .turun__big h3, html.no-motion .turun__big h3 { font-size: clamp(40px, 6vw, 72px); margin: 0; }
 html:not(.js) .turun__big > p, html.no-motion .turun__big > p { margin: 0; }
 @media (min-width: 64rem) {
