@@ -227,13 +227,17 @@ document.addEventListener('DOMContentLoaded', function () {
     var mm = gsap.matchMedia();
 
     // ---------- Turun: adegan close-up canyoning. Satu loop ticker membaca progres pin, menggerakkan dinding, air, foto, meteran, dan teks stasiun ----------
-    function turunDesktop() {
+    // Dipakai kedua media (desktop dan ponsel); ukuran figur/dinding dari variabel CSS di .turun__panel, JS hanya menerima panjang pin per stasiun (opts.endPct, % tinggi layar).
+    // Ponsel: tetap dipin seperti desktop. Gulir cepat 390x844 dengan CPU 4x (CDP): frame Δt p95 16,7 ms (batas 33 ms), maks 25 ms, jadi cadangan sticky tanpa pin tidak dipakai.
+    function turunCloseup(opts) {
       var panel = $('#turunPanel');
       if (!panel) return;
       var N = 4, TINGGI_M = 30, TRAVEL = 3;
       var S = { raw: 0, p: 0, v: 0, amp: 0, phase: 0, bounce: 0, station: 0, dir: 1, lean: 0 };
       var fig = $('#turunFigur'), aman = $('#turunAman'), meter = $('#turunMeter'), nomor = $('#turunNomor');
-      var bigs = $$('.turun__big', panel), photos = $$('.turun__foto img', panel);
+      var photos = $$('.turun__foto img', panel);
+      // Satu kali di awal: blok teks stasiun beserta baris dan sisa elemennya (dipakai showStation dan cleanup)
+      var blocks = $$('.turun__big', panel).map(function (b) { return { b: b, lines: $$('.ln > span', b), rest: [$('.turun__tag', b), $('p:last-child', b)] }; });
       // Dinding: tiap <i> digeser dengan transform sejauh d (px) modulo periode tile mask; periode = lebar × 1.3 × 1961 / 480
       var wDekat = { el: $('#turunDekat i', panel), per: 0 }, wJauh = { el: $('#turunJauh i', panel), per: 0 }, wAir = { el: $('#turunAir i', panel), per: 0 };
       var walls = [wDekat, wJauh, wAir];
@@ -274,8 +278,8 @@ document.addEventListener('DOMContentLoaded', function () {
       }
 
       function showStation(i, dir) {
-        bigs.forEach(function (b, k) {
-          var lines = $$('.ln > span', b), rest = [$('.turun__tag', b), $('p:last-child', b)];
+        blocks.forEach(function (o, k) {
+          var b = o.b, lines = o.lines, rest = o.rest;
           gsap.killTweensOf([b].concat(lines, rest));
           if (k === i) {
             b.classList.add('is-on'); gsap.set(b, { opacity: 1 });
@@ -357,7 +361,7 @@ document.addEventListener('DOMContentLoaded', function () {
       }
 
       var pin = ST.create({
-        trigger: panel, start: 'top top', end: '+=' + (N * 120) + '%', pin: true, anticipatePin: 1, refreshPriority: 2,
+        trigger: panel, start: 'top top', end: '+=' + (N * opts.endPct) + '%', pin: true, anticipatePin: 1, refreshPriority: 2,
         onUpdate: function (t) { S.raw = t.progress; },
         onRefresh: function (t) { S.raw = t.progress; },
         onToggle: function (t) { root.classList.toggle('turun-pinned', t.isActive); }
@@ -365,39 +369,37 @@ document.addEventListener('DOMContentLoaded', function () {
       // Muat ulang di tengah bagian: mulai dari progres tersimpan, bukan dari 0
       S.raw = S.p = pin.progress;
       S.station = Math.max(0, Math.min(N - 1, Math.round(S.p * (N - 1))));
-      bigs.forEach(function (b, k) { b.classList.toggle('is-on', k === S.station); });
+      blocks.forEach(function (o, k) { o.b.classList.toggle('is-on', k === S.station); });
       nomor.textContent = '0' + (S.station + 1);
-      // Foto lebih tinggi 12% dari panel supaya geseran naik sampai 10% tidak membuka celah di bawah
-      photos.forEach(function (im) { im.style.height = '112%'; });
       measure();
       tick(0, 0);
       gsap.ticker.add(tick);
-      window.addEventListener('resize', measure);
+      // ScrollTrigger me-refresh sendiri saat ukuran berubah, jadi cukup satu pendengar 'refresh' (tanpa 'resize')
       ST.addEventListener('refresh', measure);
       if (location.search.indexOf('debug') > -1) { window.__turun = S; window.__turunTick = tick; window.__turunBase = BASE; }
 
       return function () {
         gsap.ticker.remove(tick);
-        window.removeEventListener('resize', measure);
         ST.removeEventListener('refresh', measure);
         pin.kill();
         root.classList.remove('turun-pinned');
-        bigs.forEach(function (b) {
-          var lines = $$('.ln > span', b), rest = [$('.turun__tag', b), $('p:last-child', b)];
-          gsap.killTweensOf([b].concat(lines, rest));
-          gsap.set([b].concat(lines, rest), { clearProps: 'all' });
+        blocks.forEach(function (o) {
+          var all = [o.b].concat(o.lines, o.rest);
+          gsap.killTweensOf(all);
+          gsap.set(all, { clearProps: 'all' });
         });
         gsap.killTweensOf(S);
         Object.keys(J).forEach(function (id) { if (statis[id] === null) J[id].removeAttribute('transform'); else J[id].setAttribute('transform', statis[id]); });
         tali.setAttribute('d', statisD);
         gsap.set(walls.map(function (w) { return w.el; }).concat(photos, aman), { clearProps: 'all' });
         photos.forEach(function (im) { im.removeAttribute('aria-hidden'); });
-        bigs.forEach(function (b, k) { b.classList.toggle('is-on', k === 0); });
+        blocks.forEach(function (o, k) { o.b.classList.toggle('is-on', k === 0); });
         nomor.textContent = '01'; meter.textContent = '0 m';
         if (window.__turun === S) { delete window.__turun; delete window.__turunTick; delete window.__turunBase; }
       };
     }
-    mm.add('(min-width: 64rem)', turunDesktop);
+    mm.add('(min-width: 64rem)', function () { return turunCloseup({ endPct: 120 }); });
+    mm.add('(max-width: 63.99rem)', function () { return turunCloseup({ endPct: 100 }); });
 
     // ---------- Galeri: digeser horizontal saat discroll, tiap foto ber-parallax ----------
     mm.add('(min-width: 64rem)', function () {

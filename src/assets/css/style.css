@@ -282,7 +282,7 @@ html.js .ticker__track { animation: ticker 48s linear infinite; }
 .turun__intro { display: grid; gap: var(--space-lg); padding-inline: var(--gutter); margin-bottom: var(--space-2xl); }
 /* Task 4: sepatu menjejak permukaan dinding, 80-320 px di dalam tepi kanan kotak dinding (uji Task 4 di 1280/1440/1920); --wall-w dan --fig-x tidak diubah. Frame gulir cepat 1920x1080: p95 10 ms, jadi drop-shadow dan <mask> dipertahankan. */
 .turun__panel {
-  --wall-w: calc(4vw + 26vh); --fig-x: calc(4vw + 26.5vh);
+  --wall-w: calc(4vw + 26vh); --fig-x: calc(4vw + 26.5vh); --fig-h: 80svh; --fig-top: 8svh;
   position: relative; height: 100svh; overflow: hidden; background: var(--color-paper);
 }
 /* Foto asli sebagai suasana: hanya foto pertama tampak sampai JS mengatur crossfade; gradien menggelapkan kiri dan bawah */
@@ -311,12 +311,12 @@ html.js .ticker__track { animation: ticker 48s linear infinite; }
 .turun__dinding--air { opacity: 0.95; clip-path: inset(0 0 0 52%); }
 /* Tali pengaman diagonal (tebing ke pantai); JS menimpa left/top dengan nilai terukur */
 .turun__aman {
-  position: absolute; left: calc(var(--fig-x) + (60 + 230) / 740 * (80svh * 740 / 1760) - 20px); top: 30svh;
+  position: absolute; left: calc(var(--fig-x) + (60 + 230) / 740 * (var(--fig-h) * 740 / 1760) - 20px); top: 30svh;
   width: 160vw; height: 2px; background: var(--color-accent); opacity: 0.35; transform-origin: 0 0; transform: rotate(17deg); pointer-events: none;
 }
 /* Figur: rig 11 potongan, warna dari token lewat currentColor */
 .turun__figur {
-  position: absolute; left: var(--fig-x); top: 8svh; height: 80svh; aspect-ratio: 740 / 1760; overflow: visible;
+  position: absolute; left: var(--fig-x); top: var(--fig-top); height: var(--fig-h); aspect-ratio: 740 / 1760; overflow: visible;
   color: var(--color-ornamen); filter: drop-shadow(0 8px 18px rgba(0 0 0 / 0.55)); pointer-events: none;
 }
 .turun__tali { stroke: var(--color-accent); stroke-width: 4; fill: none; opacity: 0.9; }
@@ -339,7 +339,10 @@ html.js .ticker__track { animation: ticker 48s linear infinite; }
 /* Dengan JS dan gerak: hanya stasiun aktif yang tampak, bertumpuk di pojok kanan bawah */
 html.js:not(.no-motion) .turun__big { position: absolute; inset: auto 0 0 0; opacity: 0; visibility: hidden; }
 html.js:not(.no-motion) .turun__big.is-on { opacity: 1; visibility: visible; }
+/* Kedua mode (desktop dan ponsel) dipin: ruang di bawah panel datang dari pin-spacer, jadi padding bawah bagian dibuang di keduanya. */
 html.js:not(.no-motion) .turun { padding-bottom: 0; }
+/* Foto lebih tinggi 12% dari panel supaya geseran naik sampai 10% (transform dari JS) tidak membuka celah di bawah */
+html.js:not(.no-motion) .turun__foto img { height: 112%; }
 /* Tanpa JS atau reduced-motion: panel jadi satu layar statis sebagai pembuka (tanpa HUD); empat stasiun ditumpuk di bawahnya.
    Panel memanjang ke bawah (padding-top 100svh = layar pembuka), dipotong ke kotaknya; lapisan yang meluber ke area teks tertutup latar teks. */
 html:not(.js) .turun__panel, html.no-motion .turun__panel { height: auto; overflow: visible; clip-path: inset(0); padding-top: 100svh; }
@@ -364,6 +367,20 @@ html:not(.js) .turun__big > p, html.no-motion .turun__big > p { margin: 0; }
   .turun__intro { grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); align-items: end; column-gap: var(--space-3xl); }
   .turun__intro .eyebrow { grid-column: 1 / -1; }
   .turun__intro .lede { align-self: end; }
+}
+/* Ponsel: figur lebih kecil (62svh), dinding menyempit, teks stasiun di bawah figur selebar layar dengan gutter, HUD lebih kecil.
+   Ukuran lewat variabel panel; teks hanya untuk mode gerak (blok statis tanpa JS/reduced-motion punya aturannya sendiri). */
+@media (max-width: 63.99rem) {
+  .turun__panel { --wall-w: calc(4vw + 14svh); --fig-x: calc(4vw + 14.5svh); --fig-h: 62svh; --fig-top: 6svh; }
+  .turun__hud { right: 16px; top: 16px; }
+  .turun__hud small { font-size: 10px; }
+  .turun__hud b { font-size: 20px; }
+  html.js:not(.no-motion) .turun__teks { left: var(--gutter); right: var(--gutter); bottom: clamp(20px, 4svh, 36px); width: auto; }
+  html.js:not(.no-motion) .turun__tag { margin-bottom: 10px; }
+  html.js:not(.no-motion) .turun__big h3 { font-size: clamp(40px, 11vw, 60px); margin-bottom: 12px; }
+  html.js:not(.no-motion) .turun__big > p:last-child {
+    font-size: 13px; line-height: 1.5; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; line-clamp: 3; overflow: hidden;
+  }
 }
 
 /* ---------- Kapan datang ---------- */
