@@ -325,6 +325,19 @@ html.js .ticker__track { animation: ticker 48s linear infinite; }
   color: var(--color-ornamen); filter: drop-shadow(0 8px 18px rgba(0 0 0 / 0.55)); pointer-events: none;
 }
 .turun__tali { stroke: var(--color-accent); stroke-width: 4; fill: none; opacity: 0.9; }
+/* Drone: cakram baling-baling tipis semi-transparan, garisnya 1 px berapa pun skalanya */
+.drone__baling circle, .drone__baling line { fill: none; stroke: currentColor; stroke-width: 1; vector-effect: non-scaling-stroke; }
+.drone__baling circle { opacity: 0.22; }
+.drone__baling .cakram { fill: currentColor; fill-opacity: 0.07; opacity: 0.45; }
+.drone__baling line { opacity: 0.55; }
+.drone__baling line + line { opacity: 0.28; }
+.drone__baling line + line + line { opacity: 0.12; }
+#dronePercik circle { fill: #fff6dc; }
+/* Kilat kamera drone: cahaya sesaat yang menerangi adegan dari arah lensa (--kx/--ky dari JS) */
+.turun__kilat {
+  position: absolute; inset: 0; z-index: 3; pointer-events: none; opacity: 0; mix-blend-mode: screen;
+  background: radial-gradient(circle at var(--kx, 60%) var(--ky, 30%), rgb(255 248 230 / 0.9), rgb(255 248 230 / 0.2) 22%, transparent 60%);
+}
 /* Kanan atas: kedalaman dan nomor stasiun */
 .turun__hud { position: absolute; z-index: 4; right: 40px; top: 28px; text-align: right; font-size: var(--text-xs); letter-spacing: 0.04em; text-shadow: 0 1px 12px rgba(0 0 0 / 0.7); }
 .turun__hud small { display: block; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-muted); }

@@ -175,7 +175,22 @@
         <mask id="mk-paha-kanan" maskUnits="userSpaceOnUse" x="0" y="0" width="450" height="1000"><image href="assets/img/rig/paha-kanan.webp" preserveAspectRatio="none" width="450" height="1000"/></mask>
         <mask id="mk-betis-kiri" maskUnits="userSpaceOnUse" x="0" y="0" width="250" height="400"><image href="assets/img/rig/betis-kiri.webp" preserveAspectRatio="none" width="250" height="400"/></mask>
         <mask id="mk-betis-kanan" maskUnits="userSpaceOnUse" x="0" y="0" width="250" height="400"><image href="assets/img/rig/betis-kanan.webp" preserveAspectRatio="none" width="250" height="400"/></mask>
+        <mask id="mk-drone" maskUnits="userSpaceOnUse" x="0" y="0" width="720" height="386"><image href="assets/img/drone.webp" preserveAspectRatio="none" width="720" height="386"/></mask>
+        <radialGradient id="gr-kilat"><stop offset="0" stop-color="#fff" stop-opacity="1"/><stop offset=".25" stop-color="#fff6dc" stop-opacity=".7"/><stop offset="1" stop-color="#fff6dc" stop-opacity="0"/></radialGradient>
       </defs>
+      <!-- Drone pemotret saat pose ikonik (diatur turunCloseup): di belakang tali dan orang, gambar 720x386 dengan lensa di (356,301).
+           Baling-baling digambar di sini sebagai cakram putar (lingkaran dipipihkan jadi elips, garis bilah diputar JS). -->
+      <g id="drone" visibility="hidden" opacity="0">
+        <g id="droneBadan">
+          <rect width="720" height="386" fill="currentColor" mask="url(#mk-drone)"/>
+          <g class="drone__baling" transform="translate(71 10) scale(1 .17)"><circle class="cakram" r="180"/><circle r="120"/><circle r="60"/><g><line x1="-180" x2="180"/><line x1="-180" x2="180" transform="rotate(-18)"/><line x1="-180" x2="180" transform="rotate(-36)"/></g></g>
+          <g class="drone__baling" transform="translate(42 158) scale(1 .17)"><circle class="cakram" r="180"/><circle r="120"/><circle r="60"/><g><line x1="-180" x2="180"/><line x1="-180" x2="180" transform="rotate(18)"/><line x1="-180" x2="180" transform="rotate(36)"/></g></g>
+          <g class="drone__baling" transform="translate(648 10) scale(1 .17)"><circle class="cakram" r="180"/><circle r="120"/><circle r="60"/><g><line x1="-180" x2="180"/><line x1="-180" x2="180" transform="rotate(18)"/><line x1="-180" x2="180" transform="rotate(36)"/></g></g>
+          <g class="drone__baling" transform="translate(678 158) scale(1 .17)"><circle class="cakram" r="180"/><circle r="120"/><circle r="60"/><g><line x1="-180" x2="180"/><line x1="-180" x2="180" transform="rotate(-18)"/><line x1="-180" x2="180" transform="rotate(-36)"/></g></g>
+          <g id="droneKilat" transform="translate(356 301)" opacity="0"><circle id="droneGlow" r="40" fill="url(#gr-kilat)"/><ellipse rx="300" ry="5" fill="#fff"/><ellipse rx="5" ry="130" fill="#fff"/></g>
+          <g id="dronePercik" transform="translate(356 301)"></g>
+        </g>
+      </g>
       <path class="turun__tali" id="turunTali" d="M122 -2000 L122 -222 L96 409 C136 469 383 559 413 599 C423 799 427 1500 427 2200"/>
       <g id="rig">
         <g id="kakiJauh" opacity=".45">
@@ -201,6 +216,7 @@
         </g>
       </g>
     </svg>
+    <i class="turun__kilat" id="turunKilat" aria-hidden="true"></i>
     <div class="turun__hud" aria-hidden="true"><small>Kedalaman</small><b id="turunMeter">0 m</b><span><b id="turunNomor">01</b>/ 04</span></div>
     <div class="turun__teks">
       <div class="turun__big is-on" data-stasiun="0"><p class="turun__tag">01 · Atas tebing</p><h3><span class="ln"><span>Kolam alami</span></span><span class="ln"><span><em>tanpa tepi.</em></span></span></h3><p>Cekungan sungai sebelum terjun menampung air jernih. Berendam di sini terasa seperti kolam tanpa tepi dengan latar laut lepas.</p></div>

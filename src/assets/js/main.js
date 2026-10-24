@@ -271,6 +271,18 @@ document.addEventListener('DOMContentLoaded', function () {
       // (referensi Tebing 3), lengan lurus menjuntai ke bawah.
       var IKON = { dari: 12, puncak: 15, akhir: 18, lepas: 21, geserX: 120, geserY: 40, lenganA: 82, lenganA2: 12, lenganB: 98, lenganB2: 20 };
       var rig = { tx: 0, ty: 0, rot: 0 };
+      // Drone pemotret: masuk dari kiri di 12,5-15 m (slide + fade), melayang selama pose, dua kali kilat setelah tiba
+      // (detik ke-0,6 dan 1,1 sejak melayang), lalu pergi ke kanan atas di 18-20,5 m. Posisi dihitung dalam px layar lalu
+      // dikonversi ke viewBox lewat CTM figur. Gambar 720x386, lensa di (356,301).
+      var DRONE = { masuk: 12.5, tiba: 15, pergi: 18, hilang: 20.5, kilat: [0.6, 1.1] };
+      var drone = { el: $('#drone', panel), g: $('#droneBadan', panel), kilat: $('#droneKilat', panel), glow: $('#droneGlow', panel),
+        percikG: $('#dronePercik', panel), baling: $$('.drone__baling > g', panel), x: null, vx: 0, rot: 0, h: 0, nyala: 0, tk: -1, tampak: false, percik: [] };
+      var layarKilat = $('#turunKilat', panel);
+      for (var pi = 0; pi < 16; pi++) {
+        var pc = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        pc.setAttribute('r', '0'); drone.percikG.appendChild(pc);
+        drone.percik.push({ el: pc, x: 0, y: 0, vx: 0, vy: 0, t: 1, T: 1 });
+      }
 
       function lerp(a, b, t) { return a + (b - a) * t; }
       function halus(x) { x = Math.min(1, Math.max(0, x)); return x * x * (3 - 2 * x); }
@@ -360,6 +372,67 @@ document.addEventListener('DOMContentLoaded', function () {
           }
           ik(k, t.x, t.y);
         });
+      }
+
+      // Kilat: cahaya lensa dan lapisan panel menyala cepat lalu meredup, percikan terlempar dari lensa
+      function nyalakan(lx, ly) {
+        drone.tk = 0;
+        layarKilat.style.setProperty('--kx', lx.toFixed(0) + 'px');
+        layarKilat.style.setProperty('--ky', ly.toFixed(0) + 'px');
+        drone.percik.forEach(function (p) {
+          var a = Math.random() * 2 * Math.PI, v = 450 + Math.random() * 1000;
+          p.x = 0; p.y = 0; p.vx = Math.cos(a) * v; p.vy = Math.sin(a) * v * 0.7; p.t = 0; p.T = 0.6 + Math.random() * 0.5;
+          p.el.setAttribute('r', (5 + Math.random() * 7).toFixed(1));
+        });
+      }
+      function droneTick(dt, tt, kd, w, ctm) {
+        var e = halus((kd - DRONE.masuk) / (DRONE.tiba - DRONE.masuk)), q = halus((kd - DRONE.pergi) / (DRONE.hilang - DRONE.pergi));
+        var op = Math.min(1, e * 1.6) * Math.min(1, (1 - q) * 1.6);
+        var on = op > 0.002 || drone.tk >= 0;
+        if (on !== drone.tampak) {
+          drone.tampak = on; drone.el.setAttribute('visibility', on ? 'visible' : 'hidden');
+          if (!on) { drone.h = 0; drone.nyala = 0; drone.x = null; drone.vx = 0; }
+        }
+        if (!on) return;
+        // Lebar drone ±240 px (ponsel 38% lebar layar); titik melayang di kanan orang, dijaga tetap di dalam layar
+        var wPx = Math.min(240, PW * 0.38), s = wPx / ctm.a / 720;
+        var hx = Math.min(ctm.e + (HIP.x + rig.tx + 700) * ctm.a, PW - wPx / 2 - 14), hy = H * (PW < 640 ? 0.25 : 0.29);
+        var pe = 1 - Math.pow(1 - e, 2.2), pq = q * q;
+        var sx = lerp(-wPx * 0.7, hx, pe) + (PW + wPx * 0.7 - hx) * pq;
+        var sy = hy - 70 * (1 - pe) - 160 * pq + Math.sin(tt * 1.7) * 5 + Math.sin(tt * 0.8) * 3;
+        // Miring ke arah terbang (dari kecepatan layar), plus goyang kecil saat melayang
+        if (drone.x !== null && dt > 0) drone.vx = lerp(drone.vx, (sx - drone.x) / dt, 1 - Math.pow(0.02, dt));
+        drone.x = sx;
+        var tilt = Math.max(-14, Math.min(14, drone.vx * 0.03)) + Math.sin(tt * 1.3) * 1.2;
+        drone.el.setAttribute('opacity', (op * 0.92).toFixed(3));
+        drone.g.setAttribute('transform', 'translate(' + ((sx - ctm.e) / ctm.a).toFixed(1) + ' ' + ((sy - ctm.f) / ctm.d).toFixed(1) +
+          ') rotate(' + tilt.toFixed(2) + ') scale(' + s.toFixed(4) + ') translate(-360 -193)');
+        // Baling-baling: pasangan diagonal berputar searah, pasangan lain berlawanan
+        drone.rot = (drone.rot + dt * 2200) % 360;
+        drone.baling.forEach(function (b, i) { b.setAttribute('transform', 'rotate(' + ((i === 0 || i === 3 ? 1 : -1) * drone.rot).toFixed(1) + ')'); });
+        // Dua kilat setelah drone diam di tempat dan orang sudah dalam pose; pergi atau mundur jauh menyetel ulang hitungannya
+        if (e > 0.995 && q < 0.005 && w > 0.97) drone.h += dt;
+        else if (e < 0.7 || q > 0.3) { drone.h = 0; drone.nyala = 0; }
+        if (drone.nyala < DRONE.kilat.length && drone.h >= DRONE.kilat[drone.nyala]) {
+          drone.nyala++;
+          nyalakan(sx + (356 - 360) * s * ctm.a, sy + (301 - 193) * s * ctm.a);
+        }
+        if (drone.tk >= 0) {
+          drone.tk += dt;
+          var t = drone.tk, b = t < 0.05 ? t / 0.05 : Math.exp(-(t - 0.05) * 9), hidup = false;
+          drone.kilat.setAttribute('opacity', b.toFixed(3));
+          drone.glow.setAttribute('r', (40 + 280 * (1 - Math.exp(-t * 14))).toFixed(1));
+          layarKilat.style.opacity = (b * 0.5).toFixed(3);
+          drone.percik.forEach(function (p) {
+            if (p.t >= p.T) return;
+            p.t += dt; p.vx *= Math.pow(0.08, dt); p.vy = p.vy * Math.pow(0.08, dt) + 260 * dt;
+            p.x += p.vx * dt; p.y += p.vy * dt;
+            var o = Math.max(0, 1 - p.t / p.T);
+            p.el.setAttribute('cx', p.x.toFixed(1)); p.el.setAttribute('cy', p.y.toFixed(1)); p.el.setAttribute('opacity', o.toFixed(3));
+            if (o > 0) hidup = true;
+          });
+          if (t > 0.6 && !hidup) { drone.tk = -1; drone.kilat.setAttribute('opacity', '0'); layarKilat.style.opacity = '0'; }
+        }
       }
 
       // Ukuran yang bergantung layar: tinggi panel dan periode dinding
@@ -471,6 +544,7 @@ document.addEventListener('DOMContentLoaded', function () {
           tali.setAttribute('d', 'M' + q[0] + ' ' + q[1] + ' L' + q[2] + ' ' + q[3] + ' L' + q[4] + ' ' + q[5] +
             ' C' + q[6] + ' ' + q[7] + ' ' + q[8] + ' ' + q[9] + ' ' + q[10] + ' ' + q[11] +
             ' C' + q[12] + ' ' + q[13] + ' ' + q[14] + ' ' + q[15] + ' ' + q[16] + ' ' + q[17]);
+          droneTick(dt, tt, kd, w, ctm);
         }
 
         // Meteran menunggu di 0 m sampai tengah stasiun 02 (p = 1/3), lalu naik rata
@@ -513,6 +587,9 @@ document.addEventListener('DOMContentLoaded', function () {
         gsap.killTweensOf(S);
         Object.keys(J).forEach(function (id) { if (statis[id] === null) J[id].removeAttribute('transform'); else J[id].setAttribute('transform', statis[id]); });
         tali.setAttribute('d', statisD);
+        drone.el.setAttribute('visibility', 'hidden'); drone.el.setAttribute('opacity', '0'); drone.kilat.setAttribute('opacity', '0');
+        drone.percik.forEach(function (p) { p.el.remove(); });
+        layarKilat.style.cssText = '';
         gsap.set(walls.map(function (w) { return w.el; }).concat(photos), { clearProps: 'all' });
         photos.forEach(function (im) { im.removeAttribute('aria-hidden'); });
         blocks.forEach(function (o, k) { o.b.classList.toggle('is-on', k === 0); });
