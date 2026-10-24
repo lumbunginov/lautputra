@@ -299,6 +299,10 @@ html.js .ticker__track { animation: ticker 48s linear infinite; }
    Sprite dibuat JS bersama adegan gerak; tanpa JS/reduced-motion lapisan ini kosong. */
 .turun__awan { position: absolute; inset: 0; pointer-events: none; }
 .turun__awan img { position: absolute; left: 0; top: 0; max-width: none; opacity: 0; will-change: transform, opacity; }
+/* Laut: empat pita alun kontur putih (laut-1..4.webp, diulang mendatar) di kanan bawah pada ketinggian tetap, di belakang dinding
+   dan dipotong mask sejajar tepi tebing (dari JS). Tanpa JS/reduced-motion kosong. */
+.turun__laut { position: absolute; inset: 0; pointer-events: none; }
+.turun__laut > div { position: absolute; left: 0; top: 0; opacity: 0; background-repeat: repeat-x; background-size: auto 100%; will-change: transform, opacity; }
 /* Dinding: lempengan travertin miring, diputar dari sudut kanan-atas dan diperlebar ke kiri/atas supaya tanpa celah.
    Isinya (<i>) berisi tile mask luminance yang diulang; JS menggesernya naik mengikuti gulir dan menyetel tingginya
    (tinggi kotak + satu periode tile, lihat measure()); 300vh di bawah hanya nilai cadangan tanpa JS. */

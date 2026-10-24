@@ -297,6 +297,26 @@ document.addEventListener('DOMContentLoaded', function () {
         awanEl.appendChild(im);
         return { el: im, px: null, x: a[1], y: a[2], w: a[3], l: LAPIS[a[4]], wpx: 0 };
       });
+      // Laut: empat pita alun kontur putih (laut-1..4.webp, 1321 px, bisa diulang mendatar) ditumpuk di kanan bawah panel pada
+      // ketinggian tetap: tumpukan 14% tinggi panel dengan tepi bawah di 96% (pilihan pengguna, kira-kira setinggi baris teks
+      // "dinding kapur"). Di belakang dinding dan dipotong mask sejajar tepi tebing dengan pudar sempit (5% lebar) supaya laut
+      // tampak menyentuh kaki tebing. Pita bawah paling dekat: paling besar, jelas, dan cepat. Gerak: bergeser pelan ke kiri
+      // menurut waktu (laju 0,1 = sepersepuluh laju demo banding, pilihan pengguna), ayunan vertikal tipis, dan saat turun hanya
+      // naik sedikit (p = bagian tinggi panel per 30 m). Tanpa ombak pecah di kaki tebing: gumpal tekstur dan ombak partikel
+      // (demo kanvas) sudah dicoba dan ditolak pengguna, laut saja.
+      // [skala tinggi (bagian tumpukan), ofset tepi bawah (bagian tumpukan), opasitas, detik per ulangan pada laju 1, paralaks p]
+      // bawah > 1: pudar bawah pita 4 (22% tingginya) jatuh di luar panel supaya laut menutup sampai tepi bawah kontainer
+      var LAUT = { tinggi: .18, bawah: 1.04, laju: .1 };
+      var LAUT_LAPIS = [{ sk: .45, ofs: .66, o: .25, dur: 70, p: .04 }, { sk: .57, ofs: .44, o: .38, dur: 52, p: .05 },
+        { sk: .68, ofs: .22, o: .5, dur: 40, p: .06 }, { sk: .80, ofs: 0, o: .65, dur: 30, p: .07 }];
+      var lautEl = $('#turunLaut', panel);
+      var laut = LAUT_LAPIS.map(function (l, k) {
+        var el = document.createElement('div'), im = new Image();
+        el.className = 'laut__lapis'; el.style.backgroundImage = 'url(assets/img/laut-' + (k + 1) + '.webp)';
+        im.src = 'assets/img/laut-' + (k + 1) + '.webp';
+        lautEl.appendChild(el);
+        return { el: el, im: im, l: l, x: 0, h: 0, yb: 0, tw: 0 };
+      });
       for (var pi = 0; pi < 16; pi++) {
         var pc = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
         pc.setAttribute('r', '0'); drone.percikG.appendChild(pc);
@@ -498,6 +518,33 @@ document.addEventListener('DOMContentLoaded', function () {
           a.el.style.transform = 'translate3d(' + (x0 + u).toFixed(1) + 'px,' + (yc - tinggi / 2).toFixed(1) + 'px,0)';
         });
       }
+      function ukurLaut() {
+        var yb = LAUT.bawah * H, tot = LAUT.tinggi * H;
+        laut.forEach(function (a) {
+          a.h = tot * a.l.sk; a.yb = yb - tot * a.l.ofs; a.tw = 0;
+          a.el.style.height = a.h.toFixed(1) + 'px'; a.el.style.opacity = a.l.o;
+        });
+        // Mask: sejajar tepi tebing (0 di garis tepi, naik ke 1 sejauh 5% lebar ke kanan); gradien SVG dalam px panel
+        var L0 = tepiX(0), LH = tepiX(H), dx = LH - L0, len = Math.hypot(dx, H) || 1, F = PW * 0.05;
+        var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + PW + '" height="' + H + '"><defs><linearGradient id="g" gradientUnits="userSpaceOnUse" x1="' +
+          L0.toFixed(1) + '" y1="0" x2="' + (L0 + H / len * F).toFixed(1) + '" y2="' + (-dx / len * F).toFixed(1) +
+          '"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#fff"/></linearGradient></defs><rect width="100%" height="100%" fill="url(#g)"/></svg>';
+        var st = lautEl.style, u = 'url("data:image/svg+xml,' + encodeURIComponent(svg) + '")';
+        st.webkitMaskImage = st.maskImage = u; st.webkitMaskSize = st.maskSize = '100% 100%';
+      }
+      function lautTick(dt, t, kd) {
+        var cepat = PW < 640 ? 0.6 : 1, naik = Math.min(1, kd / TINGGI_M);
+        laut.forEach(function (a, k) {
+          var nw = a.im.naturalWidth;
+          if (!nw) return;
+          var tw = a.h * nw / a.im.naturalHeight; // lebar satu ulangan pita (px)
+          if (tw !== a.tw) { a.tw = tw; a.el.style.width = Math.ceil(PW + 2 * tw) + 'px'; }
+          a.x += tw / a.l.dur * LAUT.laju * cepat * dt;
+          var u = ((a.x % tw) + tw) % tw;
+          var y = a.yb - a.h - a.l.p * naik * H + Math.sin(t * 2 * Math.PI / 7 + k * 1.3) * 0.015 * a.h;
+          a.el.style.transform = 'translate3d(' + (-u).toFixed(1) + 'px,' + y.toFixed(1) + 'px,0)';
+        });
+      }
 
       // Ukuran yang bergantung layar: tinggi panel dan periode dinding
       function measure() {
@@ -511,6 +558,7 @@ document.addEventListener('DOMContentLoaded', function () {
           w.el.style.height = Math.ceil(w.el.parentNode.clientHeight + w.per) + 'px';
         });
         ukurAwan();
+        ukurLaut();
       }
 
       function showStation(i, dir) {
@@ -555,6 +603,7 @@ document.addEventListener('DOMContentLoaded', function () {
         moveWall(wJauh, d * 0.45);
         moveWall(wAir, d - 140 * t);
         awanTick(dt, Math.max(0, (S.p - 1 / 3) / (2 / 3)) * TINGGI_M);
+        lautTick(dt, time || 0, Math.max(0, (S.p - 1 / 3) / (2 / 3)) * TINGGI_M);
 
         // Foto latar: crossfade per stasiun, bergeser pelan lewat transform
         var tulisFoto = Math.abs(S.p - lastFoto) > 1e-4;
@@ -658,6 +707,8 @@ document.addEventListener('DOMContentLoaded', function () {
         layarKilat.style.cssText = '';
         awan.forEach(function (a) { a.el.remove(); });
         awanEl.style.cssText = '';
+        laut.forEach(function (a) { a.el.remove(); });
+        lautEl.style.cssText = '';
         gsap.set(walls.map(function (w) { return w.el; }).concat(photos), { clearProps: 'all' });
         photos.forEach(function (im) { im.removeAttribute('aria-hidden'); });
         blocks.forEach(function (o, k) { o.b.classList.toggle('is-on', k === 0); });
