@@ -41,10 +41,17 @@ Build akan melakukan:
 
 Cek hasil build di http://localhost/lautputra/dist/.
 
-## Unggah ke shared hosting
+## Deploy ke hosting (DirectAdmin)
 
-Unggah **seluruh isi** `dist/` ke `public_html/` lewat File Manager cPanel atau FTP, termasuk `.htaccess` (file tersembunyi).
-Setelah SSL aktif, buka komentar blok "Paksa HTTPS" di `src/.htaccess`, lalu build dan unggah ulang.
+Setiap push ke `main`, GitHub Actions (`.github/workflows/deploy.yml`) menjalankan build lalu mendorong isi `dist/` ke branch `deploy`
+(satu commit, ditimpa setiap kali; `index.html` dan `.htaccess` langsung di root branch). Tidak ada `npm` di hosting.
+
+Di DirectAdmin > Git Manager: buat repository dengan remote `https://github.com/lumbunginov/lautputra.git`,
+deploy branch `deploy`, deploy directory `domains/lautputra.com/public_html`. Pasang URL webhook dari DirectAdmin
+di GitHub (Settings > Webhooks) supaya fetch dan deploy berjalan otomatis setelah workflow selesai.
+
+Unggah manual tetap bisa: `npm run build`, lalu unggah **seluruh isi** `dist/` termasuk `.htaccess` ke `public_html`.
+Setelah SSL aktif, buka komentar blok "Paksa HTTPS" di `src/.htaccess`, lalu push.
 
 ## Data yang perlu dicek sebelum tayang
 
