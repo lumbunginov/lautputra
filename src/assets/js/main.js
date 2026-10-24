@@ -272,11 +272,14 @@ document.addEventListener('DOMContentLoaded', function () {
       var IKON = { dari: 12, puncak: 15, akhir: 18, lepas: 21, geserX: 120, geserY: 40, lenganA: 82, lenganA2: 12, lenganB: 98, lenganB2: 20 };
       var rig = { tx: 0, ty: 0, rot: 0 };
       // Drone pemotret: masuk dari kiri di 12,5-15 m (slide + fade), melayang selama pose, dua kali kilat setelah tiba
-      // (detik ke-0,6 dan 1,1 sejak melayang), lalu pergi ke kanan atas di 18-20,5 m. Posisi dihitung dalam px layar lalu
-      // dikonversi ke viewBox lewat CTM figur. Gambar 720x386, lensa di (356,301).
-      var DRONE = { masuk: 12.5, tiba: 15, pergi: 18, hilang: 20.5, kilat: [0.6, 1.1] };
+      // (detik ke-0,6 dan 1,1 sejak tiba), lalu pergi ke kanan atas di 18-20,5 m. Begitu tiba, rangkaian kilat pasti dimainkan:
+      // gulir cepat tidak bisa membawanya pergi sebelum kilat kedua selesai (lalu ia menyusul dalam ±0,9 detik), jadi
+      // tidak perlu membatasi kecepatan gulir. Posisi dihitung dalam px layar lalu dikonversi ke viewBox lewat CTM figur.
+      // Gambar 720x386, lensa di (356,301).
+      var DRONE = { masuk: 12.5, tiba: 15, pergi: 18, hilang: 20.5, kilat: [0.6, 1.1], tahan: 0.35, susul: 0.9 };
       var drone = { el: $('#drone', panel), g: $('#droneBadan', panel), kilat: $('#droneKilat', panel), glow: $('#droneGlow', panel),
-        percikG: $('#dronePercik', panel), baling: $$('.drone__baling > g', panel), x: null, vx: 0, rot: 0, h: 0, nyala: 0, tk: -1, tampak: false, percik: [] };
+        percikG: $('#dronePercik', panel), baling: $$('.drone__baling > g', panel), x: null, vx: 0, rot: 0, h: 0, nyala: 0, tk: -1,
+        tampak: false, percik: [], mulai: false, qe: 0 };
       var layarKilat = $('#turunKilat', panel);
       for (var pi = 0; pi < 16; pi++) {
         var pc = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
@@ -385,13 +388,22 @@ document.addEventListener('DOMContentLoaded', function () {
           p.el.setAttribute('r', (5 + Math.random() * 7).toFixed(1));
         });
       }
-      function droneTick(dt, tt, kd, w, ctm) {
+      function droneTick(dt, tt, kd, ctm) {
         var e = halus((kd - DRONE.masuk) / (DRONE.tiba - DRONE.masuk)), q = halus((kd - DRONE.pergi) / (DRONE.hilang - DRONE.pergi));
+        // Rangkaian kilat: mulai saat drone tiba (selama belum mulai pergi), disetel ulang hanya setelah gulir balik ke atas
+        if (e < 0.5) { drone.mulai = false; drone.h = 0; drone.nyala = 0; }
+        else if (!drone.mulai && e > 0.98 && q < 0.5) drone.mulai = true;
+        if (drone.mulai) drone.h += dt;
+        var tahan = drone.mulai && drone.h < DRONE.kilat[DRONE.kilat.length - 1] + DRONE.tahan;
+        // Kepergian efektif: ditahan 0 selama rangkaian kilat, lalu menyusul posisi gulir paling cepat dalam DRONE.susul detik
+        var qT = tahan ? 0 : q;
+        drone.qe = qT > drone.qe ? Math.min(qT, drone.qe + dt / DRONE.susul) : qT;
+        q = drone.qe;
         var op = Math.min(1, e * 1.6) * Math.min(1, (1 - q) * 1.6);
         var on = op > 0.002 || drone.tk >= 0;
         if (on !== drone.tampak) {
           drone.tampak = on; drone.el.setAttribute('visibility', on ? 'visible' : 'hidden');
-          if (!on) { drone.h = 0; drone.nyala = 0; drone.x = null; drone.vx = 0; }
+          if (!on) { drone.x = null; drone.vx = 0; }
         }
         if (!on) return;
         // Lebar drone ±240 px (ponsel 38% lebar layar); titik melayang di kanan orang, dijaga tetap di dalam layar
@@ -410,10 +422,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // Baling-baling: pasangan diagonal berputar searah, pasangan lain berlawanan
         drone.rot = (drone.rot + dt * 2200) % 360;
         drone.baling.forEach(function (b, i) { b.setAttribute('transform', 'rotate(' + ((i === 0 || i === 3 ? 1 : -1) * drone.rot).toFixed(1) + ')'); });
-        // Dua kilat setelah drone diam di tempat dan orang sudah dalam pose; pergi atau mundur jauh menyetel ulang hitungannya
-        if (e > 0.995 && q < 0.005 && w > 0.97) drone.h += dt;
-        else if (e < 0.7 || q > 0.3) { drone.h = 0; drone.nyala = 0; }
-        if (drone.nyala < DRONE.kilat.length && drone.h >= DRONE.kilat[drone.nyala]) {
+        if (drone.mulai && drone.nyala < DRONE.kilat.length && drone.h >= DRONE.kilat[drone.nyala]) {
           drone.nyala++;
           nyalakan(sx + (356 - 360) * s * ctm.a, sy + (301 - 193) * s * ctm.a);
         }
@@ -544,7 +553,7 @@ document.addEventListener('DOMContentLoaded', function () {
           tali.setAttribute('d', 'M' + q[0] + ' ' + q[1] + ' L' + q[2] + ' ' + q[3] + ' L' + q[4] + ' ' + q[5] +
             ' C' + q[6] + ' ' + q[7] + ' ' + q[8] + ' ' + q[9] + ' ' + q[10] + ' ' + q[11] +
             ' C' + q[12] + ' ' + q[13] + ' ' + q[14] + ' ' + q[15] + ' ' + q[16] + ' ' + q[17]);
-          droneTick(dt, tt, kd, w, ctm);
+          droneTick(dt, tt, kd, ctm);
         }
 
         // Meteran menunggu di 0 m sampai tengah stasiun 02 (p = 1/3), lalu naik rata
