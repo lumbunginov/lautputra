@@ -295,6 +295,10 @@ html.js .ticker__track { animation: ticker 48s linear infinite; }
     linear-gradient(to right, color-mix(in oklch, var(--color-paper) 97%, transparent) 0%, color-mix(in oklch, var(--color-paper) 90%, transparent) 42%, color-mix(in oklch, var(--color-paper) 50%, transparent) 100%),
     linear-gradient(to top, color-mix(in oklch, var(--color-scrim) 92%, transparent), transparent 50%);
 }
+/* Awan jauh: asap putih transparan di belakang dinding, hanya di langit terbuka (mask sejajar tepi tebing dari JS).
+   Sprite dibuat JS bersama adegan gerak; tanpa JS/reduced-motion lapisan ini kosong. */
+.turun__awan { position: absolute; inset: 0; pointer-events: none; }
+.turun__awan img { position: absolute; left: 0; top: 0; max-width: none; opacity: 0; will-change: transform, opacity; }
 /* Dinding: lempengan travertin miring, diputar dari sudut kanan-atas dan diperlebar ke kiri/atas supaya tanpa celah.
    Isinya (<i>) berisi tile mask luminance yang diulang; JS menggesernya naik mengikuti gulir dan menyetel tingginya
    (tinggi kotak + satu periode tile, lihat measure()); 300vh di bawah hanya nilai cadangan tanpa JS. */

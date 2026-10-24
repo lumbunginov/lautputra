@@ -281,6 +281,22 @@ document.addEventListener('DOMContentLoaded', function () {
         percikG: $('#dronePercik', panel), baling: $$('.drone__baling > g', panel), x: null, vx: 0, rot: 0, h: 0, nyala: 0, tk: -1,
         tampak: false, percik: [], mulai: false, qe: 0 };
       var layarKilat = $('#turunKilat', panel);
+      // Awan jauh (asap putih): 8 gambar berbeda di 3 lapisan, hanya di atas (mask memudar di 24-38% tinggi panel,
+      // kira-kira setinggi badan). Melayang ke kanan menurut waktu (lapisan jauh lebih lambat, kecil, samar; lapisan dekat
+      // lebih tinggi letaknya dan menumpuk di depan), muncul memudar dari balik tebing, dan saat turun hanya naik sedikit
+      // (p = bagian tinggi panel per 30 m) karena letaknya jauh. Mask lapisan dibuat di measure() dari geometri dinding.
+      // Jauh: pita tipis, lonjong, sepasang gumpalan; tengah: cumulus lebar, awan robek, awan berserat; dekat: dua cumulus menjulang.
+      // [gambar, posisi awal (bagian lebar), pusat y (bagian tinggi), lebar (bagian lebar acuan), lapisan]; urutan = urutan tumpuk
+      var AWAN = [[6, .10, .19, .34, 0], [7, .55, .21, .30, 0], [8, .95, .17, .26, 0],
+        [3, .30, .13, .34, 1], [5, .75, .15, .32, 1], [4, 1.15, .10, .34, 1],
+        [1, .05, .05, .30, 2], [2, .60, .04, .34, 2]];
+      var LAPIS = [{ v: .005, p: .03, o: .3, s: .6 }, { v: .010, p: .06, o: .45, s: .85 }, { v: .018, p: .10, o: .6, s: 1.1 }];
+      var awanEl = $('#turunAwan', panel), tebing = [{ el: $('#turunDekat', panel), a: 9 }, { el: $('#turunJauh', panel), a: 6 }], tepi = [];
+      var awan = AWAN.map(function (a) {
+        var im = new Image(); im.src = 'assets/img/awan-' + a[0] + '.webp'; im.alt = ''; im.decoding = 'async';
+        awanEl.appendChild(im);
+        return { el: im, px: null, x: a[1], y: a[2], w: a[3], l: LAPIS[a[4]], wpx: 0 };
+      });
       for (var pi = 0; pi < 16; pi++) {
         var pc = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
         pc.setAttribute('r', '0'); drone.percikG.appendChild(pc);
@@ -444,6 +460,45 @@ document.addEventListener('DOMContentLoaded', function () {
         }
       }
 
+      // Tepi kanan tebing di ketinggian y (px panel): sudut kanan atas dinding tetap (transform-origin 100% 0), lalu
+      // bergeser ke kanan tan(sudut) per px ke bawah; dinding dekat dan jauh, mana yang lebih menjorok
+      function tepiX(y) {
+        var x = -1e9;
+        tepi.forEach(function (e) { x = Math.max(x, e.R + (y - e.T) * e.k); });
+        return x + 6;
+      }
+      function ukurAwan() {
+        tepi = tebing.map(function (t) { return { R: t.el.offsetLeft + t.el.offsetWidth, T: t.el.offsetTop, k: Math.tan(t.a * D2R) }; });
+        // Mask lembut: sejajar tepi tebing (0 di kiri garis, naik ke 1 sejauh 12% lebar ke kanan) dikali pudar vertikal
+        // (penuh sampai 24% tinggi, hilang di 38%); gradien SVG dalam px panel
+        var L0 = tepiX(0), LH = tepiX(H), dx = LH - L0, len = Math.hypot(dx, H) || 1, F = PW * 0.12;
+        var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + PW + '" height="' + H + '"><defs><linearGradient id="g" gradientUnits="userSpaceOnUse" x1="' +
+          L0.toFixed(1) + '" y1="0" x2="' + (L0 + H / len * F).toFixed(1) + '" y2="' + (-dx / len * F).toFixed(1) +
+          '"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#fff"/></linearGradient>' +
+          '<linearGradient id="v" x1="0" y1="0" x2="0" y2="1"><stop offset=".24" stop-color="#fff"/><stop offset=".38" stop-color="#000"/></linearGradient>' +
+          '<mask id="m"><rect width="100%" height="100%" fill="url(#v)"/></mask></defs><rect width="100%" height="100%" fill="url(#g)" mask="url(#m)"/></svg>';
+        var st = awanEl.style, u = 'url("data:image/svg+xml,' + encodeURIComponent(svg) + '")';
+        st.webkitMaskImage = st.maskImage = u; st.webkitMaskSize = st.maskSize = '100% 100%';
+        // Lebar acuan: ponsel memakai 2,2x lebar layar supaya awan tidak terlalu kecil
+        var acuan = PW < 640 ? PW * 2.2 : PW;
+        awan.forEach(function (a) { a.wpx = a.w * a.l.s * acuan; a.el.style.width = a.wpx.toFixed(0) + 'px'; });
+      }
+      function awanTick(dt, kd) {
+        var cepat = PW < 640 ? 0.6 : 1;
+        awan.forEach(function (a) {
+          var nw = a.el.naturalWidth;
+          if (!nw) return;
+          if (a.px === null) a.px = a.x * PW;
+          a.px += a.l.v * cepat * PW * dt;
+          var yc = (a.y - a.l.p * Math.min(1, kd / TINGGI_M)) * H, tinggi = a.wpx * a.el.naturalHeight / nw;
+          // Mulai sedikit di balik tebing, memudar masuk selama setengah lebarnya, melayang ke kanan sampai keluar layar, lalu berulang
+          var x0 = tepiX(yc) - a.wpx * 0.35, span = Math.max(1, PW - x0), u = ((a.px % span) + span) % span;
+          var f = Math.min(1, u / (a.wpx * 0.5));
+          a.el.style.opacity = (a.l.o * f * f * (3 - 2 * f)).toFixed(3);
+          a.el.style.transform = 'translate3d(' + (x0 + u).toFixed(1) + 'px,' + (yc - tinggi / 2).toFixed(1) + 'px,0)';
+        });
+      }
+
       // Ukuran yang bergantung layar: tinggi panel dan periode dinding
       function measure() {
         H = panel.clientHeight;
@@ -455,6 +510,7 @@ document.addEventListener('DOMContentLoaded', function () {
           // <i> harus lebih tinggi satu periode dari kotaknya supaya tetap menutup saat digeser naik
           w.el.style.height = Math.ceil(w.el.parentNode.clientHeight + w.per) + 'px';
         });
+        ukurAwan();
       }
 
       function showStation(i, dir) {
@@ -498,6 +554,7 @@ document.addEventListener('DOMContentLoaded', function () {
         moveWall(wDekat, d);
         moveWall(wJauh, d * 0.45);
         moveWall(wAir, d - 140 * t);
+        awanTick(dt, Math.max(0, (S.p - 1 / 3) / (2 / 3)) * TINGGI_M);
 
         // Foto latar: crossfade per stasiun, bergeser pelan lewat transform
         var tulisFoto = Math.abs(S.p - lastFoto) > 1e-4;
@@ -599,6 +656,8 @@ document.addEventListener('DOMContentLoaded', function () {
         drone.el.setAttribute('visibility', 'hidden'); drone.el.setAttribute('opacity', '0'); drone.kilat.setAttribute('opacity', '0');
         drone.percik.forEach(function (p) { p.el.remove(); });
         layarKilat.style.cssText = '';
+        awan.forEach(function (a) { a.el.remove(); });
+        awanEl.style.cssText = '';
         gsap.set(walls.map(function (w) { return w.el; }).concat(photos), { clearProps: 'all' });
         photos.forEach(function (im) { im.removeAttribute('aria-hidden'); });
         blocks.forEach(function (o, k) { o.b.classList.toggle('is-on', k === 0); });
