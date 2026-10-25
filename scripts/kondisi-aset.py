@@ -5,10 +5,10 @@ Pakai: python scripts/kondisi-aset.py [folder-sumber]
 (jalankan dengan `python` biasa, tanpa -I: Pillow ada di site-packages pengguna)
 
 Folder sumber berisi kand-G.png, batu-1.png, batu-kecil-b.png, orang/A-5.png,
-orang/B-{1,2,3,5,6,7,8}.png, dan air/air-{A,B,C}.png (hasil generate yang sudah disetujui).
+orang/B-{1,2,3,5,6,7,8}.png, air/air-{A,B,C}.png, dan hujan/hujan-{A,B,C}.png (hasil generate yang sudah disetujui).
 
 Hasil:
-- src/assets/img/kondisi/*.webp : tebing, bongkahan, batu, orang-*, air-{a,b,c} sebagai mask
+- src/assets/img/kondisi/*.webp : tebing, bongkahan, batu, orang-*, air-{a,b,c}, hujan-{a,b,c} sebagai mask
   luminance (putih di atas hitam), rumus sama dengan aset Turun.
 - src/assets/img/kondisi/posisi.json : kotak tiap lapisan dalam persen bidang
   komposit 1536x1024 (left, top, width, height), disalin ke CSS.
@@ -22,7 +22,7 @@ from PIL import Image, ImageFilter
 
 ROOT = Path(__file__).resolve().parent.parent
 SUMBER = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT / ".gen/kondisi-sumber"
-_PERLU = ["kand-G.png", "batu-1.png", "batu-kecil-b.png", "orang/A-5.png"] + [f"orang/B-{n}.png" for n in (1, 2, 3, 5, 6, 7, 8)] + [f"air/air-{k}.png" for k in "ABC"]
+_PERLU = ["kand-G.png", "batu-1.png", "batu-kecil-b.png", "orang/A-5.png"] + [f"orang/B-{n}.png" for n in (1, 2, 3, 5, 6, 7, 8)] + [f"air/air-{k}.png" for k in "ABC"] + [f"hujan/hujan-{k}.png" for k in "ABC"]
 _kurang = [b for b in _PERLU if not (SUMBER / b).is_file()]
 if _kurang:
     sys.exit(f"Pakai: python scripts/kondisi-aset.py [folder-sumber]; kurang di {SUMBER}: {', '.join(_kurang)}")
@@ -122,6 +122,11 @@ for k in "abc":
     if k == "a":
         lapisan.append((m, (ax0, ay0, ax1 - ax0, ay1 - ay0), PUTIH))
 posisi["air"] = persen(ax0, ay0, ax1 - ax0, ay1 - ay0)
+
+# Hujan: tiga lembar goresan tinta penuh (frame kedip), menutup seluruh panel (mask-size cover), dikecilkan ke 1152x768
+for k in "abc":
+    m = mask(Image.open(SUMBER / "hujan" / f"hujan-{k.upper()}.png").convert("RGB"))
+    m.resize((1152, 768), Image.LANCZOS).convert("RGB").save(KELUAR / f"hujan-{k}.webp", quality=85, method=6)
 
 (KELUAR / "posisi.json").write_text(json.dumps(posisi, indent=2) + "\n")
 
