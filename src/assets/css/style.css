@@ -486,7 +486,7 @@ html.js .gauge.is-live :is(.gg-arus path, .gg-laut i, .gg-awan i), html.js .gaug
 :is(.gg-orang--b5, .gg-orang--b6, .gg-orang--b7) { transition-delay: 500ms; }
 .gg-orang--a5 { transition-delay: 700ms; }
 .gauge.pasang .gg-laut { transform: translateY(-60%); }
-.gauge.pasang :is(.gg-orang--b8, .gg-orang--a5) { opacity: 0; }
+.gauge.pasang :is(.gg-orang--b8, .gg-orang--a5) { opacity: 0; transition-delay: 0ms; }
 .gauge.pasang :is(.gg-orang--b5, .gg-orang--b6, .gg-orang--b7) { opacity: 0; transition-delay: 200ms; }
 /* Hujan: matahari hilang, rintik tampak, arus deras, kru rappel turun */
 .gauge.hujan .gg-matahari { opacity: 0; }
