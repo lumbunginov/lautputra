@@ -69,9 +69,11 @@ PRATINJAU.parent.mkdir(exist_ok=True)
 posisi = {}
 lapisan = []  # (mask, kotak px, warna) untuk pratinjau
 
-# Tebing: hapus bongkahan kecil di kaki dengan menyalin warna piksel sekitar, lalu crop ke tinta
+# Tebing: hapus bongkahan kecil di kaki dan garis riak di tepi bawah dengan warna kertas, lalu crop ke tinta
 g = Image.open(SUMBER / "kand-G.png").convert("RGB")
-g.paste(g.getpixel((820, 900)), (628, 868, 772, 962))
+kertas_g = g.getpixel((820, 900))
+g.paste(kertas_g, (628, 868, 772, 962))
+g.paste(kertas_g, (0, 968, g.width, g.height))  # garis riak laut diganti lapisan CSS
 m = mask(g)
 x0, y0, x1, y1 = m.point(lambda v: 255 if v > 16 else 0).getbbox()
 simpan(m.crop((x0, y0, x1, y1)), "tebing")
