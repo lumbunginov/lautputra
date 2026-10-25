@@ -353,20 +353,35 @@ html.js .ticker__track { animation: ticker 48s linear infinite; }
 .turun__hud > b { display: block; }
 .turun__hud span { display: block; margin-top: var(--space-sm); color: var(--color-muted); }
 .turun__hud span b { margin-right: 6px; }
-/* Kanan bawah: teks stasiun bergaya hero */
-.turun__teks { position: absolute; z-index: 4; right: clamp(24px, 4vw, 56px); bottom: clamp(28px, 6vh, 56px); width: min(50%, 680px); }
-.turun__big::before { content: none; }
-.turun__tag { color: var(--color-accent); font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; margin: 0 0 14px; }
-.turun__big h3 { margin: 0 0 18px; font-family: var(--font-display); font-weight: 800; font-stretch: 78%; font-size: clamp(52px, 7.6vw, 112px); line-height: 0.88; letter-spacing: -0.03em; color: var(--color-ink); }
-.turun__big .ln { display: block; overflow: hidden; padding-bottom: 0.06em; margin-bottom: -0.06em; }
-.turun__big .ln > span { display: inline-block; }
-.turun__big em { font-family: var(--font-accent); font-style: italic; font-weight: 400; font-stretch: 100%; letter-spacing: -0.01em; color: var(--color-accent); }
-.turun__big > p:last-child { margin: 0; color: var(--color-muted); font-size: var(--text-sm); line-height: 1.55; max-width: 42ch; }
-/* Dengan JS dan gerak: hanya stasiun aktif yang tampak, bertumpuk di pojok kanan bawah.
-   Tanpa visibility:hidden supaya keempat stasiun tetap ada di pohon aksesibilitas (tidak ada tautan di dalamnya);
-   blok tak aktif cukup transparan dan kebal pointer agar teksnya tak bisa terseleksi lewat seret. */
-html.js:not(.no-motion) .turun__big { position: absolute; inset: auto 0 0 0; opacity: 0; pointer-events: none; }
-html.js:not(.no-motion) .turun__big.is-on { opacity: 1; pointer-events: auto; }
+/* Strip kartu IG pengganti teks stasiun (Opsi B, pilihan pengguna 2026-10-25) = konten utama panel: besar, di tengah ruang kosong
+   di kanan figur (x dari 44% lebar panel), pusat vertikal di 52% tinggi panel (di bawah awan, tepi bawah tetap di atas laut) (laut mulai
+   ±79-86% tinggi panel). Tag/judul stasiun tidak dipakai. Kartu tengah penuh, tetangga mengecil dan meredup, kedua ujung jendela
+   memudar; caption di dasar kartu aktif di atas gradien (Opsi C, pilihan pengguna), tanpa teks di bawah strip. */
+.turun__ig { position: absolute; z-index: 4; left: 44%; right: clamp(24px, 4vw, 56px); top: 52%; transform: translateY(-50%);
+  --ig-w: clamp(220px, 20vw, 300px); --ig-gap: 20px; --ig-ease: cubic-bezier(0.23, 1, 0.32, 1); }
+.ig__jendela { overflow: hidden; padding: 16px 0; -webkit-mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent); mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent); }
+.ig__rel { display: flex; gap: var(--ig-gap); align-items: center; margin: 0; padding: 0; list-style: none; will-change: transform; transition: transform 720ms var(--ig-ease); }
+.ig__kartu { position: relative; flex: 0 0 var(--ig-w); aspect-ratio: 4 / 5; border-radius: var(--radius-md); overflow: hidden; background: var(--color-scrim);
+  box-shadow: 0 18px 40px -16px var(--color-shadow); transform: scale(0.86); opacity: 0.5; cursor: pointer;
+  transition: transform 600ms var(--ig-ease), opacity 600ms ease; }
+.ig__kartu.is-on { transform: none; opacity: 1; }
+.ig__kartu:active { transform: scale(0.97); transition-duration: 140ms; }
+.ig__kartu img, .ig__kartu video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.ig__akun { position: absolute; left: 12px; top: 12px; display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; letter-spacing: 0.01em; color: #fff;
+  background: color-mix(in oklch, var(--color-scrim) 55%, transparent); backdrop-filter: blur(6px); padding: 4px 8px 4px 6px; border-radius: var(--radius-pill); }
+.ig__akun svg { width: 14px; height: 14px; }
+a.ig__akun { text-decoration: none; transition: background-color 160ms ease; }
+@media (hover: hover) and (pointer: fine) { a.ig__akun:hover { background: color-mix(in oklch, var(--color-scrim) 80%, transparent); } }
+a.ig__akun:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+.ig__akun--tbd { color: var(--color-accent); outline: 1px dashed color-mix(in oklch, var(--color-accent) 70%, transparent); }
+.ig__vid { position: absolute; right: 12px; top: 12px; font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #fff;
+  background: color-mix(in oklch, var(--color-scrim) 55%, transparent); padding: 3px 6px; border-radius: 4px; }
+.ig__kartu .ig__cap { position: absolute; inset: auto 0 0 0; margin: 0; padding: 64px 16px 16px; font-size: 14px; line-height: 1.4; color: oklch(93% 0.01 200);
+  font-family: var(--font-body), "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji"; opacity: 0; transition: opacity 400ms ease;
+  background: linear-gradient(to top, color-mix(in oklch, var(--color-scrim) 90%, transparent), color-mix(in oklch, var(--color-scrim) 55%, transparent) 55%, transparent); }
+.ig__kartu.is-on .ig__cap { opacity: 1; }
+.ig__kartu--klon { pointer-events: auto; } /* klon tetangga di kedua ujung rel (JS) supaya kartu pertama/terakhir punya tetangga */
+@media (hover: hover) and (pointer: fine) { .ig__kartu:not(.is-on):hover { opacity: 0.8; } }
 /* Kedua mode (desktop dan ponsel) dipin: ruang di bawah panel datang dari pin-spacer, jadi padding bawah bagian dibuang di keduanya. */
 html.js:not(.no-motion) .turun { padding-bottom: 0; }
 /* Foto lebih tinggi 12% dari panel supaya geseran naik sampai 10% (transform dari JS) tidak membuka celah di bawah */
@@ -376,20 +391,12 @@ html.js:not(.no-motion) .turun__foto img { height: 112%; }
 html:not(.js) .turun__panel, html.no-motion .turun__panel { height: auto; overflow: visible; clip-path: inset(0); padding-top: 100svh; }
 html:not(.js) .turun__foto, html.no-motion .turun__foto { bottom: auto; height: 100svh; }
 html:not(.js) .turun__hud, html.no-motion .turun__hud { display: none; }
-html:not(.js) .turun__teks, html.no-motion .turun__teks {
-  position: relative; right: auto; bottom: auto; width: auto; background: var(--color-paper);
-  display: grid; gap: var(--space-3xl); padding: var(--space-2xl) var(--gutter);
-}
-html:not(.js) .turun__big, html.no-motion .turun__big { display: grid; gap: var(--space-md); width: min(100%, 40rem); position: static; opacity: 1; visibility: visible; }
-/* Foto stasiun di blok statis: satu aturan per stasiun (url() relatif ke stylesheet ini), kotaknya dibagi bersama */
-html:not(.js) .turun__big::before, html.no-motion .turun__big::before {
-  content: ""; display: block; aspect-ratio: 4 / 5; max-height: 60svh; border-radius: var(--radius-md); background: center / cover no-repeat;
-}
-html:not(.js) .turun__big[data-stasiun="0"]::before, html.no-motion .turun__big[data-stasiun="0"]::before { background-image: url(../img/galeri-siap-turun.jpg); }
-html:not(.js) .turun__big[data-stasiun="1"]::before, html.no-motion .turun__big[data-stasiun="1"]::before { background-image: url(../img/galeri-turun-tebing.jpg); }
-html:not(.js) .turun__big[data-stasiun="2"]::before, html.no-motion .turun__big[data-stasiun="2"]::before { background-image: url(../img/galeri-bawah-air-terjun.jpg); }
-html:not(.js) .turun__big h3, html.no-motion .turun__big h3 { font-size: clamp(40px, 6vw, 72px); margin: 0; }
-html:not(.js) .turun__big > p, html.no-motion .turun__big > p { margin: 0; }
+html:not(.js) .turun__ig, html.no-motion .turun__ig { position: relative; left: auto; right: auto; top: auto; transform: none; background: var(--color-paper); padding: var(--space-2xl) var(--gutter); }
+html:not(.js) .ig__jendela, html.no-motion .ig__jendela { overflow: visible; padding: 0; -webkit-mask-image: none; mask-image: none; }
+html:not(.js) .ig__rel, html.no-motion .ig__rel { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: var(--space-lg) var(--space-md); align-items: start; transition: none; }
+html:not(.js) .ig__kartu, html.no-motion .ig__kartu { aspect-ratio: auto; display: grid; gap: 8px; transform: none; opacity: 1; background: none; box-shadow: none; overflow: visible; border-radius: 0; cursor: default; }
+html:not(.js) .ig__kartu img, html.no-motion .ig__kartu img, html:not(.js) .ig__kartu video, html.no-motion .ig__kartu video { position: static; aspect-ratio: 4 / 5; border-radius: var(--radius-md); }
+html:not(.js) .ig__kartu .ig__cap, html.no-motion .ig__kartu .ig__cap { position: static; padding: 0; background: none; opacity: 1; font-size: var(--text-sm); color: var(--color-muted); }
 @media (min-width: 64rem) {
   .turun__intro { grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); align-items: end; column-gap: var(--space-3xl); }
   .turun__intro .eyebrow { grid-column: 1 / -1; }
@@ -403,19 +410,14 @@ html:not(.js) .turun__big > p, html.no-motion .turun__big > p { margin: 0; }
   .turun__hud { right: 16px; top: 16px; }
   .turun__hud small { font-size: 10px; }
   .turun__hud b { font-size: 20px; }
-  html.js:not(.no-motion) .turun__teks { left: var(--gutter); right: var(--gutter); bottom: clamp(20px, 4svh, 36px); width: auto; }
-  /* Latar kertas bergradien di belakang tiap blok (melebar sampai tepi layar, naik ~2rem di atas tag) supaya teks terbaca di atas tekstur dinding */
-  html.js:not(.no-motion) .turun__big {
-    --teks-bawah: clamp(20px, 4svh, 36px);
-    margin: 0 calc(-1 * var(--gutter)) calc(-1 * var(--teks-bawah));
-    padding: 2rem var(--gutter) var(--teks-bawah);
+  /* Strip selebar layar di bawah figur, latar kertas bergradien supaya keterangan terbaca di atas tekstur dinding.
+     Ponsel belum dioptimasi (keputusan: desktop dulu); cukup tidak rusak. */
+  html.js:not(.no-motion) .turun__ig {
+    --ig-w: 40vw; --ig-gap: 10px; --teks-bawah: clamp(20px, 4svh, 36px);
+    left: 0; right: 0; top: auto; bottom: 0; transform: none; padding: 1.5rem 0 var(--teks-bawah);
     background: linear-gradient(to top, color-mix(in oklch, var(--color-paper) 92%, transparent) 0%, color-mix(in oklch, var(--color-paper) 75%, transparent) 60%, transparent 100%);
   }
-  html.js:not(.no-motion) .turun__tag { margin-bottom: 10px; }
-  html.js:not(.no-motion) .turun__big h3 { font-size: clamp(40px, 11vw, 60px); margin-bottom: 12px; }
-  html.js:not(.no-motion) .turun__big > p:last-child {
-    font-size: 13px; line-height: 1.5; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; line-clamp: 3; overflow: hidden;
-  }
+  html.js:not(.no-motion) .ig__kartu .ig__cap { font-size: 12px; padding: 40px 10px 10px; }
 }
 
 /* ---------- Kapan datang ---------- */

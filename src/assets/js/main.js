@@ -241,8 +241,43 @@ document.addEventListener('DOMContentLoaded', function () {
       var S = { raw: 0, p: 0, v: 0, amp: 0, phase: 0, bounce: 0, station: 0, dir: 1, lean: 0 };
       var fig = $('#turunFigur'), meter = $('#turunMeter'), nomor = $('#turunNomor');
       var photos = $$('.turun__foto img', panel);
-      // Satu kali di awal: blok teks stasiun beserta baris dan sisa elemennya (dipakai showStation dan cleanup)
-      var blocks = $$('.turun__big', panel).map(function (b) { return { b: b, lines: $$('.ln > span', b), rest: [$('.turun__tag', b), $('p:last-child', b)] }; });
+      // Strip kartu IG (pengganti teks stasiun, Opsi B): satu rel 13 kartu berurutan stasiun 01-03, cue = kartu pertama tiap stasiun.
+      // Di dalam satu stasiun kartu berganti otomatis (foto IG_FOTO ms, video sepanjang klip) dan berputar di segmennya saja;
+      // ganti stasiun = lompat ke cue (showStation). Video hanya main saat jadi kartu tengah. Klik kartu tengah = maju, klik tetangga = ke sana.
+      var IG_FOTO = 4000, IG_VIDEO = 8000;
+      var ig = { el: $('#turunIg', panel), rel: $('#igRel', panel), kartu: $$('.ig__kartu', panel), i: -1, timer: 0, seg: [] };
+      ig.kartu.forEach(function (k, n) { var st = +k.getAttribute('data-st'); (ig.seg[st] = ig.seg[st] || []).push(n); k.setAttribute('data-n', n); var v = k.querySelector('video'); if (v) v.removeAttribute('controls'); });
+      // Klon 3 kartu di kedua ujung rel sebagai tetangga visual (tanpa video: hanya poster), supaya kartu pertama/terakhir tidak menyisakan ruang kosong
+      var klon = [];
+      function buatKlon(k, awal) { var c = k.cloneNode(true); c.className += ' ig__kartu--klon'; c.setAttribute('aria-hidden', 'true'); var v = c.querySelector('video'); if (v) { var im = doc.createElement('img'); im.src = v.getAttribute('poster'); im.alt = ''; v.replaceWith(im); } c.querySelectorAll('a').forEach(function (a) { a.tabIndex = -1; }); klon.push(c); if (awal) ig.rel.insertBefore(c, ig.rel.firstChild); else ig.rel.appendChild(c); }
+      ig.kartu.slice(-3).reverse().forEach(function (k) { buatKlon(k, true); });
+      ig.kartu.slice(0, 3).forEach(function (k) { buatKlon(k, false); });
+      function igGeser() { // kartu aktif di tengah jendela
+        var k = ig.kartu[ig.i]; if (!k) return;
+        var x = k.offsetLeft + k.offsetWidth / 2 - ig.rel.parentNode.clientWidth / 2;
+        ig.rel.style.transform = 'translate3d(' + (-x).toFixed(1) + 'px,0,0)';
+      }
+      function igJadwal() {
+        clearTimeout(ig.timer);
+        if (!S.vis || doc.hidden || ig.i < 0) return;
+        ig.timer = setTimeout(igLanjut, ig.kartu[ig.i].querySelector('video') ? IG_VIDEO : IG_FOTO);
+      }
+      function igSet(n) {
+        if (n === ig.i) { igJadwal(); return; }
+        ig.i = n;
+        ig.kartu.forEach(function (k, m) {
+          var on = m === n, v = k.querySelector('video'); k.classList.toggle('is-on', on);
+          if (v) { if (on) { v.currentTime = 0; var p = v.play(); if (p && p.catch) p.catch(function () {}); } else v.pause(); }
+        });
+        igGeser();
+        igJadwal();
+      }
+      function igLanjut() { var seg = ig.seg[S.station] || [], p = seg.indexOf(ig.i); igSet(p < 0 ? seg[0] : seg[(p + 1) % seg.length]); }
+      function igCue(st) { if (ig.seg[st]) igSet(ig.seg[st][0]); }
+      // Klik tautan @username dibiarkan ke Instagram, tidak memajukan strip
+      function igKlik(e) { if (e.target.closest('a')) return; var k = e.target.closest('.ig__kartu'); if (!k) return; var n = +k.getAttribute('data-n'); if (n === ig.i) igLanjut(); else igSet(n); }
+      ig.rel.addEventListener('click', igKlik);
+      doc.addEventListener('visibilitychange', igJadwal);
       // Dinding: tiap <i> digeser dengan transform sejauh d (px) modulo periode tile mask; periode = lebar × 1.3 × 1961 / 480
       var wDekat = { el: $('#turunDekat i', panel), per: 0 }, wJauh = { el: $('#turunJauh i', panel), per: 0 }, wAir = { el: $('#turunAir i', panel), per: 0 };
       var walls = [wDekat, wJauh, wAir];
@@ -566,23 +601,10 @@ document.addEventListener('DOMContentLoaded', function () {
         });
         ukurAwan();
         ukurLaut();
+        igGeser();
       }
 
-      function showStation(i, dir) {
-        blocks.forEach(function (o, k) {
-          var b = o.b, lines = o.lines, rest = o.rest;
-          gsap.killTweensOf([b].concat(lines, rest));
-          if (k === i) {
-            b.classList.add('is-on'); gsap.set(b, { opacity: 1 });
-            gsap.fromTo(lines, { yPercent: dir > 0 ? 110 : -110 }, { yPercent: 0, duration: 0.9, ease: 'expo.out', stagger: 0.08 });
-            gsap.fromTo(rest, { opacity: 0, y: dir > 0 ? 16 : -16 }, { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out', stagger: 0.08, delay: 0.1 });
-          } else if (b.classList.contains('is-on')) {
-            gsap.to(lines, { yPercent: dir > 0 ? -110 : 110, duration: 0.4, ease: 'power3.in' });
-            gsap.to(b, { opacity: 0, duration: 0.35, ease: 'power2.in', onComplete: function () { b.classList.remove('is-on'); } });
-          }
-        });
-        nomor.textContent = '0' + (i + 1);
-      }
+      function showStation(i) { nomor.textContent = '0' + (i + 1); igCue(i); }
 
       function tick(time, dtMs) {
         var dt = Math.min(0.05, (dtMs || 0) / 1000), prev = S.p;
@@ -598,7 +620,7 @@ document.addEventListener('DOMContentLoaded', function () {
         var st = Math.max(0, Math.min(N - 1, Math.round(S.p * (N - 1))));
         if (st !== S.station) {
           var dir = st > S.station ? 1 : -1;
-          S.station = st; showStation(st, dir);
+          S.station = st; showStation(st);
           gsap.killTweensOf(S, 'bounce');
           gsap.fromTo(S, { bounce: dir * 22 }, { bounce: 0, duration: 1.1, ease: 'elastic.out(1, 0.35)' });
         }
@@ -719,14 +741,14 @@ document.addEventListener('DOMContentLoaded', function () {
         onToggle: function (t) { root.classList.toggle('turun-pinned', t.isActive); }
       });
       // Gerbang visibilitas: loop hanya menulis DOM selagi bagian ini terlihat di layar (tanpa pin)
-      var visGate = ST.create({ trigger: '#turun', start: 'top bottom', end: 'bottom top', onToggle: function (t) { S.vis = t.isActive; } });
+      var visGate = ST.create({ trigger: '#turun', start: 'top bottom', end: 'bottom top', onToggle: function (t) { S.vis = t.isActive; igJadwal(); } });
       S.vis = visGate.isActive;
       // Muat ulang di tengah bagian: mulai dari progres tersimpan, bukan dari 0
       S.raw = S.p = pin.progress;
       S.station = Math.max(0, Math.min(N - 1, Math.round(S.p * (N - 1))));
-      blocks.forEach(function (o, k) { o.b.classList.toggle('is-on', k === S.station); });
       nomor.textContent = '0' + (S.station + 1);
       measure();
+      igCue(S.station);
       tick(0, 0);
       gsap.ticker.add(tick);
       // ScrollTrigger me-refresh sendiri saat ukuran berubah, jadi cukup satu pendengar 'refresh' (tanpa 'resize')
@@ -739,11 +761,11 @@ document.addEventListener('DOMContentLoaded', function () {
         pin.kill();
         visGate.kill();
         root.classList.remove('turun-pinned');
-        blocks.forEach(function (o) {
-          var all = [o.b].concat(o.lines, o.rest);
-          gsap.killTweensOf(all);
-          gsap.set(all, { clearProps: 'all' });
-        });
+        clearTimeout(ig.timer);
+        ig.rel.removeEventListener('click', igKlik); doc.removeEventListener('visibilitychange', igJadwal);
+        ig.kartu.forEach(function (k) { k.classList.remove('is-on'); var v = k.querySelector('video'); if (v) { v.pause(); v.setAttribute('controls', ''); } });
+        ig.rel.style.transform = ''; ig.i = -1;
+        klon.forEach(function (c) { c.remove(); }); klon.length = 0;
         gsap.killTweensOf(S);
         Object.keys(J).forEach(function (id) { if (statis[id] === null) J[id].removeAttribute('transform'); else J[id].setAttribute('transform', statis[id]); });
         tali.setAttribute('d', statisD);
@@ -756,7 +778,6 @@ document.addEventListener('DOMContentLoaded', function () {
         lautEl.style.cssText = '';
         gsap.set(walls.map(function (w) { return w.el; }).concat(photos), { clearProps: 'all' });
         photos.forEach(function (im) { im.removeAttribute('aria-hidden'); });
-        blocks.forEach(function (o, k) { o.b.classList.toggle('is-on', k === 0); });
         nomor.textContent = '01'; meter.textContent = '0,0 m';
         if (window.__turun === S) { delete window.__turun; delete window.__turunTick; delete window.__turunBase; }
       };
