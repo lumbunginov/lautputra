@@ -482,10 +482,10 @@ html:not(.js) .ig__kartu .ig__cap, html.no-motion .ig__kartu .ig__cap { position
 /* Hujan: tiga lembar goresan tinta (hujan-a/b/c.webp) sebagai mask putih yang saling silang pudar + geser turun sedikit; wadahnya yang dipudarkan saat kelas hujan */
 .gg-hujan { position: absolute; inset: -8% 0 0 0; opacity: 0; transition: opacity 200ms var(--ease-out); pointer-events: none; }
 .gg-hujan i { position: absolute; inset: 0; background: var(--color-ink); opacity: 0; -webkit-mask: var(--m) center / cover no-repeat; mask: var(--m) center / cover no-repeat; -webkit-mask-mode: luminance; mask-mode: luminance; animation: gg-hujan var(--hujan-siklus, 0.45s) linear infinite; }
-.gg-hujan i:nth-child(1) { --m: url(../img/kondisi/hujan-a.webp); opacity: var(--hujan-op, 0.6); }
+.gg-hujan i:nth-child(1) { --m: url(../img/kondisi/hujan-a.webp); opacity: var(--hujan-op, 0.35); }
 .gg-hujan i:nth-child(2) { --m: url(../img/kondisi/hujan-b.webp); animation-delay: calc(var(--hujan-siklus, 0.45s) / -3); }
 .gg-hujan i:nth-child(3) { --m: url(../img/kondisi/hujan-c.webp); animation-delay: calc(var(--hujan-siklus, 0.45s) / -1.5); }
-@keyframes gg-hujan { 0% { opacity: 0; transform: translateY(-1.5%); } 12% { opacity: var(--hujan-op, 0.6); } 38% { opacity: var(--hujan-op, 0.6); } 50% { opacity: 0; transform: translateY(1.5%); } 100% { opacity: 0; } }
+@keyframes gg-hujan { 0% { opacity: 0; transform: translateY(-1.5%); } 12% { opacity: var(--hujan-op, 0.35); } 38% { opacity: var(--hujan-op, 0.35); } 50% { opacity: 0; transform: translateY(1.5%); } 100% { opacity: 0; } }
 .gg-label { position: absolute; right: var(--space-md); bottom: var(--space-sm); z-index: 3; color: var(--color-muted); font-size: var(--text-xs); letter-spacing: 0.06em; text-transform: uppercase; }
 /* Tanpa JS panel statis, tanpa loop */
 html:not(.js) .gauge :is(.gg-air, .gg-laut i, .gg-awan i, .gg-hujan i) { animation: none; }
