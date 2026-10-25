@@ -385,10 +385,9 @@ html:not(.js) .turun__big, html.no-motion .turun__big { display: grid; gap: var(
 html:not(.js) .turun__big::before, html.no-motion .turun__big::before {
   content: ""; display: block; aspect-ratio: 4 / 5; max-height: 60svh; border-radius: var(--radius-md); background: center / cover no-repeat;
 }
-html:not(.js) .turun__big[data-stasiun="0"]::before, html.no-motion .turun__big[data-stasiun="0"]::before { background-image: url(../img/galeri-puncak-tebing.jpg); }
-html:not(.js) .turun__big[data-stasiun="1"]::before, html.no-motion .turun__big[data-stasiun="1"]::before { background-image: url(../img/galeri-siap-turun.jpg); }
-html:not(.js) .turun__big[data-stasiun="2"]::before, html.no-motion .turun__big[data-stasiun="2"]::before { background-image: url(../img/galeri-turun-tebing.jpg); }
-html:not(.js) .turun__big[data-stasiun="3"]::before, html.no-motion .turun__big[data-stasiun="3"]::before { background-image: url(../img/galeri-bawah-air-terjun.jpg); }
+html:not(.js) .turun__big[data-stasiun="0"]::before, html.no-motion .turun__big[data-stasiun="0"]::before { background-image: url(../img/galeri-siap-turun.jpg); }
+html:not(.js) .turun__big[data-stasiun="1"]::before, html.no-motion .turun__big[data-stasiun="1"]::before { background-image: url(../img/galeri-turun-tebing.jpg); }
+html:not(.js) .turun__big[data-stasiun="2"]::before, html.no-motion .turun__big[data-stasiun="2"]::before { background-image: url(../img/galeri-bawah-air-terjun.jpg); }
 html:not(.js) .turun__big h3, html.no-motion .turun__big h3 { font-size: clamp(40px, 6vw, 72px); margin: 0; }
 html:not(.js) .turun__big > p, html.no-motion .turun__big > p { margin: 0; }
 @media (min-width: 64rem) {

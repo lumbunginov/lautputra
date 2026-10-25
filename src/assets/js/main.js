@@ -227,13 +227,17 @@ document.addEventListener('DOMContentLoaded', function () {
     var mm = gsap.matchMedia();
 
     // ---------- Turun: adegan close-up canyoning. Satu loop ticker membaca progres pin, menggerakkan dinding, air, foto, meteran, dan teks stasiun ----------
-    // Dipakai kedua media (desktop dan ponsel); ukuran figur/dinding dari variabel CSS di .turun__panel, JS hanya menerima panjang pin per stasiun (opts.endPct, % tinggi layar).
+    // Dipakai kedua media (desktop dan ponsel); ukuran figur/dinding dari variabel CSS di .turun__panel, JS hanya menerima panjang pin total (opts.pinPct, % tinggi layar).
+    // Tiga stasiun (atas tebing, di tali, pantai), batas di p = 1/4 dan 3/4. Satu fungsi kedalaman() dipakai meteran, dinding, langkah, awan, laut,
+    // pose ikonik, dan drone: naik rata dari 0 m di awal pin sampai 30 m di akhir pin (pilihan pengguna: turun langsung sejak stasiun 01),
+    // jadi meteran selalu bergerak selagi orangnya turun. Stasiun 02 muncul di 7,5 m, stasiun 03 di 22,5 m.
     // Ponsel: tetap dipin seperti desktop. Gulir cepat 390x844 dengan CPU 4x (CDP): frame Δt p95 16,7 ms (batas 33 ms), maks 25 ms, jadi cadangan sticky tanpa pin tidak dipakai.
     // Strip gelap di screenshot gulir ponsel hanya artefak Playwright screenshot(): lewat CDP Page.captureScreenshot (gulir sentuh dan rAF) strip <= 0,8 px di 23 frame.
     function turunCloseup(opts) {
       var panel = $('#turunPanel');
       if (!panel) return;
-      var N = 4, TINGGI_M = 30, TRAVEL = 3;
+      var N = 3, TINGGI_M = 30, TRAVEL = 3;
+      function kedalaman(p) { return Math.max(0, p) * TINGGI_M; }
       var S = { raw: 0, p: 0, v: 0, amp: 0, phase: 0, bounce: 0, station: 0, dir: 1, lean: 0 };
       var fig = $('#turunFigur'), meter = $('#turunMeter'), nomor = $('#turunNomor');
       var photos = $$('.turun__foto img', panel);
@@ -245,6 +249,8 @@ document.addEventListener('DOMContentLoaded', function () {
       // Potongan figur dan sudut dasar pose menggantung (derajat)
       var BASE = { kepala: -4, lenganA: 15, lenganA2: 60, lenganB: -100, lenganB2: -40 };
       var tali = $('#turunTali', panel), inv, ptA = new DOMPoint(120, 160), ptB = new DOMPoint(120, 130), ptK = new DOMPoint(538, 1300), ptKaki = new DOMPoint(165, 320);
+      // Bahu (sendi lenganA dalam ruang gambar badan) dan siku (sendi lenganA2 dalam ruang gambar lenganA), untuk IK lengan atas
+      var ptBahu = new DOMPoint(392, 256), ptSiku = new DOMPoint(100, 236);
       var J = {};
       ['rig', 'pahaB', 'betisB', 'pahaA', 'betisA', 'badan', 'lenganB', 'lenganB2', 'kepala', 'karabiner', 'lenganA', 'lenganA2'].forEach(function (id) { J[id] = $('#' + id, panel); });
       // Keadaan statis dari markup, dipulihkan saat adegan dicabut
@@ -265,12 +271,13 @@ document.addEventListener('DOMContentLoaded', function () {
       var pos = { tx: 0, ty: 0, aM: 0, badan: 18 };
       var kaki = [{ paha: J.pahaA, betis: J.betisA, w: 0, s: 0, ayun: null }, { paha: J.pahaB, betis: J.betisB, w: 0, s: 0, ayun: null }];
       // Pose ikonik di kedalaman 15 m (referensi: tergantung terbalik ala Spider-Man): tali bawah ditarik pemandu ke kanan,
-      // orangnya rebah ke belakang sampai terbalik. Bobot w naik di 12-15 m, bertahan 15-18 m, turun di 18-21 m.
+      // orangnya rebah ke belakang sampai terbalik. Bobot w naik di 12-15 m, bertahan 15-18 m, turun di 18-21 m
+      // (selesai sebelum teks stasiun 03 muncul di 22,5 m).
       // Rig diputar 180 derajat x w searah jarum jam di panggul dan bergeser menjauhi dinding; badan lurus, kaki lurus segaris
       // badan (jadi menunjuk ke atas) dengan pergelangannya nyantol di tali atas, kaki jauh menekuk ke arah dinding
       // (referensi Tebing 3), lengan lurus menjuntai ke bawah.
       var IKON = { dari: 12, puncak: 15, akhir: 18, lepas: 21, geserX: 120, geserY: 40, lenganA: 82, lenganA2: 12, lenganB: 98, lenganB2: 20 };
-      var rig = { tx: 0, ty: 0, rot: 0 };
+      var rig = { tx: 0, ty: 0, rot: 0 }, JANGKAR_X = 0.18, JANGKAR_M = 5;
       // Drone pemotret: masuk dari kiri di 12,5-15 m (slide + fade), melayang selama pose, dua kali kilat setelah tiba
       // (detik ke-0,6 dan 1,1 sejak tiba), lalu pergi ke kanan atas di 18-20,5 m. Begitu tiba, rangkaian kilat pasti dimainkan:
       // gulir cepat tidak bisa membawanya pergi sebelum kilat kedua selesai (lalu ia menyusul dalam ±0,9 detik), jadi
@@ -596,14 +603,14 @@ document.addEventListener('DOMContentLoaded', function () {
           gsap.fromTo(S, { bounce: dir * 22 }, { bounce: 0, duration: 1.1, ease: 'elastic.out(1, 0.35)' });
         }
 
-        // Dinding naik mengikuti gulir; air ikut dinding dan mengalir ke bawah 140 px/detik
-        var d = S.p * TRAVEL * H, t = (time || 0) % ((wAir.per || 1) / 140);
+        // Kedalaman (m) dari progres pin; dinding naik mengikutinya, air ikut dinding dan mengalir ke bawah 140 px/detik
+        var kd = kedalaman(S.p), d = kd / TINGGI_M * TRAVEL * H, t = (time || 0) % ((wAir.per || 1) / 140);
         postur(curam(d / figK));
         moveWall(wDekat, d);
         moveWall(wJauh, d * 0.45);
         moveWall(wAir, d - 140 * t);
-        awanTick(dt, Math.max(0, (S.p - 1 / 3) / (2 / 3)) * TINGGI_M);
-        lautTick(dt, time || 0, Math.max(0, (S.p - 1 / 3) / (2 / 3)) * TINGGI_M);
+        awanTick(dt, kd);
+        lautTick(dt, time || 0, kd);
 
         // Foto latar: crossfade per stasiun, bergeser pelan lewat transform
         var tulisFoto = Math.abs(S.p - lastFoto) > 1e-4;
@@ -621,11 +628,10 @@ document.addEventListener('DOMContentLoaded', function () {
         var idle = Math.sin(tt * 1.1) * 0.8;
         S.lean = lerp(S.lean, S.dir * 5 * S.amp + S.v * 10, 1 - Math.pow(0.01, dt));
         // Badan sedikit turun bertumpu ke tali selagi satu kaki terangkat
-        var dip = 0;
-        kaki.forEach(function (k) { if (k.ayun) dip += 9 * Math.sin(Math.PI * k.ayun.u); });
+        var dip = 0, ayunF = 0; // ayunF: fase langkah 0..1 (puncak saat kaki di tengah ayunan), dipakai juga tangan atas
+        kaki.forEach(function (k) { if (k.ayun) { var f = Math.sin(Math.PI * k.ayun.u); dip += 9 * f; ayunF = Math.max(ayunF, f); } });
         var rigY = S.bounce + dip;
-        // Bobot pose ikonik dari kedalaman (sama dengan meteran), dihaluskan di kedua ujung
-        var kd = Math.max(0, (S.p - 1 / 3) / (2 / 3)) * TINGGI_M;
+        // Bobot pose ikonik dari kedalaman, dihaluskan di kedua ujung
         var w = halus((kd - IKON.dari) / (IKON.puncak - IKON.dari)) * (1 - halus((kd - IKON.akhir) / (IKON.lepas - IKON.akhir)));
         var goyang = Math.sin(tt * 0.7) * 3 * w; // tergantung terbalik: berayun pelan di tali
         // Geser menjauhi dinding, tapi di layar sempit panggul digeser ke kiri secukupnya supaya kepala (±720 satuan dari
@@ -637,38 +643,77 @@ document.addEventListener('DOMContentLoaded', function () {
         pose(J.badan, lerp(pos.badan + idle + S.lean, 0, w));
         pose(J.kepala, lerp(BASE.kepala - S.lean * 0.5 - (pos.badan - 18) * 0.4, 6, w) + Math.sin(tt * 0.9) * 1.2);
         pose(J.karabiner, Math.sin(tt * 1.3) * 3 - S.lean * 0.3 * (1 - w));
-        pose(J.lenganA, lerp(BASE.lenganA - 6 * S.amp * sw - idle * 0.6, IKON.lenganA + Math.sin(tt * 1.4) * 4, w));
-        pose(J.lenganA2, lerp(BASE.lenganA2 + 4 * S.amp * sw, IKON.lenganA2, w));
-        pose(J.lenganB, lerp(BASE.lenganB + 8 * S.amp * sw + Math.sin(tt * 1.7) * 1.5, IKON.lenganB + Math.sin(tt * 1.2 + 1) * 4, w));
-        pose(J.lenganB2, lerp(BASE.lenganB2 - 5 * S.amp * sw, IKON.lenganB2, w));
+        // Lengan atas: dipose dulu pada sudut dasar untuk mengukur rantainya, pose akhirnya dari IK ke tali di blok tali di bawah
+        pose(J.lenganA, BASE.lenganA);
+        pose(J.lenganA2, BASE.lenganA2);
+        // Tangan rem: ikut fase langkah (mengulur tali: terangkat ke arah alat lalu turun lagi tiap langkah) di atas ayunan halus
+        pose(J.lenganB, lerp(BASE.lenganB + 8 * S.amp * sw + Math.sin(tt * 1.7) * 1.5 - 22 * ayunF, IKON.lenganB + Math.sin(tt * 1.2 + 1) * 4, w));
+        pose(J.lenganB2, lerp(BASE.lenganB2 - 5 * S.amp * sw + 16 * ayunF, IKON.lenganB2, w));
         langkah(dt, d, w);
 
-        // Tali: dari atas lurus ke genggaman tangan atas, ke ujung karabiner, melengkung ke tangan rem, lalu turun keluar kotak
+        // Tali: dari jangkar di tepi atas panel, JANGKAR_X lebar panel dari kiri (pilihan pengguna; lurus ke atas dan miring 12 derajat
+        // terasa kurang, tepat di pojok kiri atas terasa jelek) LURUS ke ujung karabiner (tangan atas menggenggam di garis itu, bukan
+        // tali yang menekuk di tangan; pengguna: tangan mengikuti tegangan tali), melengkung ke tangan rem, lalu turun keluar kotak
         // (saat pose ikonik tangan lepas dari tali, lihat jalur ikon)
         var ctm = fig.getScreenCTM();
         if (ctm) {
           inv = ctm.inverse();
-          var hA = ropePoint(ptA, J.lenganA2), hB = ropePoint(ptB, J.lenganB2), kr = ropePoint(ptK, J.karabiner);
+          var hB = ropePoint(ptB, J.lenganB2), kr = ropePoint(ptK, J.karabiner);
           var kk = w > 0 ? ropePoint(ptKaki, J.betisA) : kr; // pergelangan kaki dekat, tempat tali atas nyantol saat pose
           // Jalur biasa dan jalur pose (tali atas datang miring dari kiri atas, nyantol di pergelangan kaki dekat, lalu ke karabiner;
           // tali bawah lurus ditarik ke kanan bawah), dibaur w
           var ex = kr.x + 420, ey = 2200, g = function (t) { return [kr.x + (ex - kr.x) * t, kr.y + (ey - kr.y) * t]; };
-          var biasa = [hA.x, -2000, hA.x, hA.y, kr.x, kr.y, kr.x + 40, kr.y + 60, hB.x - 30, hB.y - 40, hB.x, hB.y, hB.x + 10, hB.y + 200, hB.x + 14, 1500, hB.x + 14, 2200];
-          var ikon = [kk.x - 250, -2000, kk.x, kk.y, kr.x, kr.y, kr.x + 30, kr.y + 60].concat(g(0.2), g(0.3), g(0.55), g(0.85), [ex, ey]);
-          var q = biasa.map(function (n, k) { return lerp(n, ikon[k], w).toFixed(1); });
+          // Jangkar: titik di tepi atas panel dalam satuan viewBox, diteruskan 30% melewatinya supaya tali keluar panel.
+          // Di 0 m tepat di pojok kiri atas, bergeser halus ke JANGKAR_X lebar panel sampai JANGKAR_M meter (pilihan pengguna)
+          var pr = panel.getBoundingClientRect(), jx = JANGKAR_X * halus(kd / JANGKAR_M);
+          var sx = (pr.left + pr.width * jx - ctm.e) / ctm.a, sy = (pr.top - ctm.f) / ctm.d;
+          // Lengan atas mengikuti tegangan tali: tangan menggenggam di garis jangkar-karabiner sejauh ±76% jangkauan lengan dari bahu
+          // saat diam (plus ayunan kecil), dan merambat ke atas tali sampai ±94% selagi kaki melangkah (lengan merentang lalu menarik
+          // lagi tiap langkah; permintaan pengguna: gerak tangan atas lebih terasa saat melangkah), minimal 90 satuan di atas karabiner; lengan dipose IK dua tulang (bahu, siku) dalam satuan viewBox.
+          // Rantai diukur dari pose dasar: sudut rotate aditif sepanjang rantai (badan > lengan atas > lengan bawah, skala seragam),
+          // arah tekukan siku mengikuti pose dasar.
+          var bahu = ropePoint(ptBahu, J.badan), siku = ropePoint(ptSiku, J.lenganA), tgn = ropePoint(ptA, J.lenganA2);
+          var ux = siku.x - bahu.x, uy = siku.y - bahu.y, vx = tgn.x - siku.x, vy = tgn.y - siku.y;
+          var Lu = Math.hypot(ux, uy), Lf = Math.hypot(vx, vy), thU = Math.atan2(uy, ux), thF = Math.atan2(vy, vx), tekuk = ux * vy - uy * vx < 0 ? 1 : -1;
+          var nx = sx - kr.x, ny = sy - kr.y, nl = Math.hypot(nx, ny) || 1; nx /= nl; ny /= nl;
+          var R = (0.76 + 0.04 * Math.sin(tt * 1.1) + 0.18 * ayunF) * (Lu + Lf), bq = nx * (kr.x - bahu.x) + ny * (kr.y - bahu.y);
+          var cq = (kr.x - bahu.x) * (kr.x - bahu.x) + (kr.y - bahu.y) * (kr.y - bahu.y) - R * R, disc = bq * bq - cq;
+          var tq = Math.max(90, disc > 0 ? -bq + Math.sqrt(disc) : -bq);
+          var hA = { x: kr.x + nx * tq, y: kr.y + ny * tq };
+          var rx = hA.x - bahu.x, ry = hA.y - bahu.y, al = Math.atan2(ry, rx), dd = Math.max(Math.abs(Lu - Lf) + 1, Math.min(Lu + Lf - 0.5, Math.hypot(rx, ry)));
+          var t1 = al + tekuk * Math.acos((Lu * Lu + dd * dd - Lf * Lf) / (2 * Lu * dd));
+          var e2x = bahu.x + Lu * Math.cos(t1), e2y = bahu.y + Lu * Math.sin(t1);
+          var t2 = Math.atan2(bahu.y + dd * Math.sin(al) - e2y, bahu.x + dd * Math.cos(al) - e2x);
+          var a1 = BASE.lenganA + (t1 - thU) / D2R, a2 = BASE.lenganA2 + (t2 - thF) / D2R - (a1 - BASE.lenganA);
+          pose(J.lenganA, lerp(a1, IKON.lenganA + Math.sin(tt * 1.4) * 4, w));
+          pose(J.lenganA2, lerp(a2, IKON.lenganA2, w));
+          var biasa = [hA.x + (sx - hA.x) * 1.3, hA.y + (sy - hA.y) * 1.3, hA.x, hA.y, kr.x, kr.y, kr.x + 40, kr.y + 60, hB.x - 30, hB.y - 40, hB.x, hB.y, hB.x + 10, hB.y + 200, hB.x + 14, 1500, hB.x + 14, 2200];
+          var ikon = [kk.x + (sx - kk.x) * 1.3, kk.y + (sy - kk.y) * 1.3, kk.x, kk.y, kr.x, kr.y, kr.x + 30, kr.y + 60].concat(g(0.2), g(0.3), g(0.55), g(0.85), [ex, ey]);
+          var q = biasa.map(function (n, k) { return lerp(n, ikon[k], w); });
+          // Selama perubahan pose (0 < w < 1) pembauran titik demi titik membuat tali menekuk di titik genggam/pergelangan;
+          // pengguna: tidak realistis. Di tengah transisi jalur dibaurkan ke jalur lurus: jangkar-karabiner satu garis, dan
+          // karabiner-ujung bawah satu garis (titik kendali kurva diletakkan di garis itu). Bobot u = 0 di kedua ujung, 1 di tengah.
+          var u = Math.sin(Math.PI * w);
+          if (u > 0) {
+            var ax = q[0], ay = q[1], bx = q[16], by = q[17], kx = q[4], ky = q[5];
+            var L = function (t) { return [kx + (bx - kx) * t, ky + (by - ky) * t]; };
+            var lurus = [ax, ay, (ax + kx) / 2, (ay + ky) / 2, kx, ky].concat(L(0.25), L(0.45), L(0.55), L(0.7), L(0.85), [bx, by]);
+            q = q.map(function (n, k) { return lerp(n, lurus[k], u); });
+          }
+          q = q.map(function (n) { return n.toFixed(1); });
           tali.setAttribute('d', 'M' + q[0] + ' ' + q[1] + ' L' + q[2] + ' ' + q[3] + ' L' + q[4] + ' ' + q[5] +
             ' C' + q[6] + ' ' + q[7] + ' ' + q[8] + ' ' + q[9] + ' ' + q[10] + ' ' + q[11] +
             ' C' + q[12] + ' ' + q[13] + ' ' + q[14] + ' ' + q[15] + ' ' + q[16] + ' ' + q[17]);
           droneTick(dt, tt, kd, ctm);
         }
 
-        // Meteran menunggu di 0 m sampai tengah stasiun 02 (p = 1/3), lalu naik rata
-        var m = Math.round(Math.max(0, (S.p - 1 / 3) / (2 / 3)) * TINGGI_M) + ' m';
+        // Meteran satu desimal dengan koma (0,0 m di awal pin, naik rata sampai 30,0 m)
+        var m = kd.toFixed(1).replace('.', ',') + ' m';
         if (m !== lastMeter) { lastMeter = m; meter.textContent = m; }
       }
 
       var pin = ST.create({
-        trigger: panel, start: 'top top', end: '+=' + (N * opts.endPct) + '%', pin: true, anticipatePin: 1, refreshPriority: 2,
+        trigger: panel, start: 'top top', end: '+=' + opts.pinPct + '%', pin: true, anticipatePin: 1, refreshPriority: 2,
         onUpdate: function (t) { S.raw = t.progress; },
         onRefresh: function (t) { S.raw = t.progress; },
         onToggle: function (t) { root.classList.toggle('turun-pinned', t.isActive); }
@@ -712,13 +757,14 @@ document.addEventListener('DOMContentLoaded', function () {
         gsap.set(walls.map(function (w) { return w.el; }).concat(photos), { clearProps: 'all' });
         photos.forEach(function (im) { im.removeAttribute('aria-hidden'); });
         blocks.forEach(function (o, k) { o.b.classList.toggle('is-on', k === 0); });
-        nomor.textContent = '01'; meter.textContent = '0 m';
+        nomor.textContent = '01'; meter.textContent = '0,0 m';
         if (window.__turun === S) { delete window.__turun; delete window.__turunTick; delete window.__turunBase; }
       };
     }
-    mm.add('(min-width: 64rem)', function () { return turunCloseup({ endPct: 120 }); });
+    // Panjang pin dipertahankan seperti saat masih empat stasiun (4 x 120% / 4 x 100%) supaya turunnya terasa lama: 30 m ditempuh sepanjang pin
+    mm.add('(min-width: 64rem)', function () { return turunCloseup({ pinPct: 480 }); });
     // 63.999rem (bukan 63.99rem): lebar pecahan antara 63.99 dan 64rem tidak jatuh di celah antara dua media
-    mm.add('(max-width: 63.999rem)', function () { return turunCloseup({ endPct: 100 }); });
+    mm.add('(max-width: 63.999rem)', function () { return turunCloseup({ pinPct: 400 }); });
 
     // ---------- Galeri: digeser horizontal saat discroll, tiap foto ber-parallax ----------
     mm.add('(min-width: 64rem)', function () {
