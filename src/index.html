@@ -271,44 +271,22 @@
       </div>
     </div>
     <div class="gauge" id="seaViz" aria-hidden="true">
-      <!-- Potongan melintang: kolam di atas tebing, air terjun, pantai, dan tinggi laut (surut 207, pasang 146) -->
-      <svg viewBox="0 0 640 220" preserveAspectRatio="xMinYMax slice" focusable="false">
-        <defs>
-          <path id="gg-ombak" d="M-80,0 q20,-5 40,0 t40,0 t40,0 t40,0 t40,0 t40,0 t40,0 t40,0 t40,0 t40,0 t40,0 t40,0 t40,0 t40,0 t40,0 t40,0 t40,0 t40,0 t40,0 t40,0 t40,0 t40,0 V80 H-80 Z"/>
-          <g id="gg-orang"><circle cx="0" cy="-15" r="3.4"/><path d="M0,-11 V-5 M0,-5 l-3,5 M0,-5 l3,5 M0,-9.5 l-3.5,3.5 M0,-9.5 l3.5,3.5"/></g>
-          <clipPath id="gg-atas-pasir"><path d="M-10,-10 H700 V230 H352 C330,216 312,209 290,203 C255,195 220,194 196,200 L-10,200 Z"/></clipPath>
-          <pattern id="gg-rintik" width="28" height="36" patternUnits="userSpaceOnUse"><path d="M20,2 l-4,11 M7,20 l-4,11"/></pattern>
-        </defs>
-        <circle class="gg-matahari" r="13"/>
-        <path class="gg-pasir" d="M196,200 C220,194 255,195 290,203 C312,209 330,216 352,222 L196,222 Z"/>
-        <path class="gg-batu" d="M174,222 L178,201 C182,194 190,196 195,192 C201,189 205,196 211,195 C217,194 221,199 225,205 L232,222 Z"/>
-        <path class="gg-pori" d="M186,204 h0.1 M199,199 h0.1 M207,208 h0.1 M216,203 h0.1 M192,213 h0.1 M222,214 h0.1"/>
-        <ellipse class="gg-percik" cx="188" cy="197" rx="10" ry="3"/>
-        <text class="gg-label gg-label--pantai" x="268" y="214" text-anchor="middle">pantai</text>
-        <use class="gg-orang gg-orang--bawah" href="#gg-orang" x="252" y="197"/>
-        <g class="gg-laut" clip-path="url(#gg-atas-pasir)">
-          <g class="gg-laut__level">
-            <g transform="translate(0 -5)"><use class="gg-ombak gg-ombak--belakang" href="#gg-ombak"/></g>
-            <use class="gg-ombak gg-ombak--depan" href="#gg-ombak"/>
-          </g>
-        </g>
-        <g class="gg-semprot"><circle cx="171" cy="142" r="3"/><circle cx="177" cy="135" r="2.2"/><circle cx="168" cy="134" r="1.8"/><circle cx="182" cy="142" r="1.6"/></g>
-        <!-- Tebing travertin: tingkatan tonjolan membulat, tiap bibir menggantung di atas tingkat berikutnya -->
-        <path class="gg-tebing" d="M-10,56 L26,54 C32,54 34,66 44,66 L70,66 C80,66 82,55 90,54 L104,53 C114,52 126,58 128,70 C130,80 125,86 121,90 C132,92 146,96 146,110 C146,120 141,126 138,128 C152,130 166,136 166,150 C166,160 161,166 157,168 C172,170 184,176 184,190 L186,222 L-10,222 Z"/>
-        <path class="gg-gurat" d="M30,80 C32,100 28,120 31,150 M62,84 C64,110 60,140 63,182 M92,70 C95,100 90,130 94,172 M114,100 C116,130 112,160 118,204 M140,140 C142,160 138,180 144,210"/>
-        <path class="gg-bayang" d="M126,77 C126,83 123,87 118,89 M144,115 C143,121 140,125 135,127 M164,155 C163,161 160,165 154,167"/>
-        <path class="gg-sorot" d="M104,53 C114,52 126,58 128,70 M121,90 C132,92 146,96 146,110 M138,128 C152,130 166,136 166,150 M157,168 C172,170 184,176 184,190"/>
-        <path class="gg-semak" d="M-4,56 c0,-9 12,-11 15,-4 c3,-8 15,-6 14,3 Z"/>
-        <path class="gg-air" d="M30,57 L87,56.5 C82,57 80,65 70,65 L44,65 C36,65 34,57 30,57 Z"/>
-        <path class="gg-sungai" d="M84,56 L102,55"/>
-        <path class="gg-terjun gg-terjun--tipis" d="M98,56 C108,56 120,62 124,72 L125,90 C132,93 141,99 142,111 L143,129 C150,133 160,140 162,152 L163,168 C171,173 179,180 181,191 L181,199"/>
-        <path class="gg-terjun" d="M100,55 C112,54 126,58 130,70 L130,92 C138,93 147,98 148,110 L148,131 C156,132 166,138 168,150 L168,170 C176,172 184,178 186,190 L186,198"/>
-        <path class="gg-terjun-arus" d="M100,55 C112,54 126,58 130,70 L130,92 C138,93 147,98 148,110 L148,131 C156,132 166,138 168,150 L168,170 C176,172 184,178 186,190 L186,198"/>
-        <text class="gg-label" x="56" y="46" text-anchor="middle">kolam</text>
-        <text class="gg-label gg-label--terjun" x="152" y="80">air terjun</text>
-        <use class="gg-orang gg-orang--atas" href="#gg-orang" x="94" y="54"/>
-        <rect class="gg-hujan" x="-20" y="-40" width="700" height="280" fill="url(#gg-rintik)"/>
-      </svg>
+      <!-- Adegan berlapis: aset kontur emas (mask luminance) + figur putih; posisi dari assets/img/kondisi/posisi.json -->
+      <div class="gg-awan"><i></i><i></i></div>
+      <i class="gg-matahari"></i>
+      <div class="gg-adegan">
+        <i class="gg-tebing"></i>
+        <svg class="gg-arus" viewBox="0 0 1536 1024" preserveAspectRatio="none" aria-hidden="true"><path d="M290 100 C292 400 296 700 300 975"/><path d="M340 95 C342 400 346 700 352 975"/><path d="M400 100 C402 400 406 700 410 975"/></svg>
+        <i class="gg-orang gg-orang--b2"></i><i class="gg-orang gg-orang--b1"></i><i class="gg-orang gg-orang--b3"></i>
+        <i class="gg-orang gg-orang--a5"></i>
+        <i class="gg-bongkahan"></i>
+        <i class="gg-orang gg-orang--b5"></i><i class="gg-orang gg-orang--b7"></i><i class="gg-orang gg-orang--b6"></i>
+        <i class="gg-batu"></i>
+        <i class="gg-orang gg-orang--b8"></i>
+      </div>
+      <div class="gg-laut"><i></i><i></i><i></i><i></i></div>
+      <i class="gg-hujan"></i>
+      <span class="gg-label">Ilustrasi, bukan data pasang surut</span>
       <span class="gauge__level">Air <b id="gaugeLevel">surut</b></span>
     </div>
     <p class="fine kondisi__fine">Ilustrasi tinggi air, bukan data pasang surut. Cek prakiraan pasang surut BMKG untuk tanggal kunjungan.</p>
