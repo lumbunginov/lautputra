@@ -74,6 +74,7 @@ g = Image.open(SUMBER / "kand-G.png").convert("RGB")
 kertas_g = g.getpixel((820, 900))
 g.paste(kertas_g, (628, 868, 772, 962))
 g.paste(kertas_g, (0, 968, g.width, g.height))  # garis riak laut diganti lapisan CSS
+g.paste(kertas_g, (760, 944, g.width, g.height))  # sisa riak di kanan kaki tebing
 m = mask(g)
 x0, y0, x1, y1 = m.point(lambda v: 255 if v > 16 else 0).getbbox()
 simpan(m.crop((x0, y0, x1, y1)), "tebing")
