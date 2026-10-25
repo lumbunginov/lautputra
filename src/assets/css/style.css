@@ -450,7 +450,7 @@ html:not(.js) .ig__kartu .ig__cap, html.no-motion .ig__kartu .ig__cap { position
 .gg-awan i { animation-direction: alternate; }
 .gg-matahari { position: absolute; width: 4.6%; aspect-ratio: 1; border-radius: 50%; background: color-mix(in oklab, var(--color-warn) 55%, var(--color-accent)); left: 70%; top: 34%; box-shadow: 0 0 24px color-mix(in oklab, var(--color-accent) 50%, transparent); transition: left 900ms var(--ease-in-out), top 900ms var(--ease-in-out), background-color 900ms var(--ease-in-out), opacity var(--dur-long) var(--ease-out); }
 .gg-adegan { left: 0; bottom: 0; height: 100%; aspect-ratio: 1536 / 1024; }
-.gg-tebing, .gg-bongkahan, .gg-batu, .gg-orang { position: absolute; -webkit-mask-mode: luminance; mask-mode: luminance; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-size: 100% 100%; mask-size: 100% 100%; -webkit-mask-position: center; mask-position: center; }
+.gg-tebing, .gg-bongkahan, .gg-batu, .gg-orang, .gg-air { position: absolute; -webkit-mask-mode: luminance; mask-mode: luminance; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-size: 100% 100%; mask-size: 100% 100%; -webkit-mask-position: center; mask-position: center; }
 .gg-tebing, .gg-bongkahan, .gg-batu { background: var(--color-ornamen); }
 .gg-tebing { left: 0; top: 1.17%; width: 49.41%; height: 93.36%; -webkit-mask-image: url(../img/kondisi/tebing.webp); mask-image: url(../img/kondisi/tebing.webp); }
 .gg-bongkahan { left: 42.97%; top: 70.8%; width: 25.17%; height: 24.41%; -webkit-mask-image: url(../img/kondisi/bongkahan.webp); mask-image: url(../img/kondisi/bongkahan.webp); }
@@ -465,9 +465,12 @@ html:not(.js) .ig__kartu .ig__cap, html.no-motion .ig__kartu .ig__cap { position
 .gg-orang--b7 { left: 51.43%; top: 69.53%; width: 2.85%; height: 6.45%; -webkit-mask-image: url(../img/kondisi/orang-b7.webp); mask-image: url(../img/kondisi/orang-b7.webp); }
 .gg-orang--b8 { left: 39.06%; top: 83.01%; width: 2.77%; height: 5.86%; -webkit-mask-image: url(../img/kondisi/orang-b8.webp); mask-image: url(../img/kondisi/orang-b8.webp); }
 @supports not (mask-mode: luminance) { .gg-adegan { display: none; } }
-.gg-arus { position: absolute; inset: 0; width: 100%; height: 100%; }
-.gg-arus path { fill: none; stroke: var(--color-foam); stroke-width: 6; stroke-linecap: round; stroke-dasharray: 14 44; opacity: 0.8; animation: gg-arus 0.9s linear infinite; }
-@keyframes gg-arus { to { stroke-dashoffset: -116; } }
+/* Air terjun: tiga frame tirai (air-a/b/c.webp) putih di kotak tirai tebing, saling silang pudar = kedip; tanpa animasi hanya frame a yang tampil */
+.gg-air { left: 14%; top: 8.59%; width: 17.25%; height: 86.33%; background: var(--color-ink); opacity: 0; animation: gg-air var(--air-siklus, 1.2s) linear infinite; }
+.gg-air--a { opacity: 0.95; -webkit-mask-image: url(../img/kondisi/air-a.webp); mask-image: url(../img/kondisi/air-a.webp); }
+.gg-air--b { -webkit-mask-image: url(../img/kondisi/air-b.webp); mask-image: url(../img/kondisi/air-b.webp); animation-delay: calc(var(--air-siklus, 1.2s) / -3); }
+.gg-air--c { -webkit-mask-image: url(../img/kondisi/air-c.webp); mask-image: url(../img/kondisi/air-c.webp); animation-delay: calc(var(--air-siklus, 1.2s) / -1.5); }
+@keyframes gg-air { 0% { opacity: 0; } 12% { opacity: 0.95; } 38% { opacity: 0.95; } 50% { opacity: 0; } 100% { opacity: 0; } }
 .gg-laut { left: 0; right: 0; bottom: -6%; height: 22%; -webkit-mask-image: linear-gradient(to right, rgba(0 0 0 / 0.45) 0%, #000 22%); mask-image: linear-gradient(to right, rgba(0 0 0 / 0.45) 0%, #000 22%); transition: transform 1100ms var(--ease-in-out); }
 .gg-laut::after { content: ""; position: absolute; left: 0; right: 0; top: 100%; height: 80%; background: url(../img/laut-4.webp) repeat-x 0 0 / auto 100%; opacity: 0.5; }
 .gg-laut i { position: absolute; left: 0; right: 0; background: url(../img/laut-1.webp) repeat-x 0 0 / auto 100%; }
@@ -480,10 +483,10 @@ html:not(.js) .ig__kartu .ig__cap, html.no-motion .ig__kartu .ig__cap { position
 @keyframes gg-hujan { to { background-position-y: 36px; } }
 .gg-label { position: absolute; right: var(--space-md); bottom: var(--space-sm); z-index: 3; color: var(--color-muted); font-size: var(--text-xs); letter-spacing: 0.06em; text-transform: uppercase; }
 /* Tanpa JS panel statis, tanpa loop */
-html:not(.js) .gauge :is(.gg-arus path, .gg-laut i, .gg-awan i, .gg-hujan) { animation: none; }
+html:not(.js) .gauge :is(.gg-air, .gg-laut i, .gg-awan i, .gg-hujan) { animation: none; }
 /* Loop hanya jalan saat gauge terlihat dan elemennya tampil */
-html.js .gauge :is(.gg-arus path, .gg-laut i, .gg-awan i, .gg-hujan) { animation-play-state: paused; }
-html.js .gauge.is-live :is(.gg-arus path, .gg-laut i, .gg-awan i), html.js .gauge.is-live.hujan .gg-hujan { animation-play-state: running; }
+html.js .gauge :is(.gg-air, .gg-laut i, .gg-awan i, .gg-hujan) { animation-play-state: paused; }
+html.js .gauge.is-live :is(.gg-air, .gg-laut i, .gg-awan i), html.js .gauge.is-live.hujan .gg-hujan { animation-play-state: running; }
 .gauge__level { position: absolute; right: var(--space-md); top: var(--space-sm); z-index: 3; color: var(--color-muted); font-size: var(--text-xs); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
 .gauge__level b { color: var(--color-ink); }
 /* Koreografi pasang: laut naik, figur terendam hilang lebih dulu; surut: figur muncul belakangan menunggu air turun (jeda ada di keadaan tujuan) */
@@ -495,7 +498,7 @@ html.js .gauge.is-live :is(.gg-arus path, .gg-laut i, .gg-awan i), html.js .gaug
 /* Hujan: matahari hilang, rintik tampak, arus deras, kru rappel turun */
 .gauge.hujan .gg-matahari { opacity: 0; }
 .gauge.hujan .gg-hujan { opacity: 1; transition: opacity var(--dur-long) var(--ease-out); }
-.gauge.hujan .gg-arus path { stroke-width: 10; animation-duration: 0.45s; }
+.gauge.hujan .gg-adegan { --air-siklus: 0.6s; }
 .gauge.hujan .gg-orang--a5 { opacity: 0; transition-delay: 0ms; }
 /* Waktu: matahari siang tinggi di tengah, sore rendah di kiri dan hangat */
 .gauge[data-waktu="siang"] .gg-matahari { left: 50%; top: 10%; }
