@@ -1,6 +1,7 @@
 """Aset bagian "Kapan datang" (#kondisi): lapisan kontur bermask luminance.
 
-Pakai: python scripts/kondisi-aset.py <folder-sumber>
+Pakai: python scripts/kondisi-aset.py [folder-sumber]
+(bawaan: .gen/kondisi-sumber di akar repo; keluar dengan kode 1 bila folder/berkas kurang)
 (jalankan dengan `python` biasa, tanpa -I: Pillow ada di site-packages pengguna)
 
 Folder sumber berisi kand-G.png, batu-1.png, batu-kecil-b.png, dan orang/A-5.png,
@@ -19,8 +20,12 @@ from pathlib import Path
 
 from PIL import Image, ImageFilter
 
-SUMBER = Path(sys.argv[1])
 ROOT = Path(__file__).resolve().parent.parent
+SUMBER = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT / ".gen/kondisi-sumber"
+_PERLU = ["kand-G.png", "batu-1.png", "batu-kecil-b.png", "orang/A-5.png"] + [f"orang/B-{n}.png" for n in (1, 2, 3, 5, 6, 7, 8)]
+_kurang = [b for b in _PERLU if not (SUMBER / b).is_file()]
+if _kurang:
+    sys.exit(f"Pakai: python scripts/kondisi-aset.py [folder-sumber]; kurang di {SUMBER}: {', '.join(_kurang)}")
 KELUAR = ROOT / "src/assets/img/kondisi"
 PRATINJAU = ROOT / ".gen/kondisi-aset-pratinjau.jpg"
 
