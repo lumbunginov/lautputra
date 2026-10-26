@@ -6,9 +6,12 @@
   "type": "module",
   "scripts": {
     "build": "node scripts/build.mjs",
-    "check": "node scripts/check-turun-aset.mjs"
+    "check": "node scripts/check-turun-aset.mjs",
+    "ejaan": "cspell --no-progress --show-suggestions src/index.html"
   },
   "devDependencies": {
+    "@cspell/dict-id-id": "^1.0.9",
+    "cspell": "^10.4.0",
     "esbuild": "^0.25.0",
     "gsap": "^3.13.0",
     "html-minifier-terser": "^7.2.0",

@@ -1,0 +1,25 @@
+{
+  "version": "0.2",
+  "language": "id,en",
+  "import": ["@cspell/dict-id-id/cspell-ext.json"],
+  "files": ["src/index.html"],
+  "words": [
+    "Sidomulyo", "Bakung", "Blitar", "Kademangan", "Tambakrejo", "Gawang", "Trisula", "Pasur", "Pangi",
+    "Umbultuk", "Tumpakkepuh", "Bululawang", "Luweng", "Jurug", "makadam", "canyoneering", "canyoning",
+    "basecamp", "homestay", "trekking", "rappelling", "SIDITA", "Disbudpar", "BMKG",
+    "Hindia", "Gancet", "Tirto", "Galuh",
+    "berpasir", "diliput", "dikonfirmasi", "berbayar", "kondisinya", "alternatifnya",
+    "terbaikmu", "momennya", "videonya", "dituruni"
+  ],
+  "ignoreWords": [],
+  "allowCompoundWords": false,
+  "caseSensitive": false,
+  "ignoreRegExpList": [
+    "/<svg[\\s\\S]*?<\\/svg>/g",
+    "/<script[\\s\\S]*?<\\/script>/g",
+    "/<style[\\s\\S]*?<\\/style>/g",
+    "/<[^>]+>/g",
+    "/@[\\w.]+/g",
+    "/&[a-z]+;/g"
+  ]
+}

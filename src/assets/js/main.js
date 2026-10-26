@@ -814,13 +814,13 @@ document.addEventListener('DOMContentLoaded', function () {
       status = 'Sebaiknya ditunda'; color = 'var(--color-bad)'; title = 'Jalur makadam licin dan arus sungai naik. Tunda kunjungan.';
       items = ['Jalan tanah di kebun tebu sulit dilewati motor saat hujan.', 'Debit air terjun meningkat, kolam alami dan tebing jadi berbahaya.', 'Operator biasanya menjadwalkan ulang canyoneering saat hujan.'];
     } else if (c.laut === 'pasang') {
-      status = 'Hanya dari atas'; color = 'var(--color-warn)'; title = 'Pantai tertutup ombak. Nikmati dari tebing dan kolam alami.';
-      items = ['Jangan turun ke pantai; ombak selatan menghantam karang di bawah air terjun.', 'Kolam alami di atas tebing tetap bisa dikunjungi.', 'Foto air terjun dari atas, tunggu surut jika ingin turun.'];
+      status = 'Hanya dari atas'; color = 'var(--color-warn)'; title = 'Pantai tertutup ombak. Tim tidak menurunkan peserta.';
+      items = ['Ombak selatan menghantam karang di bawah air terjun, terlalu berbahaya untuk turun.', 'Kolam alami di atas tebing tetap bisa dikunjungi, dokumentasi diambil dari area atas.', 'Operator menjadwalkan ulang atau mengembalikan sebagian biaya bila slot batal turun.'];
     } else {
-      status = 'Waktu terbaik'; color = 'var(--color-ok)'; title = 'Turun ke pantai, nikmati air terjun dari bawah.';
-      items = ['Pasir putih dan kaki air terjun terbuka saat surut.',
+      status = 'Waktu terbaik'; color = 'var(--color-ok)'; title = 'Slot canyoneering bisa berjalan, turun sampai kaki air terjun.';
+      items = ['Saat surut, tim membawa Anda sampai pasir putih dan kaki air terjun.',
         c.waktu === 'pagi' ? 'Pagi: cahaya lembut dan udara belum panas, paling nyaman untuk trekking.' : (c.waktu === 'siang' ? 'Siang: panas terik, bawa topi, tabir surya, dan air cukup.' : 'Sore: perhatikan waktu, jalur turun tebing gelap setelah matahari terbenam.'),
-        'Tetap pantau ombak; surut bisa berbalik dalam beberapa jam.'];
+        'Tetap perhatikan ombak, air bisa kembali pasang dalam beberapa jam.'];
     }
     var apply = function () {
       verdict.style.setProperty('--vc', color); vStatus.textContent = status; vTitle.textContent = title;
