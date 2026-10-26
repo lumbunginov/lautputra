@@ -509,7 +509,9 @@ html.js .gauge.is-live :is(.gg-air, .gg-laut i, .gg-awan i), html.js .gauge.is-l
 .gauge[data-waktu="siang"] .gg-matahari { left: 50%; top: 10%; }
 .gauge[data-waktu="sore"] .gg-matahari { left: 34%; top: 46%; background: var(--color-warn); }
 .kondisi__fine { margin-top: calc(-1 * var(--space-sm)); }
-.verdict { --vc: var(--color-ok); background: var(--color-paper); border-radius: var(--radius-md); padding: var(--space-lg); }
+/* Verdict: kartu hasil simulasi di kolom kiri; warna status (--vc) ditransisikan lewat @property supaya titik dan garis tidak melompat */
+@property --vc { syntax: "<color>"; inherits: true; initial-value: #7bd389; }
+.verdict { --vc: var(--color-ok); background: var(--color-paper-2); border-radius: var(--radius-md); padding: var(--space-lg); margin-top: var(--space-sm); transition: --vc var(--dur-short) var(--ease-out); }
 .verdict__body { display: grid; gap: var(--space-md); transition: opacity var(--dur-micro) var(--ease-out), transform var(--dur-micro) var(--ease-out), filter var(--dur-micro) var(--ease-out); }
 .verdict__body.out { opacity: 0.2; transform: translateY(4px); filter: blur(2px); }
 .verdict__status { display: inline-flex; align-items: center; gap: var(--space-xs); color: var(--vc); font-weight: 600; font-size: var(--text-sm); }
@@ -519,10 +521,18 @@ html.js .gauge.is-live :is(.gg-air, .gg-laut i, .gg-awan i), html.js .gauge.is-l
 .verdict li { padding-left: var(--space-lg); position: relative; }
 .verdict li::before { content: ""; position: absolute; left: 0; top: 0.7em; width: 0.6rem; height: 2px; background: var(--vc); }
 @media (min-width: 40rem) { .kondisi__controls { grid-template-columns: repeat(3, minmax(0, 1fr)); } .kondisi__tool { padding: var(--space-xl); } }
+/* Ponsel/tablet: head dibubarkan jadi item grid supaya verdict bisa diurutkan setelah panel */
+@media (max-width: 63.99rem) {
+  .kondisi { gap: var(--space-lg); }
+  .kondisi__head { display: contents; }
+  .kondisi__tool { order: 1; margin-top: var(--space-md); }
+  .kondisi__head .verdict { order: 2; margin-top: 0; }
+}
 @media (min-width: 64rem) {
   .kondisi { grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); column-gap: var(--space-3xl); padding-block: var(--space-4xl); }
-  .kondisi__head { position: sticky; top: 7rem; }
-  .verdict { padding: var(--space-xl); }
+  .kondisi__head { position: sticky; top: 6rem; }
+  .kondisi__tool { align-self: start; }
+  .verdict { margin-top: 0; }
 }
 @media (min-width: 80rem) { .kondisi { padding-left: calc(var(--gutter) + 3rem); } }
 
