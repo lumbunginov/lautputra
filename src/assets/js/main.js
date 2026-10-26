@@ -10,7 +10,8 @@ document.addEventListener('DOMContentLoaded', function () {
   var gsap = window.gsap, ST = window.ScrollTrigger;
   var motion = !!(gsap && ST) && !reduce;
   var WA = '6285655647066';
-  var PRICES = { canyoneering: 300000 };
+  // Harga canyoneering dari publikasi operator (Okt 2026): titik kumpul basecamp, atau jemput Stasiun/Terminal Blitar (termasuk antar jemput PP)
+  var PRICES = { canyoneering: 375000 }, PRICES_JEMPUT = { canyoneering: 525000 };
   var LABELS = { canyoneering: 'Canyoneering Umbul Waru', homestay: 'Basecamp / homestay', tenda: 'Sewa tenda camping', ojek: 'Ojek / jemput lokasi', kunjungan: 'Kunjungan dengan pemandu' };
   var rupiah = function (n) { return 'Rp' + n.toLocaleString('id-ID'); };
   var cleanups = [];
@@ -888,24 +889,27 @@ document.addEventListener('DOMContentLoaded', function () {
   var iso = function (d) { return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10); };
   f.tgl.min = iso(new Date());
   function fmtDate(v) { if (!v) return 'Belum dipilih'; var d = new Date(v + 'T00:00:00'); return d.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }); }
+  var dijemput = function () { return f.jemput.value === 'Stasiun Blitar'; };
+  var harga = function (p) { return dijemput() ? PRICES_JEMPUT[p] : PRICES[p]; };
+  var catatanHarga = function () { return dijemput() ? 'sudah termasuk antar jemput Stasiun Blitar pulang pergi' : 'ojek basecamp ke lokasi dan parkir sudah termasuk'; };
   function buildMsg() {
-    var p = f.pkg(), n = parseInt(f.pax.value, 10) || 0;
+    var p = f.pkg(), n = parseInt(f.pax.value, 10) || 0, h = harga(p);
     var lines = ['Halo Wisata Umbul Waru, saya ingin memesan:', '',
       'Layanan: ' + LABELS[p], 'Tanggal: ' + fmtDate(f.tgl.value), 'Jumlah peserta: ' + n + ' orang', 'Titik kumpul: ' + f.jemput.value,
       'Nama: ' + (f.nama.value || '-'), 'WhatsApp: ' + (f.wa.value || '-'), 'Asal: ' + (f.asal.value || '-')];
     if (f.catatan.value) lines.push('Catatan: ' + f.catatan.value);
-    if (PRICES[p]) lines.push('', 'Estimasi dari situs: ' + rupiah(PRICES[p] * n) + ' (mulai dari, belum termasuk transport dan parkir). Mohon konfirmasi harga dan ketersediaan.');
+    if (h) lines.push('', 'Estimasi dari situs: ' + rupiah(h * n) + ' (mulai dari, ' + catatanHarga() + '). Mohon konfirmasi harga dan ketersediaan.');
     else lines.push('', 'Mohon info harga dan ketersediaan untuk tanggal tersebut.');
     lines.push('', 'Dikirim dari lautputra.com');
     return lines.join('\n');
   }
   function render() {
-    var p = f.pkg(), n = parseInt(f.pax.value, 10) || 0;
+    var p = f.pkg(), n = parseInt(f.pax.value, 10) || 0, h = harga(p);
     $('#sPkg').textContent = LABELS[p]; $('#sTgl').textContent = fmtDate(f.tgl.value); $('#sPax').textContent = n + ' orang';
     $('#sJemput').textContent = f.jemput.value; $('#sNama').textContent = f.nama.value || 'Belum diisi';
-    if (PRICES[p]) {
-      $('#totalLabel').textContent = 'Estimasi mulai dari'; $('#sTotal').textContent = rupiah(PRICES[p] * n);
-      $('#totalNote').textContent = 'Perhitungan: ' + rupiah(PRICES[p]) + ' × ' + n + ' peserta. Harga final dikonfirmasi operator; biaya transport dan parkir belum termasuk.';
+    if (h) {
+      $('#totalLabel').textContent = 'Estimasi mulai dari'; $('#sTotal').textContent = rupiah(h * n);
+      $('#totalNote').textContent = 'Perhitungan: ' + rupiah(h) + ' × ' + n + ' peserta. Harga final dikonfirmasi operator; ' + catatanHarga() + '.';
     } else {
       $('#totalLabel').textContent = 'Harga'; $('#sTotal').textContent = 'Tanya operator';
       $('#totalNote').textContent = 'Tarif layanan ini belum dipublikasikan. Operator akan membalas dengan harga dan ketersediaan.';
