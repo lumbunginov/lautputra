@@ -226,7 +226,7 @@ document.addEventListener('DOMContentLoaded', function () {
   if (motion) {
     var mm = gsap.matchMedia();
 
-    // ---------- Turun: adegan close-up canyoning. Satu loop ticker membaca progres pin, menggerakkan dinding, air, foto, meteran, dan teks stasiun ----------
+    // ---------- Turun: adegan close-up canyoning. Satu loop ticker membaca progres pin, menggerakkan dinding, air, meteran, dan kartu IG ----------
     // Dipakai kedua media (desktop dan ponsel); ukuran figur/dinding dari variabel CSS di .turun__panel, JS hanya menerima panjang pin total (opts.pinPct, % tinggi layar).
     // Tiga stasiun (atas tebing, di tali, pantai), batas di p = 1/4 dan 3/4. Satu fungsi kedalaman() dipakai meteran, dinding, langkah, awan, laut,
     // pose ikonik, dan drone: naik rata dari 0 m di awal pin sampai 30 m di akhir pin (pilihan pengguna: turun langsung sejak stasiun 01),
@@ -240,7 +240,6 @@ document.addEventListener('DOMContentLoaded', function () {
       function kedalaman(p) { return Math.max(0, p) * TINGGI_M; }
       var S = { raw: 0, p: 0, v: 0, amp: 0, phase: 0, bounce: 0, station: 0, dir: 1, lean: 0 };
       var fig = $('#turunFigur'), meter = $('#turunMeter'), nomor = $('#turunNomor');
-      var photos = $$('.turun__foto img', panel);
       // Strip kartu IG (pengganti teks stasiun, Opsi B): satu rel 13 kartu berurutan stasiun 01-03, cue = kartu pertama tiap stasiun.
       // Di dalam satu stasiun kartu berganti otomatis (foto IG_FOTO ms, video sepanjang klip) dan berputar di segmennya saja;
       // ganti stasiun = lompat ke cue (showStation). Video hanya main saat jadi kartu tengah. Klik kartu tengah = maju, klik tetangga = ke sana.
@@ -291,7 +290,7 @@ document.addEventListener('DOMContentLoaded', function () {
       // Keadaan statis dari markup, dipulihkan saat adegan dicabut
       var statis = {}, statisD = tali.getAttribute('d');
       Object.keys(J).forEach(function (id) { statis[id] = J[id].getAttribute('transform'); });
-      var H = 0, lastMeter = '', photoOn = [], lastFoto = -1;
+      var H = 0, lastMeter = '';
 
       // Kaki: IK dua tulang (paha, betis) dalam satuan viewBox. Sendi dan pivot dari data-j/data-p markup: panggul (147,500),
       // lutut = gambar paha (243,900), pergelangan = gambar betis (165,320). Pergelangan menempel di garis dinding dekat yang
@@ -634,16 +633,6 @@ document.addEventListener('DOMContentLoaded', function () {
         awanTick(dt, kd);
         lautTick(dt, time || 0, kd);
 
-        // Foto latar: crossfade per stasiun, bergeser pelan lewat transform
-        var tulisFoto = Math.abs(S.p - lastFoto) > 1e-4;
-        if (tulisFoto) lastFoto = S.p;
-        if (tulisFoto) photos.forEach(function (im, k) {
-          var c = k / (N - 1), w = 1 / (N - 1), o = Math.min(1, 1.6 * Math.max(0, 1 - Math.abs(S.p - c) / (w * 0.9))) * 0.6;
-          im.style.opacity = o.toFixed(3);
-          im.style.transform = 'translate3d(0,' + (S.p * -10).toFixed(2) + '%,0)';
-          var on = o > 0.05;
-          if (on !== photoOn[k]) { photoOn[k] = on; im.setAttribute('aria-hidden', on ? 'false' : 'true'); }
-        });
 
         // Rig: badan condong mengikuti arah dan kecepatan gulir, lengan berayun; kaki melangkah lewat langkah() di akhir
         var tt = time || 0, sw = Math.sin(S.phase + 1);
@@ -776,8 +765,7 @@ document.addEventListener('DOMContentLoaded', function () {
         awanEl.style.cssText = '';
         laut.forEach(function (a) { a.el.remove(); });
         lautEl.style.cssText = '';
-        gsap.set(walls.map(function (w) { return w.el; }).concat(photos), { clearProps: 'all' });
-        photos.forEach(function (im) { im.removeAttribute('aria-hidden'); });
+        gsap.set(walls.map(function (w) { return w.el; }), { clearProps: 'all' });
         nomor.textContent = '01'; meter.textContent = '0,0 m';
         if (window.__turun === S) { delete window.__turun; delete window.__turunTick; delete window.__turunBase; }
       };

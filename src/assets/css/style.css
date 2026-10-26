@@ -283,17 +283,16 @@ html.js .ticker__track { animation: ticker 48s linear infinite; }
 /* Task 4: sepatu menjejak permukaan dinding, 80-320 px di dalam tepi kanan kotak dinding (uji Task 4 di 1280/1440/1920); --wall-w dan --fig-x tidak diubah. Frame gulir cepat 1920x1080: p95 10 ms, jadi drop-shadow dan <mask> dipertahankan. */
 .turun__panel {
   --wall-w: calc(4vw + 26vh); --fig-x: calc(4vw + 26.5vh); --fig-h: 80svh; --fig-top: 8svh;
-  position: relative; height: 100svh; overflow: hidden; background: var(--color-paper);
-}
-/* Foto asli sebagai suasana: hanya foto pertama tampak sampai JS mengatur crossfade; gradien menggelapkan kiri dan bawah */
-.turun__foto { position: absolute; inset: 0; }
-.turun__foto img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 60% 0; opacity: 0; }
-.turun__foto img:first-child { opacity: 0.6; }
-.turun__grad {
-  position: absolute; inset: 0;
+  position: relative; height: 100svh; overflow: hidden;
+  /* Latar gradasi (pilihan pengguna 2026-10-26, kandidat C "Cahaya laut" dari halaman banding): pendar biru-hijau dari laut di kanan
+     bawah, bayang tebing di kiri atas tetap gelap. Lapisan atas memudarkan 6% tepi bawah ke warna kertas supaya tidak ada garis
+     sambungan dengan bagian berikutnya saat panel lepas pin. Menggantikan tiga foto galeri yang di-crossfade (dihapus).
+     Langit: pendar remang 28% di tengah-atas (varian C1, pilihan pengguna), sengaja menjauhi pojok HUD kanan atas agar awan kontur
+     putih dan angka kedalaman tetap kontras; hue tetap biru tema (232). */
   background:
-    linear-gradient(to right, color-mix(in oklch, var(--color-paper) 97%, transparent) 0%, color-mix(in oklch, var(--color-paper) 90%, transparent) 42%, color-mix(in oklch, var(--color-paper) 50%, transparent) 100%),
-    linear-gradient(to top, color-mix(in oklch, var(--color-scrim) 92%, transparent), transparent 50%);
+    linear-gradient(to top, var(--color-paper), transparent 6%),
+    radial-gradient(85% 55% at 60% 10%, oklch(28% 0.05 232) 0%, transparent 65%),
+    radial-gradient(120% 95% at 82% 100%, oklch(40% 0.085 205) 0%, oklch(22% 0.045 225) 45%, oklch(13% 0.03 235) 100%);
 }
 /* Awan jauh: asap putih transparan di belakang dinding, hanya di langit terbuka (mask sejajar tepi tebing dari JS).
    Sprite dibuat JS bersama adegan gerak; tanpa JS/reduced-motion lapisan ini kosong. */
@@ -384,12 +383,9 @@ a.ig__akun:focus-visible { outline: 2px solid var(--color-focus); outline-offset
 @media (hover: hover) and (pointer: fine) { .ig__kartu:not(.is-on):hover { opacity: 0.8; } }
 /* Kedua mode (desktop dan ponsel) dipin: ruang di bawah panel datang dari pin-spacer, jadi padding bawah bagian dibuang di keduanya. */
 html.js:not(.no-motion) .turun { padding-bottom: 0; }
-/* Foto lebih tinggi 12% dari panel supaya geseran naik sampai 10% (transform dari JS) tidak membuka celah di bawah */
-html.js:not(.no-motion) .turun__foto img { height: 112%; }
 /* Tanpa JS atau reduced-motion: panel jadi satu layar statis sebagai pembuka (tanpa HUD); empat stasiun ditumpuk di bawahnya.
    Panel memanjang ke bawah (padding-top 100svh = layar pembuka), dipotong ke kotaknya; lapisan yang meluber ke area teks tertutup latar teks. */
 html:not(.js) .turun__panel, html.no-motion .turun__panel { height: auto; overflow: visible; clip-path: inset(0); padding-top: 100svh; }
-html:not(.js) .turun__foto, html.no-motion .turun__foto { bottom: auto; height: 100svh; }
 html:not(.js) .turun__hud, html.no-motion .turun__hud { display: none; }
 html:not(.js) .turun__ig, html.no-motion .turun__ig { position: relative; left: auto; right: auto; top: auto; transform: none; background: var(--color-paper); padding: var(--space-2xl) var(--gutter); }
 html:not(.js) .ig__jendela, html.no-motion .ig__jendela { overflow: visible; padding: 0; -webkit-mask-image: none; mask-image: none; }
