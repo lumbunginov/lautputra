@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function () {
   var finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
   var gsap = window.gsap, ST = window.ScrollTrigger;
   var motion = !!(gsap && ST) && !reduce;
-  var WA = '6285655647066';
+  var WA = '6287882523474';
   // Harga canyoneering dari publikasi operator (Okt 2026): titik kumpul basecamp, atau jemput Stasiun/Terminal Blitar (termasuk antar jemput PP)
   var PRICES = { canyoneering: 375000 }, PRICES_JEMPUT = { canyoneering: 525000 };
   var LABELS = { canyoneering: 'Canyoneering Umbul Waru', homestay: 'Basecamp / homestay', tenda: 'Sewa tenda camping', ojek: 'Ojek / jemput lokasi', kunjungan: 'Kunjungan dengan pemandu' };
