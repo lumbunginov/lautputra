@@ -521,6 +521,7 @@ html.js .gauge.is-live :is(.gg-air, .gg-laut i, .gg-awan i), html.js .gauge.is-l
 @media (max-width: 63.99rem) {
   .kondisi { gap: var(--space-lg); }
   .kondisi__head { display: contents; }
+  .kondisi__head .lede, .gg-label, .kondisi__fine, .rute__head .lede { display: none; }
   .kondisi__tool { order: 1; margin-top: var(--space-md); }
   .kondisi__head .verdict { order: 2; margin-top: 0; }
 }
