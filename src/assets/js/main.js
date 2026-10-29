@@ -180,7 +180,7 @@ document.addEventListener('DOMContentLoaded', function () {
       var words = splitWords(h);
       gsap.from(words, { yPercent: 110, duration: 1, stagger: 0.04, ease: 'expo.out', scrollTrigger: { trigger: h, start: 'top 88%', once: true } });
     });
-    $$('.eyebrow, .lede, .kondisi__tool, .lokasi, .rute__steps, .lain li, .index li, .faq details, .fold__cap, .akhir__acts, .akhir__note, .utama__body > *').forEach(function (el) {
+    $$('.eyebrow, .lede, .kondisi__tool, .lokasi, .rute__steps, .index li, .faq details, .fold__cap, .akhir__acts, .akhir__note, .utama__body > *').forEach(function (el) {
       gsap.from(el, { opacity: 0, y: 26, duration: 1, ease: 'expo.out', scrollTrigger: { trigger: el, start: 'top 92%', once: true } });
     });
     // Foto muncul dari bawah lewat clip, isi foto sedikit membesar
