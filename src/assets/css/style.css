@@ -403,7 +403,8 @@ html:not(.js) .ig__kartu .ig__cap, html.no-motion .ig__kartu .ig__cap { position
 /* 63.999rem (bukan 63.99rem) supaya lebar pecahan antara 63.99 dan 64rem tetap tercakup; pasangan dengan (min-width: 64rem) di main.js */
 @media (max-width: 63.999rem) {
   .turun__panel { --wall-w: calc(4vw + 14svh); --fig-x: calc(4vw + 14.5svh); --fig-h: 62svh; --fig-top: 6svh; }
-  .turun__hud { right: 16px; top: 16px; }
+  /* Di bawah pil navigasi (top 16px + tinggi ±50px) supaya meteran tidak bertabrakan dengan pil */
+  .turun__hud { right: 16px; top: 80px; }
   .turun__hud small { font-size: 10px; }
   .turun__hud b { font-size: 20px; }
   /* Strip selebar layar di bawah figur, latar kertas bergradien supaya keterangan terbaca di atas tekstur dinding.
@@ -562,7 +563,7 @@ html.js .gauge.is-live :is(.gg-air, .gg-laut i, .gg-awan i), html.js .gauge.is-l
   background: transparent; color: var(--color-muted); font-weight: 600; font-size: var(--text-sm); white-space: nowrap;
   transition: background-color var(--dur-short) var(--ease-out), color var(--dur-short) var(--ease-out), transform var(--dur-micro) var(--ease-out);
 }
-.tabs button:hover { color: var(--color-ink); }
+@media (hover: hover) and (pointer: fine) { .tabs button:hover { color: var(--color-ink); } }
 .tabs button[aria-selected="true"] { background: var(--color-ink); color: var(--color-paper); }
 .steps { counter-reset: step; display: grid; }
 .steps li {
@@ -582,6 +583,8 @@ html.js .gauge.is-live :is(.gg-air, .gg-laut i, .gg-awan i), html.js .gauge.is-l
 .lokasi__icon { width: 1.75rem; height: 1.75rem; color: var(--color-accent); }
 .lokasi__coord { font-family: var(--font-display); font-weight: 700; font-stretch: 88%; font-size: var(--text-lg); letter-spacing: -0.01em; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; line-height: 1.1; }
 .lokasi__acts { display: flex; flex-wrap: wrap; gap: var(--space-xs); }
+/* Saat tombol terlipat ke baris baru, keduanya mengisi lebar kartu supaya tepinya sejajar */
+@media (max-width: 63.99rem) { .lokasi__acts .btn { flex: 1 1 auto; justify-content: center; } }
 .warn { display: grid; grid-template-columns: 1.25rem minmax(0, 1fr); gap: var(--space-sm); background: var(--color-paper-3); border-radius: var(--radius-sm); padding: var(--space-md); font-size: var(--text-sm); color: var(--color-muted); margin-top: var(--space-xs); }
 .warn svg { width: 1.25rem; height: 1.25rem; color: var(--color-warn); margin-top: 0.15em; }
 .warn b { color: var(--color-ink); }
@@ -642,7 +645,8 @@ html.js .gauge.is-live :is(.gg-air, .gg-laut i, .gg-awan i), html.js .gauge.is-l
   box-shadow: inset 0 0 0 1.5px transparent;
   transition: box-shadow var(--dur-short) var(--ease-out), background-color var(--dur-short) var(--ease-out), transform var(--dur-short) var(--ease-out);
 }
-.opt label:hover { transform: translateX(2px); }
+@media (hover: hover) and (pointer: fine) { .opt label:hover { transform: translateX(2px); } }
+.opt label:active { transform: scale(0.98); }
 .opt label:has(input:checked) { box-shadow: inset 0 0 0 1.5px var(--color-accent); }
 .opt input { accent-color: var(--color-accent); width: 1.15rem; height: 1.15rem; flex: none; }
 .opt .t { display: grid; flex: 1 1 9rem; min-width: 0; }
@@ -666,7 +670,7 @@ html.js .gauge.is-live :is(.gg-air, .gg-laut i, .gg-awan i), html.js .gauge.is-l
 .pax { display: flex; align-items: center; gap: var(--space-xs); }
 .pax button { width: 3rem; height: 3rem; flex: none; display: grid; place-items: center; border: 0; border-radius: 50%; background: var(--color-paper); transition: background-color var(--dur-short) var(--ease-out), transform var(--dur-micro) var(--ease-out); }
 .pax button svg { width: 1.4rem; height: 1.4rem; }
-.pax button:hover { background: var(--color-paper-3); }
+@media (hover: hover) and (pointer: fine) { .pax button:hover { background: var(--color-paper-3); } }
 .pax input { text-align: center; font-variant-numeric: tabular-nums; }
 .actions { display: flex; justify-content: space-between; gap: var(--space-sm); flex-wrap: wrap; margin-top: var(--space-xs); }
 .summary { display: grid; gap: var(--space-md); padding: var(--space-xl) var(--space-lg); background: var(--color-ink); color: var(--color-paper); border-radius: var(--radius-lg); }
@@ -683,6 +687,8 @@ html.js .gauge.is-live :is(.gg-air, .gg-laut i, .gg-awan i), html.js .gauge.is-l
 .msg summary { cursor: pointer; font-weight: 600; font-size: var(--text-sm); min-height: 2.75rem; display: flex; align-items: center; }
 .msg__box { white-space: pre-wrap; font-size: var(--text-xs); opacity: 0.85; background: color-mix(in oklch, currentColor 10%, transparent); border-radius: var(--radius-sm); padding: var(--space-md); max-height: 14rem; overflow: auto; margin-bottom: var(--space-sm); }
 .summary .btn--quiet { background: color-mix(in oklch, currentColor 14%, transparent); color: inherit; }
+/* Ponsel: harga turun ke baris sendiri, menjorok sejajar judul (lebar radio + celah) */
+@media (max-width: 39.99rem) { .opt .p { flex-basis: 100%; padding-left: calc(1.15rem + var(--space-sm)); } }
 @media (min-width: 40rem) { .row2 { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .form { padding: var(--space-xl); } }
 @media (min-width: 64rem) {
   .booking { padding-block: var(--space-3xl) var(--space-4xl); }
@@ -723,6 +729,13 @@ html.is-pinned .g--low img { height: min(42svh, 25rem); }
   html.is-pinned .galeri__hint { display: inline-flex; grid-column: 2; justify-self: end; }
 }
 @media (min-width: 80rem) { .galeri__head, .galeri__track { padding-left: calc(var(--gutter) + 3rem); } }
+/* Ponsel: geser jari tanpa bilah gulir, foto 78vw supaya foto berikutnya mengintip, snap tetap menyisakan gutter kiri, tanpa undakan --low yang menambah ruang kosong di bawah */
+@media (max-width: 63.99rem) {
+  .galeri__viewport { scrollbar-width: none; scroll-padding-inline: var(--gutter); }
+  .galeri__viewport::-webkit-scrollbar { display: none; }
+  .g img, .g--wide img, .g--low img { width: 78vw; height: auto; aspect-ratio: 4 / 5; }
+  .g--low { margin-top: 0; }
+}
 
 /* ---------- Wisata sekitar ---------- */
 .sekitar { padding: var(--space-3xl) var(--gutter); display: grid; gap: var(--space-2xl); }
@@ -757,7 +770,7 @@ html.is-pinned .g--low img { height: min(42svh, 25rem); }
   font-family: var(--font-display); font-weight: 700; font-stretch: 88%; font-size: var(--text-md); letter-spacing: -0.01em; line-height: 1.25;
   transition: color var(--dur-short) var(--ease-out);
 }
-.faq summary:hover { color: var(--color-accent); }
+@media (hover: hover) and (pointer: fine) { .faq summary:hover { color: var(--color-accent); } }
 .faq summary::-webkit-details-marker { display: none; }
 .faq summary::after {
   content: ""; flex: none; width: 0.85rem; height: 0.85rem;
