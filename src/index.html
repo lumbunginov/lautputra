@@ -386,7 +386,7 @@
         <li>Ojek pulang pergi basecamp ke lokasi, parkir, dan kebersihan lokasi</li>
       </ul>
       <button class="btn btn--sand btn--lg magnet" type="button" data-pick="canyoneering">Pilih paket ini <svg aria-hidden="true"><use href="#i-arrow"/></svg></button>
-      <p class="fine">Harga dari publikasi operator (Okt 2026), titik kumpul basecamp Sidomulyo. Jemput dari Stasiun atau Terminal Blitar Rp525.000 per orang, sudah termasuk antar jemput pulang pergi. Kegiatan 05.00–17.30, boleh menginap di basecamp malam sebelumnya.</p>
+      <p class="fine">Harga dari publikasi operator (Okt 2026), titik kumpul basecamp Sidomulyo. Dengan jemputan dari Stasiun atau Terminal Blitar, canyoneering jadi Rp525.000 per orang (Rp375.000 + antar jemput pulang pergi). Kegiatan 05.00–17.30, boleh menginap di basecamp malam sebelumnya.</p>
     </div>
   </article>
   <ul class="lain" aria-label="Layanan lain">
@@ -416,11 +416,6 @@
   <div class="booking__head">
     <p class="eyebrow">Pemesanan</p>
     <h2 class="split" id="booking-title">Susun pesanan, kirim lewat WhatsApp.</h2>
-    <ol class="alur">
-      <li><p><b>Pilih paket, tanggal, dan jumlah peserta.</b> Estimasi biaya dihitung otomatis untuk paket yang sudah punya tarif.</p></li>
-      <li><p><b>Kirim pesan yang sudah tersusun.</b> Tidak ada pembayaran di situs ini; harga dan jadwal disepakati langsung dengan operator.</p></li>
-      <li><p><b>Operator mengecek jadwal dan kondisi laut.</b> Anda akan menerima harga final, titik kumpul, dan jam keberangkatan yang disesuaikan dengan pasang surut.</p></li>
-    </ol>
   </div>
   <div class="booking__body">
     <form class="form" id="bookForm" novalidate>
@@ -448,11 +443,12 @@
           </div>
         </div>
         <div class="field"><label for="jemput">Titik kumpul</label>
-          <select id="jemput">
+          <select id="jemput" aria-describedby="jemputHint">
             <option value="Basecamp Desa Sidomulyo">Basecamp Desa Sidomulyo (datang sendiri)</option>
-            <option value="Stasiun Blitar">Stasiun / Terminal Blitar (dijemput, Rp525.000 per orang)</option>
+            <option value="Stasiun Blitar">Stasiun / Terminal Blitar (dijemput)</option>
             <option value="Lainnya">Lainnya, tulis di catatan</option>
           </select>
+          <span class="field__hint" id="jemputHint">Canyoneering dengan jemputan Stasiun atau Terminal Blitar: Rp525.000 per orang (Rp375.000 + antar jemput pulang pergi).</span>
         </div>
         <div class="actions"><button class="btn btn--ghost" type="button" data-prev>Kembali</button><button class="btn btn--sand" type="button" data-next>Lanjut <svg aria-hidden="true"><use href="#i-arrow"/></svg></button></div>
       </fieldset>
@@ -551,7 +547,7 @@
 <footer class="akhir" id="akhir">
   <div class="akhir__media"><img class="akhir__bg" src="assets/img/penutup-latar.jpg" alt="" width="1012" height="1800" loading="lazy" decoding="async"></div>
   <div class="akhir__inner">
-    <p class="akhir__line split">Pilih tanggal saat laut surut. Sisanya serahkan kepada pemandu desa.</p>
+    <p class="akhir__line split">Datang saat surut. Sisanya urusan pemandu desa.</p>
     <div class="akhir__acts">
       <a class="btn btn--sand btn--lg magnet" href="#booking">Pesan canyoneering <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
       <a class="link link--light" href="https://wa.me/6287882523474" target="_blank" rel="noopener">Tanya lewat WhatsApp</a>
