@@ -1,0 +1,74 @@
+{
+  "tebing": {
+    "left": 0.0,
+    "top": 1.17,
+    "width": 49.41,
+    "height": 93.36
+  },
+  "bongkahan": {
+    "left": 42.97,
+    "top": 70.8,
+    "width": 25.17,
+    "height": 24.41
+  },
+  "batu": {
+    "left": 36.2,
+    "top": 84.77,
+    "width": 22.2,
+    "height": 10.74
+  },
+  "orang-a5": {
+    "left": 30.99,
+    "top": 43.95,
+    "width": 4.82,
+    "height": 8.79
+  },
+  "orang-b1": {
+    "left": 28.52,
+    "top": 6.45,
+    "width": 3.58,
+    "height": 4.69
+  },
+  "orang-b2": {
+    "left": 25.52,
+    "top": 3.12,
+    "width": 2.86,
+    "height": 6.05
+  },
+  "orang-b3": {
+    "left": 32.29,
+    "top": 8.2,
+    "width": 1.58,
+    "height": 5.66
+  },
+  "orang-b5": {
+    "left": 44.92,
+    "top": 68.55,
+    "width": 2.99,
+    "height": 6.84
+  },
+  "orang-b6": {
+    "left": 61.85,
+    "top": 70.51,
+    "width": 1.79,
+    "height": 4.49
+  },
+  "orang-b7": {
+    "left": 51.43,
+    "top": 69.53,
+    "width": 2.85,
+    "height": 6.45
+  },
+  "orang-b8": {
+    "left": 39.06,
+    "top": 83.01,
+    "width": 2.77,
+    "height": 5.86
+  },
+  "air": {
+    "left": 14.0,
+    "top": 8.59,
+    "width": 17.25,
+    "height": 86.33
+  }
+}
